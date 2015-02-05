@@ -76,5 +76,6 @@ int main(int argc, char **argv)
 	sn_read_from_file(args.dataset, &sn);
 
 	free(args.dataset);
+	sn_cleanup(&sn);
 	return 0;
 }
