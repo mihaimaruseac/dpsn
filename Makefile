@@ -5,7 +5,7 @@ NPTARGET = ./dpsn
 CC = gcc
 CFLAGS = -Wall -Wextra -g -O0
 LDFLAGS = -lm
-OBJS = #dp2d.o fp.o globals.o rule.o histogram.o
+OBJS = sn.o
 
 all: $(TARGET) $(NPTARGET)
 

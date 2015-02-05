@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sn.h"
+
 /* Command line arguments */
 static struct {
 	/* the alpha and beta parameters */
@@ -68,7 +70,10 @@ static void parse_arguments(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	struct sensor_network sn;
+
 	parse_arguments(argc, argv);
+	sn_read_from_file(args.dataset, &sn);
 
 	free(args.dataset);
 	return 0;
