@@ -24,8 +24,19 @@ struct grid {
 	/* indices to the sensors inside the grid */
 	int *sens_ix;
 
+	/* grid cells */
+	struct grid *cells;
+	/* grid zise */
+	int Nu;
+
 	/* real count and sum */
 	int n, s;
+	/* noisy cound and sum */
+	int n_star, s_star;
+	/* weighted averages */
+	int n_ave, s_ave;
+	/* consistent estimates */
+	int n_bar, s_bar;
 };
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn);

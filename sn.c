@@ -20,6 +20,9 @@ void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
 	}
 
 	g->n = sn->num_s;
+
+	g->cells = NULL;
+	g->Nu = 0;
 }
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn)
@@ -60,4 +63,11 @@ void sn_cleanup(const struct sensor_network *sn)
 void grd_cleanup(const struct grid *g)
 {
 	free(g->sens_ix);
+	if (g->cells) {
+		int i;
+
+		for (i = 0; i < g->Nu*g->Nu; i++)
+			grd_cleanup(&g->cells[i]);
+		free(g->cells);
+	}
 }
