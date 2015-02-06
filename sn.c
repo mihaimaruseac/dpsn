@@ -16,8 +16,9 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn)
 	if (!f)
 		die("Invalid db filename %s", fname);
 
-	if(fscanf(f, "%lf%lf%lf%d", &sn->sz, &sn->M, &sn->theta,
-				&sn->num_s) != 4)
+	if(fscanf(f, "%lf%lf%lf%lf%lf%lf%d",
+			&sn->xmin, &sn->ymin, &sn->xmax, &sn->ymax,
+			&sn->M, &sn->theta, &sn->num_s) != 7)
 		die("Cannot parse header");
 
 	sn->sensors = calloc(sn->num_s, sizeof(sn->sensors[0]));

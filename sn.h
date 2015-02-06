@@ -7,7 +7,7 @@ struct sensor {
 };
 
 struct sensor_network {
-	double sz;
+	double xmin, xmax, ymin, ymax;
 	double M;
 	double theta;
 	int num_s;
