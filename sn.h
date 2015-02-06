@@ -31,6 +31,10 @@ struct grid {
 
 	/* real count and sum */
 	int n, s;
+
+	/* epsilon value */
+	double epsilon;
+
 	/* noisy cound and sum */
 	int n_star, s_star;
 	/* weighted averages */
