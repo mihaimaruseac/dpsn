@@ -5,7 +5,7 @@ NPTARGET = ./dpsn
 CC = gcc
 CFLAGS = -Wall -Wextra -g -O0
 LDFLAGS = -lm
-OBJS = sn.o globals.o
+OBJS = sn.o globals.o sanitization.o
 
 all: $(TARGET) $(NPTARGET)
 

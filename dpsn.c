@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sanitization.h"
 #include "sn.h"
 
 /* Command line arguments */
@@ -76,6 +77,18 @@ int main(int argc, char **argv)
 	parse_arguments(argc, argv);
 	sn_read_from_file(args.dataset, &sn);
 	sn_convert_to_grid_root(&sn, &g);
+
+	switch (args.method) {
+	case UG:  sanitize_ug( &sn, &g, args.eps, args.alpha, args.beta,
+				  args.K, args.Nt, args.seed);
+		  break;
+	case AG:  sanitize_ag( &sn, &g, args.eps, args.alpha, args.beta,
+				  args.K, args.Nt, args.seed);
+		  break;
+	case AGS: sanitize_agt(&sn, &g, args.eps, args.alpha, args.beta,
+				  args.K, args.Nt, args.seed);
+		  break;
+	}
 
 	free(args.dataset);
 	sn_cleanup(&sn);
