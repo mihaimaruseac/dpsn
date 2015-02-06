@@ -79,5 +79,6 @@ int main(int argc, char **argv)
 
 	free(args.dataset);
 	sn_cleanup(&sn);
+	grd_cleanup(&g);
 	return 0;
 }
