@@ -4,6 +4,10 @@
 #include "globals.h"
 #include "sn.h"
 
+void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
+{
+}
+
 void sn_read_from_file(const char *fname, struct sensor_network *sn)
 {
 	FILE *f = fopen(fname, "r");

@@ -71,9 +71,11 @@ static void parse_arguments(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	struct sensor_network sn;
+	struct grid g;
 
 	parse_arguments(argc, argv);
 	sn_read_from_file(args.dataset, &sn);
+	sn_convert_to_grid_root(&sn, &g);
 
 	free(args.dataset);
 	sn_cleanup(&sn);

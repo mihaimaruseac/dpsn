@@ -14,7 +14,13 @@ struct sensor_network {
 	struct sensor *sensors;
 };
 
+struct grid {
+	double xmin, xmax, ymin, ymax;
+};
+
 void sn_read_from_file(const char *fname, struct sensor_network *sn);
 void sn_cleanup(const struct sensor_network *sn);
+
+void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g);
 
 #endif
