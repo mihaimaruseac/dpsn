@@ -34,15 +34,10 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 	printf("n = %d, s = %d, n_star = %d, s_star = %d\n", g->n, g->s, g->n_star, g->s_star);
 
 	Nu = epsilon_1 * K * beta * (1 - beta) * (g->n_star + g->s_star / sn->M);
-	printf("Nu = %lf\n", Nu);
-	g->Nu = (int)sqrt(Nu);
-	printf("Nu = %d\n", g->Nu);
 
-	if (g->Nu < Nt) {
-		/* cannot split grid into further elements */
-		fprintf(stderr, "cannot split grid into further elements\n"); // TODO: should be die?
-		g->Nu = 1;
-	}
+	if (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)
+		g->Nu = Nt;
+	printf("Nu = %lf, g->Nu = %d\n", Nu, g->Nu);
 
 	grd_split_cells(sn, g);
 }

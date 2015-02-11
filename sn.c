@@ -7,22 +7,12 @@
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
 {
 	int i;
+	grd_init(g, sn->num_s, sn->xmin, sn->xmax, sn->ymin, sn->ymax);
 
-	g->xmin = sn->xmin;
-	g->xmax = sn->xmax;
-	g->ymin = sn->ymin;
-	g->ymax = sn->ymax;
+	for (i = 0; i < sn->num_s; i++)
+		grd_add_point(sn, g, i);
 
-	g->sens_ix = calloc(sn->num_s, sizeof(g->sens_ix[0]));
-	for (i = 0; i < sn->num_s; i++) {
-		g->sens_ix[i] = i;
-		g->s += sn->sensors[i].val;
-	}
-
-	g->n = sn->num_s;
-
-	g->cells = NULL;
-	g->Nu = 0;
+	grd_finish(g);
 }
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn)
@@ -60,6 +50,30 @@ void sn_cleanup(const struct sensor_network *sn)
 	free(sn->sensors);
 }
 
+void grd_init(struct grid *g, int sp,
+		double xmin, double xmax, double ymin, double ymax)
+{
+	g->xmin = xmin;
+	g->xmax = xmax;
+	g->ymin = ymin;
+	g->ymax = ymax;
+	g->sens_ix = calloc(sp, sizeof(g->sens_ix[0]));
+	g->cells = NULL;
+	g->Nu = 0;
+	g->n = g->s = 0;
+}
+
+void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix)
+{
+	g->sens_ix[g->n++] = ix;
+	g->s += sn->sensors[ix].val;
+}
+
+void grd_finish(struct grid *g)
+{
+	g->sens_ix = realloc(g->sens_ix, g->n * sizeof(g->sens_ix[0]));
+}
+
 void grd_compute_real(const struct sensor_network *sn, struct grid *g)
 {
 	int i = 0;
@@ -78,9 +92,44 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 {
+	double *xlimits, *ylimits, xdelta, ydelta;
+	int i, j, k;
+
+	xdelta = (g->xmax - g->xmin) / g->Nu;
+	ydelta = (g->ymax - g->ymin) / g->Nu;
+
+	xlimits = calloc(1 + g->Nu, sizeof(xlimits[0]));
+	ylimits = calloc(1 + g->Nu, sizeof(ylimits[0]));
+
+	for (i = 0; i < g->Nu; i++) {
+		xlimits[i] = g->xmin + i * xdelta;
+		ylimits[i] = g->ymin + i * ydelta;
+	}
+	xlimits[g->Nu] = g->xmax;
+	ylimits[g->Nu] = g->ymax;
+
 	g->cells = calloc(g->Nu * g->Nu, sizeof(g->cells[0]));
-	if (!g->cells)
-		die("Invalid cell size");
+	for (i = 0; i < g->Nu; i++)
+		for (j = 0; j < g->Nu; j++)
+			grd_init(&g->cells[i * g->Nu + j], g->n,
+					xlimits[i], xlimits[i+1],
+					ylimits[j], ylimits[j+1]);
+
+	/* split points */
+	for (i = 0; i < g->n; i++) {
+		struct sensor *s = &sn->sensors[g->sens_ix[i]];
+		j = bsearch_i(&s->x, xlimits, 1 + g->Nu, sizeof(xlimits[0]), double_cmp);
+		k = bsearch_i(&s->y, ylimits, 1 + g->Nu, sizeof(ylimits[0]), double_cmp);
+		j = j < 0 ? -j-2 : j-1;
+		k = k < 0 ? -k-2 : k-1;
+		grd_add_point(sn, &g->cells[j * g->Nu + k], i);
+	}
+
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		grd_finish(&g->cells[i]);
+
+	free(xlimits);
+	free(ylimits);
 }
 
 void grd_cleanup(const struct grid *g)
