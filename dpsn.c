@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "globals.h"
 #include "sanitization.h"
 #include "sn.h"
 

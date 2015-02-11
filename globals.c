@@ -69,9 +69,11 @@ int bsearch_i(const void *key, const void *base, size_t nmemb, size_t size,
 		test = compar(base + mid * size, key);
 		if (test > 0)
 			high = mid - 1;
+		else if (test == 0)
+			return mid;
 		else
 			low = mid + 1;
 	}
 
-	return low;
+	return -low-1;
 }
