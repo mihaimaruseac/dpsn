@@ -39,7 +39,7 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn)
 		die("Cannot parse header");
 
 	sn->sensors = calloc(sn->num_s, sizeof(sn->sensors[0]));
-	if (sn->sensors == NULL)
+	if (!sn->sensors)
 		die("Invalid count of sensors");
 
 	for (i = 0; i < sn->num_s; i++)
@@ -58,6 +58,29 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn)
 void sn_cleanup(const struct sensor_network *sn)
 {
 	free(sn->sensors);
+}
+
+void grd_compute_real(const struct sensor_network *sn, struct grid *g)
+{
+	int i = 0;
+
+	g->s = 0;
+	for (i = 0; i < g->n; i++)
+		g->s += sn->sensors[g->sens_ix[i]].val;
+}
+
+void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
+		double epsilon, double beta, struct drand48_data *buffer)
+{
+	g->n_star = laplace_mechanism(g->n, beta * epsilon, 1, buffer);
+	g->s_star = laplace_mechanism(g->n, (1 - beta * epsilon), sn->M, buffer);
+}
+
+void grd_split_cells(const struct sensor_network *sn, struct grid *g)
+{
+	g->cells = calloc(g->Nu * g->Nu, sizeof(g->cells[0]));
+	if (!g->cells)
+		die("Invalid cell size");
 }
 
 void grd_cleanup(const struct grid *g)
