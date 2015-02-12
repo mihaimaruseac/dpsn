@@ -83,15 +83,14 @@ int main(int argc, char **argv)
 	case UG:  sanitize_ug( &sn, &g, args.eps, args.alpha, args.beta,
 				  args.K, args.Nt, args.seed);
 		  break;
-#if 0
 	case AG:  sanitize_ag( &sn, &g, args.eps, args.alpha, args.beta,
 				  args.K, args.Nt, args.seed);
 		  break;
+#if 0
 	case AGS: sanitize_agt(&sn, &g, args.eps, args.alpha, args.beta,
 				  args.K, args.Nt, args.seed);
 		  break;
 #else
-	case AG: break;
 	case AGS: break;
 #endif
 	}
