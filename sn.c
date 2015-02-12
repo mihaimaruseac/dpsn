@@ -91,11 +91,11 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	epsilon_n = beta * epsilon;
 	epsilon_s = epsilon - epsilon_n;
 
-	g->n_star = laplace_mechanism(g->n, epsilon_n, 1, buffer);
-	g->s_star = laplace_mechanism(g->n, epsilon_s, sn->M, buffer);
+	g->n_star.val = laplace_mechanism(g->n, epsilon_n, 1, buffer);
+	g->s_star.val = laplace_mechanism(g->n, epsilon_s, sn->M, buffer);
 
-	g->var_n_star = 2 / (epsilon_n * epsilon_n);
-	g->var_s_star = 2 / (epsilon_s * epsilon_s);
+	g->n_star.var = 2 / (epsilon_n * epsilon_n);
+	g->s_star.var = 2 / (epsilon_s * epsilon_s);
 }
 
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)

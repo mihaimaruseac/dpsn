@@ -26,19 +26,16 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 
 	epsilon_0 = alpha * epsilon;
 	epsilon_1 = epsilon - epsilon_0;
-	printf("eps_0=%lf, eps_1=%lf\n", epsilon_0, epsilon_1);
 
 	init_rng(seed, &randbuffer);
 	g->epsilon = epsilon;
 	grd_compute_real(sn, g);
 	grd_compute_noisy(sn, g, epsilon_0, beta, &randbuffer);
-	printf("n = %d, s = %d, n_star = %d, s_star = %d\n", g->n, g->s, g->n_star, g->s_star);
 
-	Nu = epsilon_1 * K * beta * (1 - beta) * (g->n_star + g->s_star / sn->M);
+	Nu = epsilon_1 * K * beta * (1 - beta) * (g->n_star.val + g->s_star.val / sn->M);
 
 	if (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)
 		g->Nu = Nt;
-	printf("Nu = %lf, g->Nu = %d\n", Nu, g->Nu);
 
 	grd_split_cells(sn, g);
 
@@ -48,13 +45,9 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 	/* don't do any post-processing */
 	g->n_bar = g->n_ave = g->n_star;
 	g->s_bar = g->s_ave = g->s_star;
-	g->var_n_bar = g->var_n_ave = g->var_n_star;
-	g->var_s_bar = g->var_s_ave = g->var_s_star;
 	for (i  = 0; i < g->Nu * g->Nu; i++) {
 		g->cells[i].n_bar = g->cells[i].n_ave = g->cells[i].n_star;
 		g->cells[i].s_bar = g->cells[i].s_ave = g->cells[i].s_star;
-		g->cells[i].var_n_bar = g->cells[i].var_n_ave = g->cells[i].var_n_star;
-		g->cells[i].var_s_bar = g->cells[i].var_s_ave = g->cells[i].var_s_star;
 	}
 }
 
