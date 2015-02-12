@@ -36,11 +36,11 @@ struct grid {
 	double epsilon;
 
 	/* noisy cound and sum */
-	int n_star, s_star;
+	double n_star, s_star;
 	/* weighted averages */
-	int n_ave, s_ave;
+	double n_ave, s_ave;
 	/* consistent estimates */
-	int n_bar, s_bar;
+	double n_bar, s_bar;
 };
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn);
