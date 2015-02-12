@@ -6,16 +6,8 @@
 #include "sanitization.h"
 #include "sn.h"
 
-void method_setup(const struct sensor_network *sn, struct grid *g,
-		struct drand48_data *randbuffer,
-		double epsilon, int seed)
-{
-	init_rng(seed, randbuffer);
-	g->epsilon = epsilon;
-}
-
 void sanitize_ug(const struct sensor_network *sn, struct grid *g,
-		double epsilon, double alpha, double beta,
+		double epsilon, double beta, double gamma,
 		double K, int Nt, int seed)
 {
 	struct drand48_data randbuffer;
@@ -23,11 +15,11 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 	double Nu;
 	int i;
 
-	epsilon_0 = alpha * epsilon;
+	epsilon_0 = gamma * epsilon;
 	epsilon_1 = epsilon - epsilon_0;
 
 	init_rng(seed, &randbuffer);
-	g->epsilon = epsilon;
+	g->epsilon = epsilon_1;
 	grd_compute_noisy(sn, g, epsilon_0, beta, &randbuffer);
 
 	Nu = epsilon_1 * K * beta * (1 - beta) * (g->n_star.val + g->s_star.val / sn->M);
@@ -50,12 +42,20 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 }
 
 void sanitize_ag(const struct sensor_network *sn, struct grid *g,
-		double epsilon, double alpha, double beta,
+		double epsilon, double alpha, double beta, double gamma,
 		double K, int Nt, int seed)
 {
 	struct drand48_data randbuffer;
+	double epsilon_0, epsilon_1;
+	double Nu;
+	int i;
 
-	method_setup(sn, g, &randbuffer, epsilon, seed);
+	epsilon_0 = gamma * epsilon;
+	epsilon_1 = epsilon - epsilon_0;
+
+	init_rng(seed, &randbuffer);
+	g->epsilon = epsilon_1;
+	grd_compute_noisy(sn, g, epsilon_0, beta, &randbuffer);
 }
 
 #if 0

@@ -20,13 +20,16 @@ static struct {
 	char *dataset;
 	/* the method */
 	enum {UG, AG, AGS} method;
+	/* method arguments */
+	double gamma;
+	int depth;
 	/* random seed */
 	long int seed;
 } args;
 
 static void usage(const char *prg)
 {
-	fprintf(stderr, "Usage: %s ALPHA BETA K NT EPS <u|a|t> DATASET [SEED]\n", prg);
+	fprintf(stderr, "Usage: %s ALPHA BETA K NT EPS <u GAMMA|a GAMMA|t DEPTH> DATASET [SEED]\n", prg);
 	exit(EXIT_FAILURE);
 }
 
@@ -40,17 +43,17 @@ static void parse_arguments(int argc, char **argv)
 		printf("%s ", argv[i]);
 	printf("\n");
 
-	if (argc < 8 || argc > 9)
+	if (argc < 9 || argc > 10)
 		usage(argv[0]);
-	if (sscanf(argv[1], "%lf", &args.alpha) != 1 || args.alpha < 0 || args.alpha >= 1)
+	if (sscanf(argv[1], "%lf", &args.alpha) != 1 || args.alpha <= 0 || args.alpha >= 1)
 		usage(argv[0]);
-	if (sscanf(argv[2], "%lf", &args.beta) != 1 || args.beta < 0 || args.beta >= 1)
+	if (sscanf(argv[2], "%lf", &args.beta) != 1 || args.beta <= 0 || args.beta >= 1)
 		usage(argv[0]);
 	if (sscanf(argv[3], "%lf", &args.K) != 1)
 		usage(argv[0]);
 	if (sscanf(argv[4], "%u", &args.Nt) != 1)
 		usage(argv[0]);
-	if (sscanf(argv[5], "%lf", &args.eps) != 1 || args.eps < 0)
+	if (sscanf(argv[5], "%lf", &args.eps) != 1 || args.eps <= 0)
 		usage(argv[0]);
 	if (strlen(argv[6]) != 1)
 		usage(argv[0]);
@@ -62,9 +65,14 @@ static void parse_arguments(int argc, char **argv)
 	default: usage(argv[0]);
 	}
 
-	args.dataset = strdup(argv[7]);
-	if (argc == 9) {
-		if (sscanf(argv[8], "%ld", &args.seed) != 1)
+	if (args.method < AGS && (sscanf(argv[7], "%lf", &args.gamma) != 1 || args.gamma <= 0 || args.gamma >= 1))
+		usage(argv[0]);
+	else if (args.method == AGS && (sscanf(argv[7], "%d", &args.depth) != 1 || args.depth <= 2))
+		usage(argv[0]);
+
+	args.dataset = strdup(argv[8]);
+	if (argc == 10) {
+		if (sscanf(argv[9], "%ld", &args.seed) != 1)
 			usage(argv[0]);
 	} else
 		args.seed = 42;
@@ -80,15 +88,15 @@ int main(int argc, char **argv)
 	sn_convert_to_grid_root(&sn, &g);
 
 	switch (args.method) {
-	case UG:  sanitize_ug( &sn, &g, args.eps, args.alpha, args.beta,
+	case UG:  sanitize_ug( &sn, &g, args.eps, args.beta, args.gamma,
 				  args.K, args.Nt, args.seed);
 		  break;
 	case AG:  sanitize_ag( &sn, &g, args.eps, args.alpha, args.beta,
-				  args.K, args.Nt, args.seed);
+				  args.gamma, args.K, args.Nt, args.seed);
 		  break;
 #if 0
 	case AGS: sanitize_agt(&sn, &g, args.eps, args.alpha, args.beta,
-				  args.K, args.Nt, args.seed);
+				  args.K, args.Nt, args.depth, args.seed);
 		  break;
 #else
 	case AGS: break;
