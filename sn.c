@@ -86,8 +86,16 @@ void grd_compute_real(const struct sensor_network *sn, struct grid *g)
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer)
 {
-	g->n_star = laplace_mechanism(g->n, beta * epsilon, 1, buffer);
-	g->s_star = laplace_mechanism(g->n, (1 - beta * epsilon), sn->M, buffer);
+	double epsilon_n, epsilon_s;
+
+	epsilon_n = beta * epsilon;
+	epsilon_s = epsilon - epsilon_n;
+
+	g->n_star = laplace_mechanism(g->n, epsilon_n, 1, buffer);
+	g->s_star = laplace_mechanism(g->n, epsilon_s, sn->M, buffer);
+
+	g->var_n_star = 2 / (epsilon_n * epsilon_n);
+	g->var_s_star = 2 / (epsilon_s * epsilon_s);
 }
 
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)

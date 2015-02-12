@@ -48,9 +48,13 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 	/* don't do any post-processing */
 	g->n_bar = g->n_ave = g->n_star;
 	g->s_bar = g->s_ave = g->s_star;
+	g->var_n_bar = g->var_n_ave = g->var_n_star;
+	g->var_s_bar = g->var_s_ave = g->var_s_star;
 	for (i  = 0; i < g->Nu * g->Nu; i++) {
 		g->cells[i].n_bar = g->cells[i].n_ave = g->cells[i].n_star;
 		g->cells[i].s_bar = g->cells[i].s_ave = g->cells[i].s_star;
+		g->cells[i].var_n_bar = g->cells[i].var_n_ave = g->cells[i].var_n_star;
+		g->cells[i].var_s_bar = g->cells[i].var_s_ave = g->cells[i].var_s_star;
 	}
 }
 

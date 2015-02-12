@@ -41,6 +41,11 @@ struct grid {
 	double n_ave, s_ave;
 	/* consistent estimates */
 	double n_bar, s_bar;
+
+	/* variances for the above 6 values, for s scaled down by M^2 */
+	double var_n_star, var_s_star;
+	double var_n_ave, var_s_ave;
+	double var_n_bar, var_s_bar;
 };
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn);
