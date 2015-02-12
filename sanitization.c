@@ -22,6 +22,7 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 	struct drand48_data randbuffer;
 	double epsilon_0, epsilon_1;
 	double Nu;
+	int i;
 
 	epsilon_0 = alpha * epsilon;
 	epsilon_1 = epsilon - epsilon_0;
@@ -40,6 +41,17 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 	printf("Nu = %lf, g->Nu = %d\n", Nu, g->Nu);
 
 	grd_split_cells(sn, g);
+
+	for (i  = 0; i < g->Nu * g->Nu; i++)
+		grd_compute_noisy(sn, &g->cells[i], epsilon_1, beta, &randbuffer);
+
+	/* don't do any post-processing */
+	g->n_bar = g->n_ave = g->n_star;
+	g->s_bar = g->s_ave = g->s_star;
+	for (i  = 0; i < g->Nu * g->Nu; i++) {
+		g->cells[i].n_bar = g->cells[i].n_ave = g->cells[i].n_star;
+		g->cells[i].s_bar = g->cells[i].s_ave = g->cells[i].s_star;
+	}
 }
 
 #if 0
