@@ -48,7 +48,7 @@ void sanitize_ag(const struct sensor_network *sn, struct grid *g,
 	struct drand48_data randbuffer;
 	double epsilon_0, epsilon_1;
 	double Nu;
-	int i;
+	int i, j;
 
 	epsilon_0 = gamma * epsilon;
 	epsilon_1 = epsilon - epsilon_0;
@@ -56,6 +56,29 @@ void sanitize_ag(const struct sensor_network *sn, struct grid *g,
 	init_rng(seed, &randbuffer);
 	g->epsilon = epsilon_1;
 	grd_compute_noisy(sn, g, epsilon_0, beta, &randbuffer);
+
+	Nu = epsilon_1 * K * beta * (1 - beta) * alpha * (g->n_star.val + g->s_star.val / sn->M);
+
+	if (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)
+		g->Nu = Nt;
+
+	grd_split_cells(sn, g);
+
+	for (i  = 0; i < g->Nu * g->Nu; i++) {
+		g->cells[i].epsilon = epsilon_1;
+		grd_compute_noisy(sn, &g->cells[i], alpha * epsilon_1, beta, &randbuffer);
+		Nu = epsilon_1 * K * beta * (1 - beta) * alpha * (g->cells[i].n_star.val + g->cells[i].s_star.val / sn->M);
+		if (Nu < 0 || (g->cells[i].Nu = (int)sqrt(Nu)) < Nt)
+			g->cells[i].Nu = Nt;
+		grd_split_cells(sn, &g->cells[i]);
+
+		for (j = 0; j < g->cells[i].Nu * g->cells[i].Nu; j++)
+			grd_compute_noisy(sn, &g->cells[i].cells[j], (1 - alpha) * epsilon_1, beta, &randbuffer);
+
+		/* TODO: postprocessing up */
+	}
+
+	/* TODO: postprocessing down */
 }
 
 #if 0
