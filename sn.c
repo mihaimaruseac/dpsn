@@ -74,15 +74,6 @@ void grd_finish(struct grid *g)
 	g->sens_ix = realloc(g->sens_ix, g->n * sizeof(g->sens_ix[0]));
 }
 
-void grd_compute_real(const struct sensor_network *sn, struct grid *g)
-{
-	int i = 0;
-
-	g->s = 0;
-	for (i = 0; i < g->n; i++)
-		g->s += sn->sensors[g->sens_ix[i]].val;
-}
-
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer)
 {

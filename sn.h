@@ -56,7 +56,6 @@ void grd_init(struct grid *g, int sp,
 		double xmin, double xmax, double ymin, double ymax);
 void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix);
 void grd_finish(struct grid *g);
-void grd_compute_real(const struct sensor_network *sn, struct grid *g);
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer);
 void grd_split_cells(const struct sensor_network *sn, struct grid *g);

@@ -12,7 +12,6 @@ void method_setup(const struct sensor_network *sn, struct grid *g,
 {
 	init_rng(seed, randbuffer);
 	g->epsilon = epsilon;
-	grd_compute_real(sn, g);
 }
 
 void sanitize_ug(const struct sensor_network *sn, struct grid *g,
@@ -29,7 +28,6 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 
 	init_rng(seed, &randbuffer);
 	g->epsilon = epsilon;
-	grd_compute_real(sn, g);
 	grd_compute_noisy(sn, g, epsilon_0, beta, &randbuffer);
 
 	Nu = epsilon_1 * K * beta * (1 - beta) * (g->n_star.val + g->s_star.val / sn->M);
