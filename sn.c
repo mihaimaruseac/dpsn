@@ -63,6 +63,38 @@ void grd_init(struct grid *g, int sp,
 	g->n = g->s = 0;
 }
 
+/* private */
+void grd_print_cell_walls(const struct grid *g, FILE *f)
+{
+	int i;
+
+	fprintf(f, "%5.2lf %5.2lf %5.2lf 0\n", g->xmin, g->ymin, g->xmax - g->xmin);
+	fprintf(f, "%5.2lf %5.2lf 0 %5.2lf\n", g->xmin, g->ymin, g->ymax - g->ymin);
+	fprintf(f, "%5.2lf %5.2lf %5.2lf 0\n", g->xmin, g->ymax, g->xmax - g->xmin);
+	fprintf(f, "%5.2lf %5.2lf 0 %5.2lf\n", g->xmax, g->ymin, g->ymax - g->ymin);
+
+	for (i = 0; i < g->Nu*g->Nu; i++)
+		grd_print_cell_walls(&g->cells[i], f);
+}
+
+void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f)
+{
+	int i;
+
+	/* sensors first */
+	fprintf(f, "# sensors: x y val\n");
+	for (i = 0; i < sn->num_s; i++)
+		fprintf(f, "%5.2lf %5.2lf %5.2lf\n", sn->sensors[i].x,
+				sn->sensors[i].y, sn->sensors[i].val);
+
+	/* new region in datafile */
+	fprintf(f, "\n\n");
+
+	/* grid cell walls */
+	fprintf(f, "# grid lines: x y dx dy\n");
+	grd_print_cell_walls(g, f);
+}
+
 void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix)
 {
 	g->sens_ix[g->n++] = ix;
