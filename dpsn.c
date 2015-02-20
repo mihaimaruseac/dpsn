@@ -103,7 +103,9 @@ int main(int argc, char **argv)
 #endif
 	}
 
-	grd_debug(&sn, &g, stdout);
+	//grd_debug(&sn, &g, stdout, 0);
+	//grd_debug(&sn, &g, stdout, 1);
+	//grd_debug(&sn, &g, stdout, 2);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
