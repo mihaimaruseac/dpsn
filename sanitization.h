@@ -16,13 +16,15 @@ struct grid;
  */
 void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, double gamma,
-		double K, int Nt, int seed);
+		double K, int Nt,
+		struct drand48_data *randbuffer);
 void sanitize_ag(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta, double gamma,
-		double K, int Nt, int seed);
+		double K, int Nt,
+		struct drand48_data *randbuffer);
 void sanitize_agt(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta,
-		double K, int Nt, int max_depth, int seed);
+		double K, int Nt, int max_depth,
+		struct drand48_data *randbuffer);
 
 #endif
-
