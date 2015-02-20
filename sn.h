@@ -35,7 +35,8 @@ struct grid {
 	int Nu;
 
 	/* real count and sum */
-	int n, s;
+	int n;
+	double s;
 
 	/* epsilon value */
 	double epsilon;
