@@ -67,7 +67,7 @@ void sanitize_ag(const struct sensor_network *sn, struct grid *g,
 	for (i  = 0; i < g->Nu * g->Nu; i++) {
 		g->cells[i].epsilon = epsilon_1;
 		grd_compute_noisy(sn, &g->cells[i], alpha * epsilon_1, beta, &randbuffer);
-		Nu = epsilon_1 * K * beta * (1 - beta) * alpha * (g->cells[i].n_star.val + g->cells[i].s_star.val / sn->M);
+		Nu = epsilon_1 * K * beta * (1 - beta) * (1 - alpha) * (g->cells[i].n_star.val + g->cells[i].s_star.val / sn->M);
 		if (Nu < 0 || (g->cells[i].Nu = (int)sqrt(Nu)) < Nt)
 			g->cells[i].Nu = Nt;
 		grd_split_cells(sn, &g->cells[i]);
