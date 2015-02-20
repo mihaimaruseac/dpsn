@@ -198,6 +198,22 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 	free(ylimits);
 }
 
+int grd_height(const struct grid *g)
+{
+	int i, ch, h = 0;
+
+	if (!g->Nu)
+		return 0;
+
+	for (i = 0; i < g->Nu * g->Nu; i++) {
+		ch = 1 + grd_height(&g->cells[i]);
+		if (h < ch)
+			h = ch;
+	}
+
+	return h;
+}
+
 void grd_cleanup(const struct grid *g)
 {
 	free(g->sens_ix);

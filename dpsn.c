@@ -99,6 +99,8 @@ int main(int argc, char **argv)
 		  break;
 	}
 
+	printf("Sanitization finished, grid height: %d\n", grd_height(&g));
+
 	//grd_debug(&sn, &g, stdout, 0);
 	//grd_debug(&sn, &g, stdout, 1);
 	//grd_debug(&sn, &g, stdout, 2);

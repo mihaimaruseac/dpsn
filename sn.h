@@ -61,6 +61,7 @@ void grd_finish(struct grid *g);
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer);
 void grd_split_cells(const struct sensor_network *sn, struct grid *g);
+int grd_height(const struct grid *g);
 void grd_cleanup(const struct grid *g);
 
 #endif
