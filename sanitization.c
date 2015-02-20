@@ -81,13 +81,12 @@ void sanitize_ag(const struct sensor_network *sn, struct grid *g,
 	/* TODO: postprocessing down */
 }
 
-#if 0
 void sanitize_agt(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta,
-		double K, int Nt, int seed)
+		double K, int Nt, int max_depth, int seed)
 {
 	struct drand48_data randbuffer;
 
-	method_setup(sn, g, &randbuffer, epsilon, seed);
+	init_rng(seed, &randbuffer);
+	g->epsilon = epsilon;
 }
-#endif

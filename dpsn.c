@@ -94,13 +94,9 @@ int main(int argc, char **argv)
 	case AG:  sanitize_ag( &sn, &g, args.eps, args.alpha, args.beta,
 				  args.gamma, args.K, args.Nt, args.seed);
 		  break;
-#if 0
 	case AGS: sanitize_agt(&sn, &g, args.eps, args.alpha, args.beta,
 				  args.K, args.Nt, args.depth, args.seed);
 		  break;
-#else
-	case AGS: break;
-#endif
 	}
 
 	//grd_debug(&sn, &g, stdout, 0);
