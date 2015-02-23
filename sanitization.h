@@ -4,6 +4,8 @@
 struct sensor_network;
 struct grid;
 
+enum method {UG, AG, AGS};
+
 /**
  * All sanitization methods will fill in the grid tree (depending on the
  * methods it is a tree, a simple grid (two level tree), a two layer grid
@@ -14,17 +16,8 @@ struct grid;
  * Hence, the user can just use <>_bar and var_<>_bar values, regardless of
  * the sanitization method used.
  */
-void sanitize_ug(const struct sensor_network *sn, struct grid *g,
-		double epsilon, double beta, double gamma,
-		double K, int Nt,
-		struct drand48_data *randbuffer);
-void sanitize_ag(const struct sensor_network *sn, struct grid *g,
+void sanitize(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta, double gamma,
-		double K, int Nt,
-		struct drand48_data *randbuffer);
-void sanitize_agt(const struct sensor_network *sn, struct grid *g,
-		double epsilon, double alpha, double beta,
 		double K, int Nt, int max_depth,
-		struct drand48_data *randbuffer);
-
+		int seed, enum method method);
 #endif

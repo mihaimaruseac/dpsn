@@ -6,7 +6,7 @@
 #include "sanitization.h"
 #include "sn.h"
 
-void sanitize_ug(const struct sensor_network *sn, struct grid *g,
+static void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, double gamma,
 		double K, int Nt,
 		struct drand48_data *randbuffer)
@@ -40,7 +40,7 @@ void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 	}
 }
 
-void sanitize_ag(const struct sensor_network *sn, struct grid *g,
+static void sanitize_ag(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta, double gamma,
 		double K, int Nt,
 		struct drand48_data *randbuffer)
@@ -79,10 +79,31 @@ void sanitize_ag(const struct sensor_network *sn, struct grid *g,
 	/* TODO: postprocessing down */
 }
 
-void sanitize_agt(const struct sensor_network *sn, struct grid *g,
+static void sanitize_agt(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta,
 		double K, int Nt, int max_depth,
 		struct drand48_data *randbuffer)
 {
 	g->epsilon = epsilon;
+}
+
+void sanitize(const struct sensor_network *sn, struct grid *g,
+		double epsilon, double alpha, double beta, double gamma,
+		double K, int Nt, int max_depth,
+		int seed, enum method method)
+{
+	struct drand48_data randbuffer;
+	init_rng(seed, &randbuffer);
+
+	switch (method) {
+	case UG:  sanitize_ug(sn, g, epsilon, beta, gamma,
+				  K, Nt, &randbuffer);
+		  break;
+	case AG:  sanitize_ag(sn, g, epsilon, alpha, beta,
+				  gamma, K, Nt, &randbuffer);
+		  break;
+	case AGS: sanitize_agt(sn, g, epsilon, alpha, beta,
+				  K, Nt, max_depth, &randbuffer);
+		  break;
+	}
 }

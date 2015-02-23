@@ -19,7 +19,7 @@ static struct {
 	/* dataset filename */
 	char *dataset;
 	/* the method */
-	enum {UG, AG, AGS} method;
+	enum method method;
 	/* method arguments */
 	double gamma;
 	int depth;
@@ -80,26 +80,14 @@ static void parse_arguments(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-	struct drand48_data randbuffer;
 	struct sensor_network sn;
 	struct grid g;
 
 	parse_arguments(argc, argv);
-	init_rng(args.seed, &randbuffer);
 	sn_read_from_file(args.dataset, &sn);
 	sn_convert_to_grid_root(&sn, &g);
-
-	switch (args.method) {
-	case UG:  sanitize_ug( &sn, &g, args.eps, args.beta, args.gamma,
-				  args.K, args.Nt, &randbuffer);
-		  break;
-	case AG:  sanitize_ag( &sn, &g, args.eps, args.alpha, args.beta,
-				  args.gamma, args.K, args.Nt, &randbuffer);
-		  break;
-	case AGS: sanitize_agt(&sn, &g, args.eps, args.alpha, args.beta,
-				  args.K, args.Nt, args.depth, &randbuffer);
-		  break;
-	}
+	sanitize(&sn, &g, args.eps, args.alpha, args.beta, args.gamma,
+			args.K, args.Nt, args.depth, args.seed, args.method);
 
 	printf("Sanitization finished, grid height: %d\n", grd_height(&g));
 

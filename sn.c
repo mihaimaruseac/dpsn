@@ -64,7 +64,7 @@ void grd_init(struct grid *g, int sp,
 }
 
 /* private */
-void grd_print_cell_walls(const struct grid *g, FILE *f, int depth)
+static void grd_print_cell_walls(const struct grid *g, FILE *f, int depth)
 {
 	int i;
 
