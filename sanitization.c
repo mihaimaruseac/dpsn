@@ -97,14 +97,11 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	double epsilon, Nu, factor;
 	int i;
 
-	printf("max_depth = %d, epsilon = %5.2lf\n", max_depth, g->epsilon);
-
 	/* 1. compute noisy values inside the grid */
-	if (method < AGS)
+	if (method != AGS)
 		epsilon = gamma * g->epsilon;
 	else
 		epsilon = alpha * g->epsilon;
-	printf("\tUsing epsilon = %5.2lf to compute counts\n", epsilon);
 	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
 
 	/* 2. compute split factor */
@@ -114,48 +111,52 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	case UG: factor *= 1 - gamma; break;
 	case AGS: factor *= 1 - alpha; break;
 	}
-	printf("\tSplitting factor: %5.2lf (%5.2lf %5.2lf %5.2lf)\n", factor, K, alpha, beta);
 
 	/* 3. Compute split size */
 	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
-	printf("\tSplitting params: n: %5.2lf s: %5.2lf Nu: %5.2lf\n",
-			g->n_star.val, g->s_star.val, Nu);
 
 	/* 3. recursion end */
 	if (max_depth == 0 || Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt) {
-		g->Nu = 0; // TODO: all 3 methods, UG,AG have Nt but still need work
-#if 0 //UG
-		g->Nu = Nt; // split once anyway
-#endif
-#if 0 //AG
-		g->Nu = Nt;
-#endif
+		if (method != AGS)
+			g->Nu = 1;
+		else {
+			// TODO: AGS: compute new values, average
+		}
 		return;
 	}
-	printf("\tWill split into: %d\n", g->Nu);
 
 	/* 4. split */
 	grd_split_cells(sn, g);
 
 	/* 5. recurse */
 	epsilon = g->epsilon - epsilon;
-#if 0 // UG
-	for (i  = 0; i < g->Nu * g->Nu; i++)
-		grd_compute_noisy(sn, &g->cells[i], epsilon, beta, randbuffer);
-#endif
 	for (i  = 0; i < g->Nu * g->Nu; i++) {
 		g->cells[i].epsilon = epsilon;
-#if 0 // AG
-		grd_compute_noisy(sn, &g->cells[i], alpha * epsilon, beta, randbuffer);
-		Nu = epsilon_1 * K * beta * (1 - beta) * (1 - alpha) * (g->cells[i].n_star.val + g->cells[i].s_star.val / sn->M);
-		if (Nu < 0 || (g->cells[i].Nu = (int)sqrt(Nu)) < Nt)
-			g->cells[i].Nu = Nt;
-		grd_split_cells(sn, &g->cells[i]);
 
-		for (j = 0; j < g->cells[i].Nu * g->cells[i].Nu; j++)
-			grd_compute_noisy(sn, &g->cells[i].cells[j], (1 - alpha) * epsilon, beta, randbuffer);
-	}
-#endif
+		if (method == UG) {
+			grd_compute_noisy(sn, &g->cells[i], epsilon, beta, randbuffer);
+			continue; /* no recursion on UG */
+		}
+
+		if (method == AG) {
+			int j;
+
+			grd_compute_noisy(sn, &g->cells[i], alpha * epsilon,
+					beta, randbuffer);
+
+			Nu = epsilon * K * beta * (1 - beta) * (1 - alpha) *
+				(g->cells[i].n_star.val + g->cells[i].s_star.val / sn->M);
+			if (Nu < 0 || (g->cells[i].Nu = (int)sqrt(Nu)) < Nt)
+				g->cells[i].Nu = Nt;
+			grd_split_cells(sn, &g->cells[i]);
+
+			for (j = 0; j < g->cells[i].Nu * g->cells[i].Nu; j++)
+				grd_compute_noisy(sn, &g->cells[i].cells[j],
+						(1 - alpha) * epsilon,
+						beta, randbuffer);
+			continue; /* split both AG levels in here */
+		}
+
 		build_tree(sn, &g->cells[i], alpha, beta, gamma, K, Nt,
 				max_depth-1, randbuffer, method);
 	}
