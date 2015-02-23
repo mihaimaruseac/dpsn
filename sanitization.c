@@ -95,6 +95,7 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 		struct drand48_data *randbuffer)
 {
 	double epsilon, Nu, factor;
+	int i;
 
 	printf("max_depth = %d, epsilon = %5.2lf\n", max_depth, g->epsilon);
 
@@ -103,9 +104,24 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	printf("Using epsilon = %5.2lf to compute counts\n", epsilon);
 	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
 
-	/* 2. split */
+	/* 2. compute split */
 	factor = K * beta * (1 - beta) * alpha; // TODO: compute for the UG, AG and extract as param
 	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
+
+	/* 3. recursion end */
+	if (max_depth == 0 || Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt) {
+		g->Nu = 0; // TODO: all 3 methods, UG,AG have Nt but still need work
+		return;
+	}
+
+	/* 4. split and recurse */
+	grd_split_cells(sn, g);
+	epsilon = g->epsilon - epsilon;
+	for (i  = 0; i < g->Nu * g->Nu; i++) {
+		g->cells[i].epsilon = epsilon;
+		build_tree(sn, &g->cells[i], alpha, beta, K, Nt,
+				max_depth-1, &randbuffer);
+	}
 }
 
 /**
