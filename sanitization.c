@@ -118,9 +118,10 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	/* 3. recursion end */
 	if (max_depth == 0 || Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt) {
 		if (method != AGS)
-			g->Nu = 1;
+			g->Nu = Nt;
 		else {
 			// TODO: AGS: compute new values, average
+			g->Nu = 0; /* block further recursion */
 		}
 		return;
 	}
