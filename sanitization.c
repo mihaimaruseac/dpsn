@@ -6,6 +6,7 @@
 #include "sanitization.h"
 #include "sn.h"
 
+#if 0
 static void sanitize_ug(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, double gamma,
 		double K, int Nt,
@@ -86,7 +87,33 @@ static void sanitize_agt(const struct sensor_network *sn, struct grid *g,
 {
 	g->epsilon = epsilon;
 }
+#endif
 
+static void build_tree(const struct sensor_network *sn, struct grid *g,
+		double alpha, double beta,
+		double K, int Nt, int max_depth,
+		struct drand48_data *randbuffer)
+{
+	double epsilon, Nu, factor;
+
+	printf("max_depth = %d, epsilon = %5.2lf\n", max_depth, g->epsilon);
+
+	/* 1. compute noisy values inside the grid */
+	epsilon = alpha * g->epsilon;
+	printf("Using epsilon = %5.2lf to compute counts\n", epsilon);
+	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
+
+	/* 2. split */
+	factor = K * beta * (1 - beta) * alpha; // TODO: compute for the UG, AG and extract as param
+	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
+}
+
+/**
+ * Steps:
+ *  1. Set g->epsilon = epsilon to be used from the cell downwards (epsilon
+ *     for AGS, TODO for others)
+ *  2. Split grid downwards (TODO: fix UG, AG)
+ */
 void sanitize(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta, double gamma,
 		double K, int Nt, int max_depth,
@@ -95,6 +122,14 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 	struct drand48_data randbuffer;
 	init_rng(seed, &randbuffer);
 
+	/* 1. Set epsilon of root cell */
+	g->epsilon = epsilon;
+
+	/* 2. Split cell, build tree */
+	// TODO: below is only for tree
+	build_tree(sn, g, alpha, beta, K, Nt, max_depth, &randbuffer);
+
+#if 0
 	switch (method) {
 	case UG:  sanitize_ug(sn, g, epsilon, beta, gamma,
 				  K, Nt, &randbuffer);
@@ -106,4 +141,5 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 				  K, Nt, max_depth, &randbuffer);
 		  break;
 	}
+#endif
 }
