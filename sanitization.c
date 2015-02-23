@@ -101,18 +101,22 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 
 	/* 1. compute noisy values inside the grid */
 	epsilon = alpha * g->epsilon;
-	printf("Using epsilon = %5.2lf to compute counts\n", epsilon);
+	printf("\tUsing epsilon = %5.2lf to compute counts\n", epsilon);
 	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
 
 	/* 2. compute split */
-	factor = K * beta * (1 - beta) * alpha; // TODO: compute for the UG, AG and extract as param
+	factor = K * beta * (1 - beta) * (1 - alpha); // TODO: compute for the UG, AG and extract as param
+	printf("\tSplitting factor: %5.2lf (%5.2lf %5.2lf %5.2lf)\n", factor, K, alpha, beta);
 	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
+	printf("\tSplitting params: n: %5.2lf s: %5.2lf Nu: %5.2lf\n",
+			g->n_star.val, g->s_star.val, Nu);
 
 	/* 3. recursion end */
 	if (max_depth == 0 || Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt) {
 		g->Nu = 0; // TODO: all 3 methods, UG,AG have Nt but still need work
 		return;
 	}
+	printf("\tWill split into: %d\n", g->Nu);
 
 	/* 4. split and recurse */
 	grd_split_cells(sn, g);
