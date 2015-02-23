@@ -6,6 +6,10 @@
 #include "sanitization.h"
 #include "sn.h"
 
+#ifndef DEBUG_GRID_TREE
+#define DEBUG_GRID_TREE 1
+#endif
+
 /* Command line arguments */
 static struct {
 	/* the alpha and beta parameters */
@@ -91,9 +95,25 @@ int main(int argc, char **argv)
 
 	printf("Sanitization finished, grid height: %d\n", grd_height(&g));
 
-	//grd_debug(&sn, &g, stdout, 0);
-	//grd_debug(&sn, &g, stdout, 1);
-	//grd_debug(&sn, &g, stdout, 2);
+#if DEBUG_GRID_TREE
+	{
+		int i, h = grd_height(&g);
+		char *fname = NULL;
+		FILE *f;
+
+		for (i = 0; i <= h; i++) {
+			asprintf(&fname, "debug_%05d", i);
+			f = fopen(fname, "w");
+			if (!f)
+				perror(fname);
+			else {
+				grd_debug(&sn, &g, f, i);
+				fclose(f);
+			}
+			free(fname);
+		}
+	}
+#endif
 
 	free(args.dataset);
 	sn_cleanup(&sn);
