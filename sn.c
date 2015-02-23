@@ -188,6 +188,8 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 		k = bsearch_i(&s->y, ylimits, 1 + g->Nu, sizeof(ylimits[0]), double_cmp);
 		j = j < 0 ? -j-2 : j-1;
 		k = k < 0 ? -k-2 : k-1;
+		j = j < 0 ? 0 : j;
+		k = k < 0 ? 0 : k;
 		grd_add_point(sn, &g->cells[j * g->Nu + k], i);
 	}
 
