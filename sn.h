@@ -63,5 +63,12 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 void grd_split_cells(const struct sensor_network *sn, struct grid *g);
 int grd_height(const struct grid *g);
 void grd_cleanup(const struct grid *g);
+struct grid* grd_copy(const struct grid *original);
+
+/**
+ * will update _ave values in a to minimize their variance as a mean of _star
+ * values in both a and b.
+ */
+void grd_average2(struct grid *a, const struct grid *b);
 
 #endif

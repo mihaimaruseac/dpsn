@@ -37,7 +37,10 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 		if (method != AGS)
 			g->Nu = Nt;
 		else {
-			// TODO: AGS: compute new values, average
+			struct grid *gc = grd_copy(g);
+			grd_compute_noisy(sn, gc, g->epsilon - epsilon, beta, randbuffer);
+			grd_average2(g, gc);
+			grd_cleanup(gc);
 			g->Nu = 0; /* block further recursion */
 		}
 		return;

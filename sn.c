@@ -225,3 +225,30 @@ void grd_cleanup(const struct grid *g)
 		free(g->cells);
 	}
 }
+
+static struct noisy_val nv_average2(struct noisy_val a, struct noisy_val b)
+{
+	double alpha = b.var / (a.var + b.var);
+	struct noisy_val ret;
+
+	ret.val = alpha * a.val + (1 - alpha) * b.val;
+	ret.var = alpha * a.var;
+
+	return ret;
+}
+
+struct grid* grd_copy(const struct grid *original)
+{
+	struct grid *g = calloc(1, sizeof(*g));
+	grd_init(g, 0, 0, 0, 0, 0);
+	g->n = original->n;
+	g->s = original->s;
+
+	return g;
+}
+
+void grd_average2(struct grid *a, const struct grid *b)
+{
+	a->n_ave = nv_average2(a->n_star, b->n_star);
+	a->s_ave = nv_average2(a->s_star, b->s_star);
+}
