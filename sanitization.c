@@ -124,7 +124,7 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	for (i  = 0; i < g->Nu * g->Nu; i++) {
 		g->cells[i].epsilon = epsilon;
 		build_tree(sn, &g->cells[i], alpha, beta, K, Nt,
-				max_depth-1, &randbuffer);
+				max_depth-1, randbuffer);
 	}
 }
 
