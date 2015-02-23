@@ -150,7 +150,7 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	g->n_star.var = 2 / (epsilon_n * epsilon_n);
 	g->s_star.var = 2 / (epsilon_s * epsilon_s);
 
-	/* TODO: add negativity reduction models:
+	/* TODO: add negativity reduction models (see (83)):
 	 *  .* -> h_t*.* -> .' + variance computation
 	 *  .* ->  |.*|  -> .' + variance computation
 	 */
