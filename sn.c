@@ -7,7 +7,7 @@
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
 {
 	int i;
-	grd_init(g, sn->num_s, sn->xmin, sn->xmax, sn->ymin, sn->ymax);
+	grd_init(g, sn->num_s, sn->xmin, sn->xmax, sn->ymin, sn->ymax, NULL);
 
 	for (i = 0; i < sn->num_s; i++)
 		grd_add_point(sn, g, i);
@@ -51,7 +51,8 @@ void sn_cleanup(const struct sensor_network *sn)
 }
 
 void grd_init(struct grid *g, int sp,
-		double xmin, double xmax, double ymin, double ymax)
+		double xmin, double xmax, double ymin, double ymax,
+		const struct grid *parent)
 {
 	g->xmin = xmin;
 	g->xmax = xmax;
@@ -61,6 +62,7 @@ void grd_init(struct grid *g, int sp,
 	g->cells = NULL;
 	g->Nu = 0;
 	g->n = g->s = 0;
+	g->parent = parent;
 }
 
 /* private */
@@ -179,7 +181,7 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 		for (j = 0; j < g->Nu; j++)
 			grd_init(&g->cells[i * g->Nu + j], g->n,
 					xlimits[i], xlimits[i+1],
-					ylimits[j], ylimits[j+1]);
+					ylimits[j], ylimits[j+1], g);
 
 	/* split points */
 	for (i = 0; i < g->n; i++) {
@@ -242,7 +244,7 @@ static struct noisy_val nv_average2(struct noisy_val a, struct noisy_val b)
 struct grid* grd_copy(const struct grid *original)
 {
 	struct grid *g = calloc(1, sizeof(*g));
-	grd_init(g, 0, 0, 0, 0, 0);
+	grd_init(g, 0, 0, 0, 0, 0, NULL);
 	g->n = original->n;
 	g->s = original->s;
 
