@@ -301,3 +301,38 @@ void grd_averagev(struct grid *g)
 	g->s_ave.var = 1 / g->s_ave.var;
 #endif
 }
+
+void grd_consistency(struct grid *g)
+{
+	struct noisy_val children_sum, add;
+	int i, Nu2;
+
+	if (!g->Nu) return;
+	Nu2 = g->Nu * g->Nu;
+
+	/* update n */
+	children_sum.val = children_sum.var = 0;
+	for (i = 0; i < Nu2; i++) {
+		children_sum.val += g->cells[i].n_ave.val;
+		children_sum.var += g->cells[i].n_ave.var;
+	}
+	add.val = (g->n_bar.val - children_sum.val) / Nu2;
+	add.var = (g->n_bar.var + children_sum.var) / (Nu2 * Nu2);
+	for (i = 0; i < Nu2; i++) {
+		g->cells[i].n_bar.val = g->cells[i].n_ave.val + add.val;
+		g->cells[i].n_bar.var = g->cells[i].n_ave.var + add.var;
+	}
+
+	/* update s */
+	children_sum.val = children_sum.var = 0;
+	for (i = 0; i < Nu2; i++) {
+		children_sum.val += g->cells[i].s_ave.val;
+		children_sum.var += g->cells[i].s_ave.var;
+	}
+	add.val = (g->s_bar.val - children_sum.val) / Nu2;
+	add.var = (g->s_bar.var + children_sum.var) / (Nu2 * Nu2);
+	for (i = 0; i < Nu2; i++) {
+		g->cells[i].s_bar.val = g->cells[i].s_ave.val + add.val;
+		g->cells[i].s_bar.var = g->cells[i].s_ave.var + add.var;
+	}
+}

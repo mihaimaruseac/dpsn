@@ -122,14 +122,12 @@ static void update_tree_ave(struct grid *g)
 
 static void update_tree_bar(struct grid *g)
 {
-#if 0
 	int i;
 
-	grd_averagev(g);
+	grd_consistency(g);
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
-		update_tree_ave(&g->cells[i]);
-#endif
+		update_tree_bar(&g->cells[i]);
 }
 
 void sanitize(const struct sensor_network *sn, struct grid *g,

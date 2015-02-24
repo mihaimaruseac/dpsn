@@ -84,4 +84,12 @@ void grd_average2(struct grid *a, const struct grid *b);
  */
 void grd_averagev(struct grid *g);
 
+/**
+ * Does the mean consistency step ensuring that the _bar value in a cell is
+ * the sum of the _bar values of the children. Redistributes the difference
+ * between cell's _bar and sum of children's _ave, equally to each child
+ * TODO: COARSE_AVE=0 might open a speedup here too.
+ */
+void grd_consistency(struct grid *g);
+
 #endif
