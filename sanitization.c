@@ -33,14 +33,17 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
 
 	/* 3. recursion end */
-	if (method == AGS && (Nu < 0 || max_depth == 0 || g->n_star.val < Nt)) {
-		struct grid *gc = grd_copy(g);
-		grd_compute_noisy(sn, gc, g->epsilon - epsilon, beta, randbuffer);
-		grd_average2(g, gc);
-		grd_cleanup(gc);
-		free(gc);
-		g->Nu = 0; /* block further recursion */
-		return;
+	if (method == AGS) {
+		if (Nu < 0 || max_depth == 0 || g->n_star.val < Nt) {
+			struct grid *gc = grd_copy(g);
+			grd_compute_noisy(sn, gc, g->epsilon - epsilon, beta, randbuffer);
+			grd_average2(g, gc);
+			grd_cleanup(gc);
+			free(gc);
+			g->Nu = 0; /* block further recursion */
+			return;
+		} else
+			g->Nu = (int)sqrt(Nu);
 	}
 	if (method != AGS && (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)) {
 		g->Nu = Nt;
