@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "sanitization.h"
 #include "sn.h"
+#include "test.h"
 
 #ifndef DEBUG_GRID_TREE
 #define DEBUG_GRID_TREE 0
@@ -115,6 +116,9 @@ int main(int argc, char **argv)
 		}
 	}
 #endif
+
+	test_san_leaf_only(&sn, &g);
+	//test_san_cell(&sn, &g);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
