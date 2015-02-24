@@ -277,6 +277,7 @@ void grd_averagev(struct grid *g)
 	}
 	g->s_ave = nv_average2(g->s_star, b);
 #else
+	die("Invalid method! Don't use as of now!");
 	int i;
 
 	/* update n */

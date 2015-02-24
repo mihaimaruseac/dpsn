@@ -66,7 +66,7 @@ void grd_cleanup(const struct grid *g);
 struct grid* grd_copy(const struct grid *original);
 
 #ifndef COARSE_AVE
-#define COARSE_AVE 0
+#define COARSE_AVE 1
 #endif
 
 /**
