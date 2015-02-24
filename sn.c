@@ -254,3 +254,28 @@ void grd_average2(struct grid *a, const struct grid *b)
 	a->n_ave = nv_average2(a->n_star, b->n_star);
 	a->s_ave = nv_average2(a->s_star, b->s_star);
 }
+
+void grd_averagev(struct grid *g)
+{
+#if COARSE_AVE
+	struct noisy_val b;
+	int i;
+
+	/* update n */
+	b.val = b.var = 0;
+	for (i = 0; i < g->Nu*g->Nu; i++) {
+		b.val += g->cells[i].n_ave.val;
+		b.var += g->cells[i].n_ave.var;
+	}
+	g->n_ave = nv_average2(g->n_star, b);
+
+	/* update s */
+	b.val = b.var = 0;
+	for (i = 0; i < g->Nu*g->Nu; i++) {
+		b.val += g->cells[i].s_ave.val;
+		b.var += g->cells[i].s_ave.var;
+	}
+	g->s_ave = nv_average2(g->s_star, b);
+#else
+#endif
+}

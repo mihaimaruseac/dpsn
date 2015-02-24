@@ -83,6 +83,36 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	}
 }
 
+static void update_ave_copy(struct grid *g)
+{
+	g->n_ave = g->n_star;
+	g->s_ave = g->s_star;
+}
+
+static void update_ave_leaves(struct grid *g)
+{
+	int i;
+
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		update_ave_leaves(&g->cells[i]);
+
+	if (!g->Nu)
+		update_ave_copy(g);
+}
+
+static void update_tree_ave(struct grid *g)
+{
+	int i;
+
+	if (!g->Nu)
+		return;
+
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		update_tree_ave(&g->cells[i]);
+
+	grd_averagev(g);
+}
+
 void sanitize(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta, double gamma,
 		double K, int Nt, int max_depth,
@@ -98,4 +128,10 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 	if (method != AGS) max_depth = 1; /* constant 1 */
 	build_tree(sn, g, alpha, beta, gamma, K, Nt, max_depth,
 			&randbuffer, method);
+
+	/* 3. update _ave values */
+	if (method != AGS) update_ave_leaves(g);
+	if (method == UG) update_ave_copy(g);
+	else update_tree_ave(g);
+	if (method != AGS) update_ave_copy(g);
 }
