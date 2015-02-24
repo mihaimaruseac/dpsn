@@ -33,8 +33,6 @@ struct grid {
 	struct grid *cells;
 	/* grid zise */
 	int Nu;
-	/* parent */
-	struct grid *parent;
 
 	/* real count and sum */
 	int n;
