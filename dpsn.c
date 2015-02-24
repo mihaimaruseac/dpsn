@@ -27,7 +27,7 @@ static struct {
 	enum method method;
 	/* method arguments */
 	double gamma;
-	int depth;
+	int depth; // TODO: replace with variance/eps thresh
 	/* random seed */
 	long int seed;
 } args;
