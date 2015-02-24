@@ -158,7 +158,6 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 
 	/* 4. update _bar values */
 	update_bar_copy(g);
-	for (i = 0; i < g->Nu * g->Nu; i++)
-		if (method == UG) update_bar_copy(&g->cells[i]);
-		else update_tree_bar(&g->cells[i]);
+	if (method == UG) for (i = 0; i < g->Nu * g->Nu; i++) update_bar_copy(&g->cells[i]);
+	else update_tree_bar(g);
 }
