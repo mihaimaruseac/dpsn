@@ -89,6 +89,12 @@ static void update_ave_copy(struct grid *g)
 	g->s_ave = g->s_star;
 }
 
+static void update_bar_copy(struct grid *g)
+{
+	g->n_bar = g->n_ave;
+	g->s_bar = g->s_ave;
+}
+
 static void update_ave_leaves(struct grid *g)
 {
 	int i;
@@ -113,12 +119,26 @@ static void update_tree_ave(struct grid *g)
 	grd_averagev(g);
 }
 
+static void update_tree_bar(struct grid *g)
+{
+#if 0
+	int i;
+
+	grd_averagev(g);
+
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		update_tree_ave(&g->cells[i]);
+#endif
+}
+
 void sanitize(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double alpha, double beta, double gamma,
 		double K, int Nt, int max_depth,
 		int seed, enum method method)
 {
 	struct drand48_data randbuffer;
+	int i;
+
 	init_rng(seed, &randbuffer);
 
 	/* 1. Set epsilon of root cell */
@@ -134,4 +154,10 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 	if (method == UG) update_ave_copy(g);
 	else update_tree_ave(g);
 	if (method != AGS) update_ave_copy(g);
+
+	/* 4. update _bar values */
+	update_bar_copy(g);
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		if (method == UG) update_bar_copy(&g->cells[i]);
+		else update_tree_bar(&g->cells[i]);
 }
