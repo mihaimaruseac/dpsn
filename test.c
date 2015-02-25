@@ -101,28 +101,26 @@ static void test_san(const struct sensor_network *sn, const struct grid *g,
 		test_san(sn, &g->cells[i], t, full_tree, star, bar);
 }
 
-void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g, double t)
+static void do_test_san(const struct sensor_network *sn, const struct grid *g,
+		double t, int full_tree)
 {
 	struct san_measure star, bar;
 
 	sm_init(&star);
 	sm_init(&bar);
-	test_san(sn, g, t, 0, &star, &bar);
+	test_san(sn, g, t, full_tree, &star, &bar);
 	sm_print(&star);
 	printf(" | ");
 	sm_print(&bar);
 	printf("\n");
 }
 
+void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g, double t)
+{
+	do_test_san(sn, g, t, 0);
+}
+
 void test_san_cell(const struct sensor_network *sn, const struct grid *g, double t)
 {
-	struct san_measure star, bar;
-
-	sm_init(&star);
-	sm_init(&bar);
-	test_san(sn, g, t, 1, &star, &bar);
-	sm_print(&star);
-	printf(" | ");
-	sm_print(&bar);
-	printf("\n");
+	do_test_san(sn, g, t, 1);
 }
