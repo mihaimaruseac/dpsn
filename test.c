@@ -63,6 +63,7 @@ static int do_test_san_cell(const struct sensor_network *sn, const struct grid *
 		rho_star = 0;
 	else
 		rho_star = g->s_star.val / g->n_star.val;
+	/* TODO: might need a different threshold than theta */
 	ret |= (rho_star >= sn->theta) << 1;
 
 	if (g->n_bar.val < t)
