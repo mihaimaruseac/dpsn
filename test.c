@@ -8,7 +8,7 @@
 #include "sn.h"
 
 #ifndef DEBUG_TEST_GRID_TREE
-#define DEBUG_TEST_GRID_TREE 1
+#define DEBUG_TEST_GRID_TREE 0
 #endif
 
 struct san_measure {
