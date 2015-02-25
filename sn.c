@@ -30,7 +30,7 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn)
 
 	sn->sensors = calloc(sn->num_s, sizeof(sn->sensors[0]));
 	if (!sn->sensors)
-		die("Invalid count of sensors %d sz=%d", sn->num_s, sn->num_s * sizeof(sn->sensors[0]));
+		die("Invalid count of sensors %d sz=%lu", sn->num_s, sn->num_s * sizeof(sn->sensors[0]));
 
 	for (i = 0; i < sn->num_s; i++)
 		if (fscanf(f, "%lf%lf%lf", &sn->sensors[i].x,
@@ -58,7 +58,7 @@ void grd_init(struct grid *g, int sp,
 	g->ymin = ymin;
 	g->ymax = ymax;
 	g->sens_ix = calloc(sp, sizeof(g->sens_ix[0]));
-	if (!g->sens_ix) die("Out of memory sp=%d, sz=%d", sp, sp * sizeof(g->sens_ix[0]));
+	if (!g->sens_ix) die("Out of memory sp=%d, sz=%lu", sp, sp * sizeof(g->sens_ix[0]));
 	g->cells = NULL;
 	g->Nu = 0;
 	g->n = g->s = 0;
@@ -166,9 +166,9 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 	ydelta = (g->ymax - g->ymin) / g->Nu;
 
 	xlimits = calloc(1 + g->Nu, sizeof(xlimits[0]));
-	if (!xlimits) die("Out of memory %d sz=%d", 1 + g->Nu, (1 + g->Nu) * sizeof(xlimits[0]));
+	if (!xlimits) die("Out of memory %d sz=%lu", 1 + g->Nu, (1 + g->Nu) * sizeof(xlimits[0]));
 	ylimits = calloc(1 + g->Nu, sizeof(ylimits[0]));
-	if (!ylimits) die("Out of memory %d sz=%d", 1 + g->Nu, (1 + g->Nu) * sizeof(ylimits[0]));
+	if (!ylimits) die("Out of memory %d sz=%lu", 1 + g->Nu, (1 + g->Nu) * sizeof(ylimits[0]));
 
 	for (i = 0; i < g->Nu; i++) {
 		xlimits[i] = g->xmin + i * xdelta;
@@ -178,7 +178,7 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 	ylimits[g->Nu] = g->ymax;
 
 	g->cells = calloc(g->Nu * g->Nu, sizeof(g->cells[0]));
-	if (!g->cells) die("Out of memory Nu=%d sz(1)=%d sz=%d", g->Nu, sizeof(g->cells[0]), g->Nu * g->Nu * sizeof(g->cells[0]));
+	if (!g->cells) die("Out of memory Nu=%d sz(1)=%lu sz=%lu", g->Nu, sizeof(g->cells[0]), g->Nu * g->Nu * sizeof(g->cells[0]));
 	for (i = 0; i < g->Nu; i++)
 		for (j = 0; j < g->Nu; j++)
 			grd_init(&g->cells[i * g->Nu + j], g->n,
