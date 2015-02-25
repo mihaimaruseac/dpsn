@@ -8,11 +8,11 @@
 #include "sn.h"
 
 #ifndef TEST_THRESHOLD
-#define TEST_THRESHOLD 0.5 //TODO: promote to param
+#define TEST_THRESHOLD 0.1 //TODO: promote to param
 #endif
 
 #ifndef DEBUG_TEST_GRID_TREE
-#define DEBUG_TEST_GRID_TREE 1
+#define DEBUG_TEST_GRID_TREE 0
 #endif
 
 struct san_measure {
@@ -68,6 +68,9 @@ static int do_test_san_cell(const struct sensor_network *sn, const struct grid *
 	printf(" %d %5.2lf %5.2lf %d", g->n, g->s, rho, rho >= sn->theta);
 	printf(" %5.2lf %5.2lf %5.2lf %d", g->n_star.val, g->s_star.val, rho_star, rho_star >= sn->theta);
 	printf(" %5.2lf %5.2lf %5.2lf %d\n", g->n_bar.val, g->s_bar.val, rho_bar, rho_bar >= sn->theta);
+	printf("  ~~  - ------ ---- -", g->n, g->s, rho, rho >= sn->theta);
+	printf(" %5.2lf %5.2lf ---- -", g->n_star.var, g->s_star.var, rho_star, rho_star >= sn->theta);
+	printf(" %5.2lf %5.2lf ---- -\n", g->n_bar.var, g->s_bar.var, rho_bar, rho_bar >= sn->theta);
 #endif
 
 	return ret;
