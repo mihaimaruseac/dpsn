@@ -34,7 +34,6 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 
 	/* 3. recursion end */
 	if (method == AGS) {
-		printf("%5.2lf vs %d\n", g->n_star.val, Nt);
 		if (Nu < 0 || max_depth == 0 || g->n_star.val < Nt) {
 			struct grid *gc;
 again:
@@ -48,7 +47,6 @@ again:
 		} else
 			g->Nu = (int)sqrt(Nu);
 		if (g->Nu < 2) goto again; /* should do a split in at least 4 cells */
-		printf("\t split %d\n", g->Nu);
 	}
 	if (method != AGS && (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)) {
 		g->Nu = Nt;

@@ -12,7 +12,7 @@
 #endif
 
 #ifndef DEBUG_TEST_GRID_TREE
-#define DEBUG_TEST_GRID_TREE 0
+#define DEBUG_TEST_GRID_TREE 1
 #endif
 
 struct san_measure {
