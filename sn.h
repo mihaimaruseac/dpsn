@@ -33,6 +33,8 @@ struct grid {
 	struct grid *cells;
 	/* grid zise */
 	int Nu;
+	/* grid parent */
+	const struct grid *parent;
 
 	/* real count and sum */
 	int n;
@@ -53,8 +55,6 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn);
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g);
 void sn_cleanup(const struct sensor_network *sn);
 
-void grd_init(struct grid *g, int sp,
-		double xmin, double xmax, double ymin, double ymax);
 void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f, int depth);
 void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix);
 void grd_finish(struct grid *g);

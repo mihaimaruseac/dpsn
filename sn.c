@@ -4,10 +4,40 @@
 #include "globals.h"
 #include "sn.h"
 
+static void grd_init(struct grid *g, int sp,
+		double xmin, double xmax, double ymin, double ymax,
+		const struct grid *parent)
+{
+	g->xmin = xmin;
+	g->xmax = xmax;
+	g->ymin = ymin;
+	g->ymax = ymax;
+	g->sens_ix = calloc(sp, sizeof(g->sens_ix[0]));
+	printf("g->sens_ix = %p\n", g->sens_ix);
+	if (!g->sens_ix) die("Out of memory sp=%d, sz=%lu", sp, sp * sizeof(g->sens_ix[0]));
+	g->cells = NULL;
+	g->Nu = 0;
+	g->n = g->s = 0;
+	g->parent = parent;
+}
+
+static void grd_print_cell_walls(const struct grid *g, FILE *f, int depth)
+{
+	int i;
+
+	fprintf(f, "%5.2lf %5.2lf %5.2lf 0\n", g->xmin, g->ymin, g->xmax - g->xmin);
+	fprintf(f, "%5.2lf %5.2lf 0 %5.2lf\n", g->xmin, g->ymin, g->ymax - g->ymin);
+	fprintf(f, "%5.2lf %5.2lf %5.2lf 0\n", g->xmin, g->ymax, g->xmax - g->xmin);
+	fprintf(f, "%5.2lf %5.2lf 0 %5.2lf\n", g->xmax, g->ymin, g->ymax - g->ymin);
+
+	for (i = 0; i < g->Nu*g->Nu && depth > 0; i++)
+		grd_print_cell_walls(&g->cells[i], f, depth - 1);
+}
+
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
 {
 	int i;
-	grd_init(g, sn->num_s, sn->xmin, sn->xmax, sn->ymin, sn->ymax);
+	grd_init(g, sn->num_s, sn->xmin, sn->xmax, sn->ymin, sn->ymax, NULL);
 
 	for (i = 0; i < sn->num_s; i++)
 		grd_add_point(sn, g, i);
@@ -48,35 +78,6 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn)
 void sn_cleanup(const struct sensor_network *sn)
 {
 	free(sn->sensors);
-}
-
-void grd_init(struct grid *g, int sp,
-		double xmin, double xmax, double ymin, double ymax)
-{
-	g->xmin = xmin;
-	g->xmax = xmax;
-	g->ymin = ymin;
-	g->ymax = ymax;
-	g->sens_ix = calloc(sp, sizeof(g->sens_ix[0]));
-	printf("g->sens_ix = %p\n", g->sens_ix);
-	if (!g->sens_ix) die("Out of memory sp=%d, sz=%lu", sp, sp * sizeof(g->sens_ix[0]));
-	g->cells = NULL;
-	g->Nu = 0;
-	g->n = g->s = 0;
-}
-
-/* private */
-static void grd_print_cell_walls(const struct grid *g, FILE *f, int depth)
-{
-	int i;
-
-	fprintf(f, "%5.2lf %5.2lf %5.2lf 0\n", g->xmin, g->ymin, g->xmax - g->xmin);
-	fprintf(f, "%5.2lf %5.2lf 0 %5.2lf\n", g->xmin, g->ymin, g->ymax - g->ymin);
-	fprintf(f, "%5.2lf %5.2lf %5.2lf 0\n", g->xmin, g->ymax, g->xmax - g->xmin);
-	fprintf(f, "%5.2lf %5.2lf 0 %5.2lf\n", g->xmax, g->ymin, g->ymax - g->ymin);
-
-	for (i = 0; i < g->Nu*g->Nu && depth > 0; i++)
-		grd_print_cell_walls(&g->cells[i], f, depth - 1);
 }
 
 void grd_print_cell_vals(const struct grid *g, FILE *f, int depth)
@@ -184,7 +185,7 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 		for (j = 0; j < g->Nu; j++)
 			grd_init(&g->cells[i * g->Nu + j], g->n,
 					xlimits[i], xlimits[i+1],
-					ylimits[j], ylimits[j+1]);
+					ylimits[j], ylimits[j+1], g);
 
 	/* split points */
 	for (i = 0; i < g->n; i++) {
@@ -195,9 +196,9 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 		k = k < 0 ? -k-2 : k-1;
 		j = j < 0 ? 0 : j;
 		k = k < 0 ? 0 : k;
-		printf("Before: g->sens_ix = %p\n", g->sens_ix);
+		printf("Before: g->sens_ix = %p\n", g->cells[j * g->Nu + k].sens_ix);
 		grd_add_point(sn, &g->cells[j * g->Nu + k], i);
-		printf("After: g->sens_ix = %p\n", g->sens_ix);
+		printf("After: g->sens_ix = %p\n", g->cells[j * g->Nu + k].sens_ix);
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
@@ -250,7 +251,7 @@ struct grid* grd_copy(const struct grid *original)
 {
 	struct grid *g = calloc(1, sizeof(*g));
 	if (!g) die("Out of memory");
-	grd_init(g, 0, 0, 0, 0, 0);
+	grd_init(g, 0, 0, 0, 0, 0, NULL);
 	g->n = original->n;
 	g->s = original->s;
 
