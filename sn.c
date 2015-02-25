@@ -81,7 +81,7 @@ void grd_print_cell_vals(const struct grid *g, FILE *f, int depth)
 {
 	double x, y;
 
-	if (depth > 0 && g->Nu) {
+	if (depth > 0){
 		int i;
 		for (i = 0; i < g->Nu*g->Nu && depth > 0; i++)
 			grd_print_cell_vals(&g->cells[i], f, depth - 1);
