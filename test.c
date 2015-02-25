@@ -7,10 +7,6 @@
 #include "test.h"
 #include "sn.h"
 
-#ifndef TEST_THRESHOLD
-#define TEST_THRESHOLD 0.1 //TODO: promote to param
-#endif
-
 #ifndef DEBUG_TEST_GRID_TREE
 #define DEBUG_TEST_GRID_TREE 0
 #endif
@@ -40,7 +36,7 @@ static void sm_parse(struct san_measure *sm, int val)
 	}
 }
 
-static int do_test_san_cell(const struct sensor_network *sn, const struct grid *g)
+static int do_test_san_cell(const struct sensor_network *sn, const struct grid *g, double t)
 {
 	double rho, rho_star, rho_bar;
 	int ret = 0;
@@ -51,13 +47,13 @@ static int do_test_san_cell(const struct sensor_network *sn, const struct grid *
 		rho = g->s / g->n;
 	ret |= (rho >= sn->theta) << 2;
 
-	if (g->n_star.val < TEST_THRESHOLD)
+	if (g->n_star.val < t)
 		rho_star = 0;
 	else
 		rho_star = g->s_star.val / g->n_star.val;
 	ret |= (rho_star >= sn->theta) << 1;
 
-	if (g->n_bar.val < TEST_THRESHOLD)
+	if (g->n_bar.val < t)
 		rho_bar = 0;
 	else
 		rho_bar = g->s_bar.val / g->n_bar.val;
@@ -77,42 +73,46 @@ static int do_test_san_cell(const struct sensor_network *sn, const struct grid *
 }
 
 static void test_san(const struct sensor_network *sn, const struct grid *g,
-		int full_tree,
+		double t, int full_tree,
 		struct san_measure *star, struct san_measure *bar)
 {
 	int i, r;
 
 	if (full_tree || !g->Nu) {
-		r = do_test_san_cell(sn, g);
+		r = do_test_san_cell(sn, g, t);
 		sm_parse(star, (r & 0x6) >> 1);
 		sm_parse(bar, ((r & 0x4) >> 1) || (r & 0x1));
 		assert(star->all == bar->all);
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
-		test_san(sn, &g->cells[i], full_tree, star, bar);
+		test_san(sn, &g->cells[i], t, full_tree, star, bar);
 }
 
-void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g)
+void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g, double t)
 {
 	struct san_measure star, bar;
 
 	sm_init(&star);
 	sm_init(&bar);
-	test_san(sn, g, 0, &star, &bar);
+	test_san(sn, g, t, 0, &star, &bar);
 	printf("%d %d %d %d %3.2lf %3.2lf | %d %d %d %d %3.2lf %3.2lf\n",
-			star.both, star.either, star.flip, star.all, (star.both + 0.0) / star.either, (star.flip + 0.0) / star.all,
-			bar.both, bar.either, bar.flip, bar.all, (bar.both + 0.0) / bar.either, (bar.flip + 0.0) / bar.all);
+			star.both, star.either, star.flip, star.all,
+			(star.both + 0.0) / star.either, (star.flip + 0.0) / star.all,
+			bar.both, bar.either, bar.flip, bar.all,
+			(bar.both + 0.0) / bar.either, (bar.flip + 0.0) / bar.all);
 }
 
-void test_san_cell(const struct sensor_network *sn, const struct grid *g)
+void test_san_cell(const struct sensor_network *sn, const struct grid *g, double t)
 {
 	struct san_measure star, bar;
 
 	sm_init(&star);
 	sm_init(&bar);
-	test_san(sn, g, 1, &star, &bar);
+	test_san(sn, g, t, 1, &star, &bar);
 	printf("%d %d %d %d %3.2lf %3.2lf | %d %d %d %d %3.2lf %3.2lf\n",
-			star.both, star.either, star.flip, star.all, (star.both + 0.0) / star.either, (star.flip + 0.0) / star.all,
-			bar.both, bar.either, bar.flip, bar.all, (bar.both + 0.0) / bar.either, (bar.flip + 0.0) / bar.all);
+			star.both, star.either, star.flip, star.all,
+			(star.both + 0.0) / star.either, (star.flip + 0.0) / star.all,
+			bar.both, bar.either, bar.flip, bar.all,
+			(bar.both + 0.0) / bar.either, (bar.flip + 0.0) / bar.all);
 }
