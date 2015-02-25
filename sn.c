@@ -195,7 +195,9 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 		k = k < 0 ? -k-2 : k-1;
 		j = j < 0 ? 0 : j;
 		k = k < 0 ? 0 : k;
+		printf("Before: g->sens_ix = %p\n", g->sens_ix);
 		grd_add_point(sn, &g->cells[j * g->Nu + k], i);
+		printf("After: g->sens_ix = %p\n", g->sens_ix);
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
