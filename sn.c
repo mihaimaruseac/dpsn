@@ -13,7 +13,6 @@ static void grd_init(struct grid *g, int sp,
 	g->ymin = ymin;
 	g->ymax = ymax;
 	g->sens_ix = calloc(sp, sizeof(g->sens_ix[0]));
-	printf("g->sens_ix = %p\n", g->sens_ix);
 	if (!g->sens_ix) die("Out of memory sp=%d, sz=%lu", sp, sp * sizeof(g->sens_ix[0]));
 	g->cells = NULL;
 	g->Nu = 0;
@@ -196,9 +195,7 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 		k = k < 0 ? -k-2 : k-1;
 		j = j < 0 ? 0 : j;
 		k = k < 0 ? 0 : k;
-		printf("Before: g->sens_ix = %p\n", g->cells[j * g->Nu + k].sens_ix);
-		grd_add_point(sn, &g->cells[j * g->Nu + k], i);
-		printf("After: g->sens_ix = %p\n", g->cells[j * g->Nu + k].sens_ix);
+		grd_add_point(sn, &g->cells[j * g->Nu + k], g->sens_ix[i]);
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
