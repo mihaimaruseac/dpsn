@@ -58,6 +58,7 @@ void grd_init(struct grid *g, int sp,
 	g->ymin = ymin;
 	g->ymax = ymax;
 	g->sens_ix = calloc(sp, sizeof(g->sens_ix[0]));
+	printf("g->sens_ix = %p\n", g->sens_ix);
 	if (!g->sens_ix) die("Out of memory sp=%d, sz=%lu", sp, sp * sizeof(g->sens_ix[0]));
 	g->cells = NULL;
 	g->Nu = 0;
