@@ -18,6 +18,12 @@ static void grd_init(struct grid *g, int sp,
 	g->parent = parent;
 }
 
+static void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix)
+{
+	g->n++;
+	g->s += sn->sensors[ix].val;
+}
+
 static void grd_print_cell_walls(const struct grid *g, FILE *f, int depth)
 {
 	int i;
@@ -29,6 +35,40 @@ static void grd_print_cell_walls(const struct grid *g, FILE *f, int depth)
 
 	for (i = 0; i < g->Nu*g->Nu && depth > 0; i++)
 		grd_print_cell_walls(&g->cells[i], f, depth - 1);
+}
+
+static void grd_print_cell_vals(const struct grid *g, FILE *f, int depth)
+{
+	double x, y;
+
+	if (depth > 0){
+		int i;
+		for (i = 0; i < g->Nu*g->Nu && depth > 0; i++)
+			grd_print_cell_vals(&g->cells[i], f, depth - 1);
+		return;
+	}
+
+	if (depth < 0)
+		return;
+
+	x = (g->xmin + g->xmax)/2;
+	y = (g->ymin + g->ymax)/2;
+	fprintf(f, "%5.2lf %5.2lf %d %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
+			x, y, g->n, g->s,
+			g->n_star.val, g->n_star.var, g->s_star.val, g->s_star.var,
+			g->n_ave.val, g->n_ave.var, g->s_ave.val, g->s_ave.var,
+			g->n_bar.val, g->n_bar.var, g->s_bar.val, g->s_bar.var);
+}
+
+static struct noisy_val nv_average2(struct noisy_val a, struct noisy_val b)
+{
+	double alpha = b.var / (a.var + b.var);
+	struct noisy_val ret;
+
+	ret.val = alpha * a.val + (1 - alpha) * b.val;
+	ret.var = alpha * a.var;
+
+	return ret;
 }
 
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
@@ -75,29 +115,6 @@ void sn_cleanup(const struct sensor_network *sn)
 	free(sn->sensors);
 }
 
-void grd_print_cell_vals(const struct grid *g, FILE *f, int depth)
-{
-	double x, y;
-
-	if (depth > 0){
-		int i;
-		for (i = 0; i < g->Nu*g->Nu && depth > 0; i++)
-			grd_print_cell_vals(&g->cells[i], f, depth - 1);
-		return;
-	}
-
-	if (depth < 0)
-		return;
-
-	x = (g->xmin + g->xmax)/2;
-	y = (g->ymin + g->ymax)/2;
-	fprintf(f, "%5.2lf %5.2lf %d %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
-			x, y, g->n, g->s,
-			g->n_star.val, g->n_star.var, g->s_star.val, g->s_star.var,
-			g->n_ave.val, g->n_ave.var, g->s_ave.val, g->s_ave.var,
-			g->n_bar.val, g->n_bar.var, g->s_bar.val, g->s_bar.var);
-}
-
 void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f, int depth)
 {
 	int i;
@@ -121,12 +138,6 @@ void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f, i
 	/* grid cell values */
 	fprintf(f, "# cell values: x y n s n* vn* s* vs* n' vn' s' vs' n^ vn^ s^ vs^\n");
 	grd_print_cell_vals(g, f, depth);
-}
-
-void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix)
-{
-	g->n++;
-	g->s += sn->sensors[ix].val;
 }
 
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
@@ -218,17 +229,6 @@ void grd_cleanup(const struct grid *g)
 			grd_cleanup(&g->cells[i]);
 		free(g->cells);
 	}
-}
-
-static struct noisy_val nv_average2(struct noisy_val a, struct noisy_val b)
-{
-	double alpha = b.var / (a.var + b.var);
-	struct noisy_val ret;
-
-	ret.val = alpha * a.val + (1 - alpha) * b.val;
-	ret.var = alpha * a.var;
-
-	return ret;
 }
 
 struct grid* grd_copy(const struct grid *original)

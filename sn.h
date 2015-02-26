@@ -54,9 +54,6 @@ void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g);
 void sn_cleanup(const struct sensor_network *sn);
 
 void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f, int depth);
-void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix);
-void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
-		double epsilon, double beta, struct drand48_data *buffer);
 void grd_split_cells(const struct sensor_network *sn, struct grid *g);
 int grd_height(const struct grid *g);
 void grd_cleanup(const struct grid *g);
