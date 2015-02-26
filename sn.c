@@ -4,7 +4,7 @@
 #include "globals.h"
 #include "sn.h"
 
-static void grd_init(struct grid *g, int sp,
+static void grd_init(struct grid *g,
 		double xmin, double xmax, double ymin, double ymax,
 		const struct grid *parent)
 {
@@ -74,7 +74,7 @@ static struct noisy_val nv_average2(struct noisy_val a, struct noisy_val b)
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
 {
 	int i;
-	grd_init(g, sn->num_s, sn->xmin, sn->xmax, sn->ymin, sn->ymax, NULL);
+	grd_init(g, sn->xmin, sn->xmax, sn->ymin, sn->ymax, NULL);
 
 	for (i = 0; i < sn->num_s; i++)
 		grd_add_point(sn, g, i);
@@ -184,7 +184,7 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 	if (!g->cells) die("Out of memory Nu=%d sz(1)=%lu sz=%lu", g->Nu, sizeof(g->cells[0]), g->Nu * g->Nu * sizeof(g->cells[0]));
 	for (i = 0; i < g->Nu; i++)
 		for (j = 0; j < g->Nu; j++)
-			grd_init(&g->cells[i * g->Nu + j], g->n,
+			grd_init(&g->cells[i * g->Nu + j],
 					xlimits[i], xlimits[i+1],
 					ylimits[j], ylimits[j+1], g);
 
@@ -235,7 +235,7 @@ struct grid* grd_copy(const struct grid *original)
 {
 	struct grid *g = calloc(1, sizeof(*g));
 	if (!g) die("Out of memory");
-	grd_init(g, 0, 0, 0, 0, 0, NULL);
+	grd_init(g, 0, 0, 0, 0, NULL);
 	g->n = original->n;
 	g->s = original->s;
 
