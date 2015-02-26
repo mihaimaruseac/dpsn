@@ -71,6 +71,14 @@ static struct noisy_val nv_average2(struct noisy_val a, struct noisy_val b)
 	return ret;
 }
 
+int sensor_cmp(const void *a, const void *b)
+{
+	const struct sensor *sa = a, *sb = b;
+	int try = double_cmp(&sa->x, &sb->x);
+	if (try) return try;
+	return double_cmp(&sa->y, &sb->y);
+}
+
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
 {
 	int i;
@@ -107,6 +115,7 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn)
 		sn->num_s = i;
 	}
 
+	qsort(sn->sensors, sn->num_s, sizeof(sn->sensors[0]), sensor_cmp);
 	fclose(f);
 }
 
@@ -163,7 +172,8 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 {
 	double *xlimits, *ylimits, xdelta, ydelta;
-	int i, j, k;
+	struct sensor tmp_s;
+	int i, j, k, st, en;
 
 	xdelta = (g->xmax - g->xmin) / g->Nu;
 	ydelta = (g->ymax - g->ymin) / g->Nu;
@@ -189,7 +199,13 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 					ylimits[j], ylimits[j+1], g);
 
 	/* split points */
-	for (i = 0; i < sn->num_s; i++) {
+	tmp_s.x = g->xmin; tmp_s.y = g->ymin;
+	st = bsearch_i(&tmp_s, sn->sensors, sn->num_s, sizeof(sn->sensors[0]), sensor_cmp);
+	tmp_s.x = g->xmax; tmp_s.y = g->ymax;
+	en = bsearch_i(&tmp_s, sn->sensors, sn->num_s, sizeof(sn->sensors[0]), sensor_cmp);
+	st = st < 0 ? -st-1 : st-1;
+	en = en < 0 ? -en-1 : en-1;
+	for (i = st; i < en; i++) {
 		struct sensor *s = &sn->sensors[i];
 		j = bsearch_i(&s->x, xlimits, 1 + g->Nu, sizeof(xlimits[0]), double_cmp);
 		k = bsearch_i(&s->y, ylimits, 1 + g->Nu, sizeof(ylimits[0]), double_cmp);
