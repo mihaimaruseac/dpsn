@@ -3,7 +3,7 @@
 alphas="0.2 0.5 0.9"
 betas="0.2 0.5 0.9"
 gammas="0.01 0.05 0.2"
-depths="3 5"
+depths="3"
 Ks="5 10"
 Nts="3 4"
 TNts="3 5"
@@ -12,7 +12,7 @@ ttreshes="0.1 0.5"
 seeds="42"
 
 datasetdir="datasets"
-outputdir="output"
+outputdir="output/output.r2"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
