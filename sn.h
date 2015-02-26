@@ -61,10 +61,6 @@ int grd_height(const struct grid *g);
 void grd_cleanup(const struct grid *g);
 struct grid* grd_copy(const struct grid *original);
 
-#ifndef COARSE_AVE
-#define COARSE_AVE 1
-#endif
-
 /**
  * Will update _ave values in a to minimize their variance as a mean of _star
  * values in both a and b.
@@ -73,8 +69,6 @@ void grd_average2(struct grid *a, const struct grid *b);
 /**
  * Will update _ave values in g to minimize their variance as a mean of _star
  * values in g and _ave values in its children.
- *
- * Can be done coarse grained (COARSE_AVE=1) or fine grained (COARSE_AVE=0).
  */
 void grd_averagev(struct grid *g);
 
@@ -82,7 +76,6 @@ void grd_averagev(struct grid *g);
  * Does the mean consistency step ensuring that the _bar value in a cell is
  * the sum of the _bar values of the children. Redistributes the difference
  * between cell's _bar and sum of children's _ave, equally to each child
- * TODO: COARSE_AVE=0 might open a speedup here too.
  */
 void grd_consistency(struct grid *g);
 
