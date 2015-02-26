@@ -28,12 +28,8 @@ int int_cmp_r(const void *a, const void *b)
 int double_cmp(const void *a, const void *b)
 {
 	const double *fa = a, *fb = b;
-
-	if (*fa < *fb)
-		return -1;
-	else if (*fa > *fb)
-		return 1;
-	return 0;
+	const double ret = *fa - *fb;
+	return (ret > 0) - (ret < 0);
 }
 
 int double_cmp_r(const void *a, const void *b)
