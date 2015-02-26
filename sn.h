@@ -26,8 +26,6 @@ struct sensor_network {
 struct grid {
 	/* bounding box */
 	double xmin, xmax, ymin, ymax;
-	/* indices to the sensors inside the grid */
-	int *sens_ix;
 
 	/* grid cells */
 	struct grid *cells;
@@ -57,7 +55,6 @@ void sn_cleanup(const struct sensor_network *sn);
 
 void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f, int depth);
 void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix);
-void grd_finish(struct grid *g);
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer);
 void grd_split_cells(const struct sensor_network *sn, struct grid *g);
