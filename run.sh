@@ -12,7 +12,7 @@ ttreshes="0.1 0.5"
 seeds="42"
 
 datasetdir="datasets"
-outputdir="output/output.r2"
+outputdir="output/output.r3"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
