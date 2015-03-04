@@ -38,21 +38,6 @@ static void sm_print(const struct san_measure *sm)
 			sm->either, sm->flip, sm->all, jaccard, flip_ratio);
 }
 
-/* val is 0, 1, 2 or 3 */
-static void sm_parse(struct san_measure *sm, int val)
-{
-	sm->all++;
-	if (val == 3) {
-		sm->both++;
-		sm->either++;
-	} else if (val != 0) {
-		sm->flip++;
-		sm->either++;
-	}
-	if (val > 1)
-		sm->first++;
-}
-
 static void do_test_san_cell(const struct sensor_network *sn, const struct grid *g,
 		struct test_grid *tgs, int cnt)
 {
@@ -60,20 +45,9 @@ static void do_test_san_cell(const struct sensor_network *sn, const struct grid 
 	int i;
 
 	for (i = 0; i < cnt; i++) {
-		if (g->n == 0)
-			rho = 0;
-		else
-			rho = g->s / g->n;
-
-		if (g->n_star.val < tgs[i].t)
-			rho_star = 0;
-		else
-			rho_star = g->s_star.val / g->n_star.val;
-
-		if (g->n_bar.val < tgs[i].t)
-			rho_bar = 0;
-		else
-			rho_bar = g->s_bar.val / g->n_bar.val;
+		rho = g->n == 0 ? 0 : g->s / g->n;
+		rho_star = g->n_star.val < tgs[i].t ? 0 : g->s_star.val / g->n_star.val;
+		rho_bar = g->n_bar.val < tgs[i].t ? 0 : g->s_bar.val / g->n_bar.val;
 
 		if (rho >= sn->theta) {
 			tgs[i].star.first++;
