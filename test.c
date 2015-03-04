@@ -115,12 +115,8 @@ static void do_test_san(const struct sensor_network *sn, const struct grid *g,
 	printf("\n");
 }
 
-void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g, double t)
+void test_san_grid(const struct sensor_network *sn, const struct grid *g, double t)
 {
 	do_test_san(sn, g, t, 0);
-}
-
-void test_san_cell(const struct sensor_network *sn, const struct grid *g, double t)
-{
 	do_test_san(sn, g, t, 1);
 }
