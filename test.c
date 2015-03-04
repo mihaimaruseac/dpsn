@@ -19,6 +19,11 @@ struct san_measure {
 	int all; /* all recorded samples */
 };
 
+struct test_grid {
+	double t;
+	struct san_measure star, bar;
+};
+
 static void sm_init(struct san_measure *sm)
 {
 	memset(sm, 0, sizeof(*sm));
@@ -48,81 +53,110 @@ static void sm_parse(struct san_measure *sm, int val)
 		sm->first++;
 }
 
-static int do_test_san_cell(const struct sensor_network *sn, const struct grid *g, double t)
+static void do_test_san_cell(const struct sensor_network *sn, const struct grid *g,
+		struct test_grid *tgs, int cnt)
 {
 	double rho, rho_star, rho_bar;
-	int ret = 0;
+	int i;
 
-	if (g->n == 0)
-		rho = 0;
-	else
-		rho = g->s / g->n;
-	ret |= (rho >= sn->theta) << 2;
+	for (i = 0; i < cnt; i++) {
+		if (g->n == 0)
+			rho = 0;
+		else
+			rho = g->s / g->n;
 
-	if (g->n_star.val < t)
-		rho_star = 0;
-	else
-		rho_star = g->s_star.val / g->n_star.val;
-	/* TODO: might need a different threshold than theta */
-	ret |= (rho_star >= sn->theta) << 1;
+		if (g->n_star.val < tgs[i].t)
+			rho_star = 0;
+		else
+			rho_star = g->s_star.val / g->n_star.val;
 
-	if (g->n_bar.val < t)
-		rho_bar = 0;
-	else
-		rho_bar = g->s_bar.val / g->n_bar.val;
-	ret |= (rho_bar >= sn->theta) << 0;
+		if (g->n_bar.val < tgs[i].t)
+			rho_bar = 0;
+		else
+			rho_bar = g->s_bar.val / g->n_bar.val;
+
+		if (rho >= sn->theta) {
+			tgs[i].star.first++;
+			tgs[i].bar.first++;
+			if (rho_star >= sn->theta)
+				tgs[i].star.both++;
+			else
+				tgs[i].star.flip++;
+			if (rho_bar >= sn->theta)
+				tgs[i].bar.both++;
+			else
+				tgs[i].bar.flip++;
+		} else {
+			if (rho_star >= sn->theta)
+				tgs[i].star.flip++;
+			if (rho_bar >= sn->theta)
+				tgs[i].bar.flip++;
+		}
+		tgs[i].star.either = tgs[i].star.both + tgs[i].star.flip;
+		tgs[i].bar.either = tgs[i].bar.both + tgs[i].bar.flip;
+		tgs[i].star.all++;
+		tgs[i].bar.all++;
 
 #if DEBUG_TEST_GRID_TREE
-	printf("%01x ~~ ", ret);
-	printf(" %d %5.2lf %5.2lf %d", g->n, g->s, rho, rho >= sn->theta);
-	printf(" %5.2lf %5.2lf %5.2lf %d", g->n_star.val, g->s_star.val, rho_star, rho_star >= sn->theta);
-	printf(" %5.2lf %5.2lf %5.2lf %d\n", g->n_bar.val, g->s_bar.val, rho_bar, rho_bar >= sn->theta);
-	printf("  ~~  - ------ ---- -");
-	printf(" %5.2lf %5.2lf ---- -", g->n_star.var, g->s_star.var);
-	printf(" %5.2lf %5.2lf ---- -\n", g->n_bar.var, g->s_bar.var);
+		printf(" %d %5.2lf %5.2lf %d", g->n, g->s, rho, rho >= sn->theta);
+		printf(" %5.2lf %5.2lf %5.2lf %d", g->n_star.val, g->s_star.val, rho_star, rho_star >= sn->theta);
+		printf(" %5.2lf %5.2lf %5.2lf %d\n", g->n_bar.val, g->s_bar.val, rho_bar, rho_bar >= sn->theta);
+		printf("  ~~  - ------ ---- -");
+		printf(" %5.2lf %5.2lf ---- -", g->n_star.var, g->s_star.var);
+		printf(" %5.2lf %5.2lf ---- -\n", g->n_bar.var, g->s_bar.var);
 #endif
-
-	return ret;
+	}
 }
 
 static void test_san(const struct sensor_network *sn, const struct grid *g,
 		double t, int full_tree,
-		struct san_measure *star, struct san_measure *bar)
+		struct test_grid *tgs, int cnt)
 {
 	int i, r;
 
-	if (full_tree || !g->Nu) {
-		r = do_test_san_cell(sn, g, t);
-		sm_parse(star, (r & 0x06) >> 1);
-		sm_parse(bar, ((r & 0x04) >> 1) | (r & 0x01));
-	}
+	if (full_tree || !g->Nu)
+		do_test_san_cell(sn, g, tgs, cnt);
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
-		test_san(sn, &g->cells[i], t, full_tree, star, bar);
-}
-
-static void do_test_san(const struct sensor_network *sn, const struct grid *g,
-		double t, int full_tree)
-{
-	struct san_measure star, bar;
-
-	sm_init(&star);
-	sm_init(&bar);
-	printf("%5.2lf: ", t);
-	test_san(sn, g, t, full_tree, &star, &bar);
-	sm_print(&star);
-	printf(" | ");
-	sm_print(&bar);
-	printf("\n");
+		test_san(sn, &g->cells[i], t, full_tree, tgs, cnt);
 }
 
 void test_san_grid(const struct sensor_network *sn, const struct grid *g,
 		double *t, int tsz)
 {
+	struct test_grid *results_full;
+	struct test_grid *results;
 	int i;
 
+	results = calloc(tsz, sizeof(results[0]));
+	if (!results)
+		die("Cannot allocate sanity result structures!");
+	results_full = calloc(tsz, sizeof(results_full[0]));
+	if (!results_full)
+		die("Cannot allocate sanity result structures!");
+
 	for (i = 0; i < tsz; i++) {
-		do_test_san(sn, g, t[i], 0);
-		do_test_san(sn, g, t[i], 1);
+		results[i].t = t[i];
+		results_full[i].t = t[i];
 	}
+
+	test_san(sn, g, t[i], 0, results, tsz);
+	test_san(sn, g, t[i], 1, results_full, tsz);
+
+	for (i = 0; i < tsz; i++) {
+		printf("l %5.2lf: ", t[i]);
+		sm_print(&results[i].star);
+		printf(" | ");
+		sm_print(&results[i].bar);
+		printf("\n");
+		printf("t %5.2lf: ", t[i]);
+		sm_print(&results_full[i].star);
+		printf(" | ");
+		sm_print(&results_full[i].bar);
+		printf("\n");
+	}
+
+
+	free(results);
+	free(results_full);
 }
