@@ -5,7 +5,7 @@ struct sensor_network;
 struct grid;
 
 /** Tests without shape generation */
-void test_san_grid(const struct sensor_network *sn, const struct grid *g,
-		double *t, int tsz);
+void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g, double t);
+void test_san_cell(const struct sensor_network *sn, const struct grid *g, double t);
 
 #endif

@@ -29,13 +29,15 @@ static struct {
 	/* method arguments */
 	double gamma;
 	int depth;
+	/* test threshold */
+	double tthresh;
 	/* random seed */
 	long int seed;
 } args;
 
 static void usage(const char *prg)
 {
-	fprintf(stderr, "Usage: %s ALPHA BETA K NT EPS <u GAMMA|a GAMMA|t DEPTH> DATASET [SEED]\n", prg);
+	fprintf(stderr, "Usage: %s ALPHA BETA K NT EPS <u GAMMA|a GAMMA|t DEPTH> TTHRESH DATASET [SEED]\n", prg);
 	exit(EXIT_FAILURE);
 }
 
@@ -49,7 +51,7 @@ static void parse_arguments(int argc, char **argv)
 		printf("%s ", argv[i]);
 	printf("\n");
 
-	if (argc < 9 || argc > 10)
+	if (argc < 10 || argc > 11)
 		usage(argv[0]);
 	if (sscanf(argv[1], "%lf", &args.alpha) != 1 || args.alpha <= 0 || args.alpha >= 1)
 		usage(argv[0]);
@@ -76,9 +78,12 @@ static void parse_arguments(int argc, char **argv)
 	else if (args.method == AGS && (sscanf(argv[7], "%d", &args.depth) != 1 || args.depth <= 2))
 		usage(argv[0]);
 
-	args.dataset = strdup(argv[8]);
-	if (argc == 10) {
-		if (sscanf(argv[9], "%ld", &args.seed) != 1)
+	if (sscanf(argv[8], "%lf", &args.tthresh) != 1 || args.tthresh <= 0)
+		usage(argv[0]);
+
+	args.dataset = strdup(argv[9]);
+	if (argc == 11) {
+		if (sscanf(argv[10], "%ld", &args.seed) != 1)
 			usage(argv[0]);
 	} else
 		args.seed = 42;
@@ -117,9 +122,8 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	double thresholds[] = {0.01, 0.1, 0.5, 1};
-	int threshold_cnt = sizeof(thresholds)/sizeof(thresholds[0]);
-	test_san_grid(&sn, &g, thresholds, threshold_cnt);
+	test_san_leaf_only(&sn, &g, args.tthresh);
+	test_san_cell(&sn, &g, args.tthresh);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
