@@ -115,8 +115,13 @@ static void do_test_san(const struct sensor_network *sn, const struct grid *g,
 	printf("\n");
 }
 
-void test_san_grid(const struct sensor_network *sn, const struct grid *g, double t)
+void test_san_grid(const struct sensor_network *sn, const struct grid *g,
+		double *t, int tsz)
 {
-	do_test_san(sn, g, t, 0);
-	do_test_san(sn, g, t, 1);
+	int i;
+
+	for (i = 0; i < tsz; i++) {
+		do_test_san(sn, g, t[i], 0);
+		do_test_san(sn, g, t[i], 1);
+	}
 }

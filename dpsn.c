@@ -117,7 +117,9 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	test_san_grid(&sn, &g, 0.1);
+	double thresholds[1] = {0.1};
+	int threshold_cnt = 1;
+	test_san_grid(&sn, &g, thresholds, threshold_cnt);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
