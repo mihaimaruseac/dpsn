@@ -52,20 +52,15 @@ static void do_test_san_cell(const struct sensor_network *sn, const struct grid 
 		if (rho >= sn->theta) {
 			tgs[i].star.first++;
 			tgs[i].bar.first++;
-			if (rho_star >= sn->theta)
-				tgs[i].star.both++;
-			else
-				tgs[i].star.flip++;
-			if (rho_bar >= sn->theta)
-				tgs[i].bar.both++;
-			else
-				tgs[i].bar.flip++;
+			if (rho_star >= sn->theta) tgs[i].star.both++;
+			else tgs[i].star.flip++;
+			if (rho_bar >= sn->theta) tgs[i].bar.both++;
+			else tgs[i].bar.flip++;
 		} else {
-			if (rho_star >= sn->theta)
-				tgs[i].star.flip++;
-			if (rho_bar >= sn->theta)
-				tgs[i].bar.flip++;
+			if (rho_star >= sn->theta) tgs[i].star.flip++;
+			if (rho_bar >= sn->theta) tgs[i].bar.flip++;
 		}
+
 		tgs[i].star.either = tgs[i].star.both + tgs[i].star.flip;
 		tgs[i].bar.either = tgs[i].bar.both + tgs[i].bar.flip;
 		tgs[i].star.all++;
@@ -129,7 +124,6 @@ void test_san_grid(const struct sensor_network *sn, const struct grid *g,
 		sm_print(&results_full[i].bar);
 		printf("\n");
 	}
-
 
 	free(results);
 	free(results_full);
