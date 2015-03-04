@@ -108,6 +108,7 @@ static void do_test_san(const struct sensor_network *sn, const struct grid *g,
 
 	sm_init(&star);
 	sm_init(&bar);
+	printf("%5.2lf: ", t);
 	test_san(sn, g, t, full_tree, &star, &bar);
 	sm_print(&star);
 	printf(" | ");
