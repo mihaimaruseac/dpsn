@@ -24,11 +24,6 @@ struct test_grid {
 	struct san_measure star, bar;
 };
 
-static void sm_init(struct san_measure *sm)
-{
-	memset(sm, 0, sizeof(*sm));
-}
-
 static void sm_print(const struct san_measure *sm)
 {
 	double jaccard = (sm->both + 0.0) / sm->either;
@@ -81,7 +76,7 @@ static void test_san(const struct sensor_network *sn, const struct grid *g,
 		double t, int full_tree,
 		struct test_grid *tgs, int cnt)
 {
-	int i, r;
+	int i;
 
 	if (full_tree || !g->Nu)
 		do_test_san_cell(sn, g, tgs, cnt);
