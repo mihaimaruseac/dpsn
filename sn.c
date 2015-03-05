@@ -270,7 +270,7 @@ static void answer_full(const struct grid *g, int arg,
 		struct noisy_val *n_star, struct noisy_val *s_star,
 		struct noisy_val *n_bar, struct noisy_val *s_bar)
 {
-	double ag, ar;
+	double ag, ar, f;
 	int i;
 
 	/* leaf or full cell coverage */
@@ -283,13 +283,12 @@ static void answer_full(const struct grid *g, int arg,
 				xmin, ymin, xmax, ymax);
 		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
 		ar = (xmax - xmin) * (ymax - ymin);
+		f = ar / ag;
 		printf("%*c %10.2f %10.2f %3.2f\n", arg, ' ', ag, ar, ar/ag);
-#if 0
-		*n_star = g->n_star;
-		*s_star = g->s_star;
-		*n_bar = g->n_bar;
-		*s_bar = g->s_bar;
-#endif
+		n_star->val += f * g->n_star.val; n_star->var += f * f * g->n_star.var;
+		s_star->val += f * g->s_star.val; s_star->var += f * f * g->s_star.var;
+		n_bar->val += f * g->n_bar.val; n_bar->var += f * f * g->n_bar.var;
+		s_bar->val += f * g->s_bar.val; s_bar->var += f * f * g->s_bar.var;
 		return;
 	}
 
