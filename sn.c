@@ -270,6 +270,7 @@ static void answer_full(const struct grid *g, int arg,
 		struct noisy_val *n_star, struct noisy_val *s_star,
 		struct noisy_val *n_bar, struct noisy_val *s_bar)
 {
+	double ag, ar;
 	int i;
 
 	/* leaf or full cell coverage */
@@ -277,7 +278,12 @@ static void answer_full(const struct grid *g, int arg,
 			((g->xmin == xmin) && (g->xmax == xmax) &&
 			 (g->ymin == ymin) && (g->ymax == ymax))) {
 		// TODO:
-		printf("%*cHit\n", arg, ' ');
+		printf("%*cHit (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", arg, ' ',
+				g->xmin, g->ymin, g->xmax, g->ymax,
+				xmin, ymin, xmax, ymax);
+		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
+		ar = (xmax - xmin) * (ymax - ymin);
+		printf("%*c %10.2f %10.2f %3.2f\n", arg, ' ', ag, ar, ar/ag);
 #if 0
 		*n_star = g->n_star;
 		*s_star = g->s_star;
@@ -299,8 +305,8 @@ static void answer_full(const struct grid *g, int arg,
 					xmin, ymin, xmax, ymax);
 			answer_full(&g->cells[i], arg + 1,
 					max(xmin, g->cells[i].xmin),
-					max(ymin, g->cells[i].ymin),
 					min(xmax, g->cells[i].xmax),
+					max(ymin, g->cells[i].ymin),
 					min(ymax, g->cells[i].ymax),
 					n_star, s_star, n_bar, s_bar);
 		}
