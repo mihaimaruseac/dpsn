@@ -260,7 +260,7 @@ void grd_to_lrg(const struct grid *g, double res,
 {
 	double xspan = g->xmax - g->xmin;
 	double yspan = g->ymax - g->ymin;
-	int i;
+	int i, j;
 
 	*xcnt = ceil(xspan / res);
 	*ycnt = ceil(yspan / res);
@@ -271,6 +271,23 @@ void grd_to_lrg(const struct grid *g, double res,
 	*grid = calloc(*xcnt, sizeof((*grid)[0]));
 	for (i = 0; i < *xcnt; i++)
 		(*grid)[i] = calloc(*ycnt, sizeof((*grid)[i][0]));
+
+	for (i = 0; i < *xcnt; i++)
+		for (j = 0; j < *ycnt; j++) {
+			(*grid)[i][j].xmin = g->xmin + i * res;
+			(*grid)[i][j].xmax = g->xmin + (i + 1) * res;
+			(*grid)[i][j].ymin = g->ymin + j * res;
+			(*grid)[i][j].ymax = g->ymin + (j + 1) * res;
+			// TODO: answer grid
+		}
+
+	for (i = 0; i < *xcnt; i++)
+		for (j = 0; j < *ycnt; j++) {
+			printf("%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
+					(*grid)[i][j].xmin, (*grid)[i][j].ymin,
+					(*grid)[i][j].xmax, (*grid)[i][j].ymax);
+			// TODO: print grid
+		}
 }
 
 void grd_average2(struct grid *a, const struct grid *b)
