@@ -265,7 +265,7 @@ static int overlap(const struct grid *g,
 	return 1;
 }
 
-static void answer_full(const struct grid *g,
+static void answer_full(const struct grid *g, int arg,
 		double xmin, double xmax, double ymin, double ymax,
 		struct noisy_val *n_star, struct noisy_val *s_star,
 		struct noisy_val *n_bar, struct noisy_val *s_bar)
@@ -277,7 +277,7 @@ static void answer_full(const struct grid *g,
 			((g->xmin == xmin) && (g->xmax == xmax) &&
 			 (g->ymin == ymin) && (g->ymax == ymax))) {
 		// TODO:
-		printf("Hit\n");
+		printf("%*cHit\n", arg, ' ');
 #if 0
 		*n_star = g->n_star;
 		*s_star = g->s_star;
@@ -292,12 +292,12 @@ static void answer_full(const struct grid *g,
 			i+= g->Nu - 1;
 			continue;
 		}
-		printf("Testing %d\n", i);
+		printf("%*cTesting %d\n", arg, ' ', i);
 		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
-			printf("Overlap %d (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i,
+			printf("%*cOverlap %d (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", arg, ' ', i,
 					g->cells[i].xmin, g->cells[i].ymin, g->cells[i].xmax, g->cells[i].ymax,
 					xmin, ymin, xmax, ymax);
-			answer_full(&g->cells[i],
+			answer_full(&g->cells[i], arg + 1,
 					max(xmin, g->cells[i].xmin),
 					max(ymin, g->cells[i].ymin),
 					min(xmax, g->cells[i].xmax),
@@ -314,7 +314,7 @@ static void answer(const struct grid *g,
 	cell->s_star.val = 0; cell->s_star.var = 0;
 	cell->n_bar.val = 0; cell->n_bar.var = 0;
 	cell->s_bar.val = 0; cell->s_bar.var = 0;
-	answer_full(g, cell->xmin, cell->xmax, cell->ymin, cell->ymax,
+	answer_full(g, 1, cell->xmin, cell->xmax, cell->ymin, cell->ymax,
 			&cell->n_star, &cell->s_star,
 			&cell->n_bar, &cell->s_bar);
 }
@@ -349,6 +349,7 @@ void grd_to_lrg(const struct grid *g, double res,
 			v += res;
 			(*grid)[i][j].ymax = min(v, g->ymax);
 			answer(g, &(*grid)[i][j]);
+			printf("---\n");
 		}
 
 	for (i = 0; i < *xcnt; i++)
