@@ -287,14 +287,24 @@ static void answer_full(const struct grid *g,
 		return;
 	}
 
-	// TODO: bsearch
-	for (i = 0; i < g->Nu * g->Nu; i++)
+	for (i = 0; i < g->Nu * g->Nu; i++) {
+		if ((g->cells[i].xmin >= xmax) || (g->cells[i].xmax <= xmin)) {
+			i+= g->Nu - 1;
+			continue;
+		}
+		printf("Testing %d\n", i);
 		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
 			printf("Overlap %d (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i,
 					g->cells[i].xmin, g->cells[i].ymin, g->cells[i].xmax, g->cells[i].ymax,
 					xmin, ymin, xmax, ymax);
-			// TODO
+			answer_full(&g->cells[i],
+					max(xmin, g->cells[i].xmin),
+					max(ymin, g->cells[i].ymin),
+					min(xmax, g->cells[i].xmax),
+					min(ymax, g->cells[i].ymax),
+					n_star, s_star, n_bar, s_bar);
 		}
+	}
 }
 
 static void answer(const struct grid *g,
