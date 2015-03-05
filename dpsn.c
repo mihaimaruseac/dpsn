@@ -31,13 +31,15 @@ static struct {
 	int depth;
 	/* test threshold */
 	double tthresh;
+	/* resolution of final grid */
+	double resolution;
 	/* random seed */
 	long int seed;
 } args;
 
 static void usage(const char *prg)
 {
-	fprintf(stderr, "Usage: %s ALPHA BETA K NT EPS <u GAMMA|a GAMMA|t DEPTH> TTHRESH DATASET [SEED]\n", prg);
+	fprintf(stderr, "Usage: %s ALPHA BETA K NT EPS <u GAMMA|a GAMMA|t DEPTH> TTHRESH RESOLUTION DATASET [SEED]\n", prg);
 	exit(EXIT_FAILURE);
 }
 
@@ -51,7 +53,7 @@ static void parse_arguments(int argc, char **argv)
 		printf("%s ", argv[i]);
 	printf("\n");
 
-	if (argc < 10 || argc > 11)
+	if (argc < 11 || argc > 12)
 		usage(argv[0]);
 	if (sscanf(argv[1], "%lf", &args.alpha) != 1 || args.alpha <= 0 || args.alpha >= 1)
 		usage(argv[0]);
@@ -81,9 +83,12 @@ static void parse_arguments(int argc, char **argv)
 	if (sscanf(argv[8], "%lf", &args.tthresh) != 1 || args.tthresh <= 0)
 		usage(argv[0]);
 
-	args.dataset = strdup(argv[9]);
-	if (argc == 11) {
-		if (sscanf(argv[10], "%ld", &args.seed) != 1)
+	if (sscanf(argv[9], "%lf", &args.resolution) != 1 || args.resolution <= 0)
+		usage(argv[0]);
+
+	args.dataset = strdup(argv[10]);
+	if (argc == 12) {
+		if (sscanf(argv[11], "%ld", &args.seed) != 1)
 			usage(argv[0]);
 	} else
 		args.seed = 42;
