@@ -333,7 +333,7 @@ void grd_to_lrg(const struct grid *g, double res,
 			(*grid)[i][j].xmin = v;
 			v += res;
 			(*grid)[i][j].xmax = v > g->xmax ? g->xmax : v;
-			v = g->ymin + i * res;
+			v = g->ymin + j * res;
 			(*grid)[i][j].ymin = v;
 			v += res;
 			(*grid)[i][j].ymax = v > g->ymax ? g->ymax : v;
