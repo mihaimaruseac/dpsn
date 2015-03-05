@@ -72,7 +72,7 @@ static struct noisy_val nv_average2(struct noisy_val a, struct noisy_val b)
 	return ret;
 }
 
-int sensor_cmp(const void *a, const void *b)
+static int sensor_cmp(const void *a, const void *b)
 {
 	const struct sensor *sa = a, *sb = b;
 	int try = double_cmp(&sa->x, &sb->x);
