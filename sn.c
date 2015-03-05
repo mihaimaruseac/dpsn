@@ -287,6 +287,7 @@ static void answer_full(const struct grid *g,
 		return;
 	}
 
+	// TODO: bsearch
 	for (i = 0; i < g->Nu * g->Nu; i++)
 		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
 			printf("Overlap %d (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i,
