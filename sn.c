@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -251,6 +252,25 @@ struct grid* grd_copy(const struct grid *original)
 	g->s = original->s;
 
 	return g;
+}
+
+void grd_to_lrg(const struct grid *g, double res,
+		struct low_res_grid_cell ***grid,
+		int *xcnt, int *ycnt)
+{
+	double xspan = g->xmax - g->xmin;
+	double yspan = g->ymax - g->ymin;
+	int i;
+
+	*xcnt = ceil(xspan / res);
+	*ycnt = ceil(yspan / res);
+
+	printf("%5.2f %5.2f\n", xspan, yspan);
+	printf("%d %d\n", *xcnt, *ycnt);
+
+	*grid = calloc(*xcnt, sizeof((*grid)[0]));
+	for (i = 0; i < *xcnt; i++)
+		(*grid)[i] = calloc(*ycnt, sizeof((*grid)[i][0]));
 }
 
 void grd_average2(struct grid *a, const struct grid *b)

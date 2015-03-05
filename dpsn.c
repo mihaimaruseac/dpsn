@@ -96,7 +96,9 @@ static void parse_arguments(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
+	int xcnt, ycnt, i;
 	struct grid g;
 
 	parse_arguments(argc, argv);
@@ -109,7 +111,7 @@ int main(int argc, char **argv)
 
 #if DEBUG_GRID_TREE
 	{
-		int i, h = grd_height(&g);
+		int h = grd_height(&g);
 		char *fname = NULL;
 		FILE *f;
 
@@ -127,11 +129,15 @@ int main(int argc, char **argv)
 	}
 #endif
 
+	grd_to_lrg(&g, args.resolution, &grid, &xcnt, &ycnt);
+
 	test_san_leaf_only(&sn, &g, args.tthresh);
 	test_san_cell(&sn, &g, args.tthresh);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
 	grd_cleanup(&g);
+	for (i = 0; i < xcnt; i++) free(grid[i]);
+	free(grid);
 	return 0;
 }
