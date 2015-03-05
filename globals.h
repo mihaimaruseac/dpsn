@@ -8,6 +8,9 @@
 		exit(EXIT_FAILURE); \
 	} while (0)
 
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
 struct drand48_data;
 
 /* qsort functions for integer comparisons */
