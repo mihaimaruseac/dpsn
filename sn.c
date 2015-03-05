@@ -277,7 +277,6 @@ static void answer_full(const struct grid *g, int arg,
 	if ((!g->Nu) ||
 			((g->xmin == xmin) && (g->xmax == xmax) &&
 			 (g->ymin == ymin) && (g->ymax == ymax))) {
-		// TODO:
 		printf("%*cHit (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", arg, ' ',
 				g->xmin, g->ymin, g->xmax, g->ymax,
 				xmin, ymin, xmax, ymax);
@@ -362,7 +361,9 @@ void grd_to_lrg(const struct grid *g, double res,
 			printf("%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
 					(*grid)[i][j].xmin, (*grid)[i][j].ymin,
 					(*grid)[i][j].xmax, (*grid)[i][j].ymax);
-			// TODO: print grid
+			printf("\t%5.2lf %5.2lf\n",
+					(*grid)[i][j].n_star.val,
+					(*grid)[i][j].n_star.var);
 		}
 }
 
