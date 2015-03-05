@@ -254,15 +254,58 @@ struct grid* grd_copy(const struct grid *original)
 	return g;
 }
 
+static int overlap(const struct grid *g,
+		double xmin, double xmax, double ymin, double ymax)
+{
+	if (xmin >= g->xmax || g->xmin >= xmax)
+		return 0;
+	if (ymin >= g->ymax || g->ymin >= ymax)
+		return 0;
+
+	return 1;
+}
+
+static void answer_full(const struct grid *g,
+		double xmin, double xmax, double ymin, double ymax,
+		struct noisy_val *n_star, struct noisy_val *s_star,
+		struct noisy_val *n_bar, struct noisy_val *s_bar)
+{
+	int i;
+
+	/* leaf or full cell coverage */
+	if ((!g->Nu) ||
+			((g->xmin == xmin) && (g->xmax == xmax) &&
+			 (g->ymin == ymin) && (g->ymax == ymax))) {
+		// TODO:
+		printf("Hit\n");
+#if 0
+		*n_star = g->n_star;
+		*s_star = g->s_star;
+		*n_bar = g->n_bar;
+		*s_bar = g->s_bar;
+#endif
+		return;
+	}
+
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
+			printf("Overlap %d (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i,
+					g->cells[i].xmin, g->cells[i].ymin, g->cells[i].xmax, g->cells[i].ymax,
+					xmin, ymin, xmax, ymax);
+			// TODO
+		}
+}
+
 static void answer(const struct grid *g,
 		struct low_res_grid_cell *cell)
 {
-	printf("-- (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n",
-			cell->xmin, cell->ymin,
-			cell->xmax, cell->ymax);
-	printf("<> (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n",
-			g->xmin, g->ymin,
-			g->xmax, g->ymax);
+	cell->n_star.val = 0; cell->n_star.var = 0;
+	cell->s_star.val = 0; cell->s_star.var = 0;
+	cell->n_bar.val = 0; cell->n_bar.var = 0;
+	cell->s_bar.val = 0; cell->s_bar.var = 0;
+	answer_full(g, cell->xmin, cell->xmax, cell->ymin, cell->ymax,
+			&cell->n_star, &cell->s_star,
+			&cell->n_bar, &cell->s_bar);
 }
 
 void grd_to_lrg(const struct grid *g, double res,
