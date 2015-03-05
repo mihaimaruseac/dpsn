@@ -254,12 +254,24 @@ struct grid* grd_copy(const struct grid *original)
 	return g;
 }
 
+static void answer(const struct grid *g,
+		struct low_res_grid_cell *cell)
+{
+	printf("-- (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n",
+			cell->xmin, cell->ymin,
+			cell->xmax, cell->ymax);
+	printf("<> (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n",
+			g->xmin, g->ymin,
+			g->xmax, g->ymax);
+}
+
 void grd_to_lrg(const struct grid *g, double res,
 		struct low_res_grid_cell ***grid,
 		int *xcnt, int *ycnt)
 {
 	double xspan = g->xmax - g->xmin;
 	double yspan = g->ymax - g->ymin;
+	double v;
 	int i, j;
 
 	*xcnt = ceil(xspan / res);
@@ -274,11 +286,15 @@ void grd_to_lrg(const struct grid *g, double res,
 
 	for (i = 0; i < *xcnt; i++)
 		for (j = 0; j < *ycnt; j++) {
-			(*grid)[i][j].xmin = g->xmin + i * res;
-			(*grid)[i][j].xmax = g->xmin + (i + 1) * res;
-			(*grid)[i][j].ymin = g->ymin + j * res;
-			(*grid)[i][j].ymax = g->ymin + (j + 1) * res;
-			// TODO: answer grid
+			v = g->xmin + i * res;
+			(*grid)[i][j].xmin = v;
+			v += res;
+			(*grid)[i][j].xmax = v > g->xmax ? g->xmax : v;
+			v = g->ymin + i * res;
+			(*grid)[i][j].ymin = v;
+			v += res;
+			(*grid)[i][j].ymax = v > g->ymax ? g->ymax : v;
+			answer(g, &(*grid)[i][j]);
 		}
 
 	for (i = 0; i < *xcnt; i++)
