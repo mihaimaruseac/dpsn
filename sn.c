@@ -363,7 +363,10 @@ void grd_to_lrg(const struct grid *g, double res,
 					(*grid)[i][j].xmax, (*grid)[i][j].ymax);
 			printf("\t%5.2lf %5.2lf\n",
 					(*grid)[i][j].n_star.val,
-					(*grid)[i][j].n_star.var);
+					(*grid)[i][j].s_star.val);
+			printf("\t%5.2lf %5.2lf\n",
+					(*grid)[i][j].n_bar.val,
+					(*grid)[i][j].s_bar.val);
 		}
 }
 
