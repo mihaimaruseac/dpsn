@@ -53,6 +53,7 @@ struct low_res_grid_cell {
 	double xmin, xmax, ymin, ymax;
 	struct noisy_val n_star, s_star;
 	struct noisy_val n_bar, s_bar;
+	double n, s;
 };
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn);

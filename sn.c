@@ -268,7 +268,8 @@ static int overlap(const struct grid *g,
 static void answer_full(const struct grid *g, int arg,
 		double xmin, double xmax, double ymin, double ymax,
 		struct noisy_val *n_star, struct noisy_val *s_star,
-		struct noisy_val *n_bar, struct noisy_val *s_bar)
+		struct noisy_val *n_bar, struct noisy_val *s_bar,
+		double *n, double *s)
 {
 	double ag, ar, f;
 	int i;
@@ -288,6 +289,8 @@ static void answer_full(const struct grid *g, int arg,
 		s_star->val += f * g->s_star.val; s_star->var += f * f * g->s_star.var;
 		n_bar->val += f * g->n_bar.val; n_bar->var += f * f * g->n_bar.var;
 		s_bar->val += f * g->s_bar.val; s_bar->var += f * f * g->s_bar.var;
+		*n += f * g->n;
+		*s += f * g->s;
 		return;
 	}
 
@@ -306,7 +309,7 @@ static void answer_full(const struct grid *g, int arg,
 					min(xmax, g->cells[i].xmax),
 					max(ymin, g->cells[i].ymin),
 					min(ymax, g->cells[i].ymax),
-					n_star, s_star, n_bar, s_bar);
+					n_star, s_star, n_bar, s_bar, n, s);
 		}
 	}
 }
@@ -318,9 +321,11 @@ static void answer(const struct grid *g,
 	cell->s_star.val = 0; cell->s_star.var = 0;
 	cell->n_bar.val = 0; cell->n_bar.var = 0;
 	cell->s_bar.val = 0; cell->s_bar.var = 0;
+	cell->n = 0; cell->s = 0;
 	answer_full(g, 1, cell->xmin, cell->xmax, cell->ymin, cell->ymax,
 			&cell->n_star, &cell->s_star,
-			&cell->n_bar, &cell->s_bar);
+			&cell->n_bar, &cell->s_bar,
+			&cell->n, &cell->s);
 }
 
 void grd_to_lrg(const struct grid *g, double res,
@@ -361,12 +366,18 @@ void grd_to_lrg(const struct grid *g, double res,
 			printf("%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
 					(*grid)[i][j].xmin, (*grid)[i][j].ymin,
 					(*grid)[i][j].xmax, (*grid)[i][j].ymax);
-			printf("\t%5.2lf %5.2lf\n",
+			printf("\t%5.2lf %5.2lf %5.2lf\n",
+					(*grid)[i][j].n,
+					(*grid)[i][j].s,
+					(*grid)[i][j].s / (*grid)[i][j].n);
+			printf("\t%5.2lf %5.2lf %5.2lf\n",
 					(*grid)[i][j].n_star.val,
-					(*grid)[i][j].s_star.val);
-			printf("\t%5.2lf %5.2lf\n",
+					(*grid)[i][j].s_star.val,
+					(*grid)[i][j].s_star.val / (*grid)[i][j].n_star.val);
+			printf("\t%5.2lf %5.2lf %5.2lf\n",
 					(*grid)[i][j].n_bar.val,
-					(*grid)[i][j].s_bar.val);
+					(*grid)[i][j].s_bar.val,
+					(*grid)[i][j].s_bar.val / (*grid)[i][j].n_bar.val);
 		}
 }
 
