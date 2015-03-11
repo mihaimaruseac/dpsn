@@ -350,6 +350,30 @@ void grd_to_lrg(const struct grid *g, double res,
 		}
 }
 
+void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, FILE *f)
+{
+	int i, j;
+
+	for (i = 0; i < xcnt; i++)
+		for (j = 0; j < ycnt; j++) {
+			fprintf(f, "%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
+					grid[i][j].xmin, grid[i][j].ymin,
+					grid[i][j].xmax, grid[i][j].ymax);
+			fprintf(f, "\t%5.2lf %5.2lf %5.2lf\n",
+					grid[i][j].n,
+					grid[i][j].s,
+					grid[i][j].s / grid[i][j].n);
+			fprintf(f, "\t%5.2lf %5.2lf %5.2lf\n",
+					grid[i][j].n_star.val,
+					grid[i][j].s_star.val,
+					grid[i][j].s_star.val / grid[i][j].n_star.val);
+			fprintf(f, "\t%5.2lf %5.2lf %5.2lf\n",
+					grid[i][j].n_bar.val,
+					grid[i][j].s_bar.val,
+					grid[i][j].s_bar.val / grid[i][j].n_bar.val);
+		}
+}
+
 void grd_average2(struct grid *a, const struct grid *b)
 {
 	a->n_ave = nv_average2(a->n_star, b->n_star);

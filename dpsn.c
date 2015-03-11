@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 {
 	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
-	int xcnt, ycnt, i, j, h;
+	int xcnt, ycnt, i, h;
 	char *fname = NULL;
 	struct grid g;
 	FILE *f;
@@ -139,26 +139,7 @@ int main(int argc, char **argv)
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
 
 #if DEBUG_FINE_GRID
-	for (i = 0; i < xcnt; i++)
-		for (j = 0; j < ycnt; j++) {
-			printf("%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
-					grid[i][j].xmin, grid[i][j].ymin,
-					grid[i][j].xmax, grid[i][j].ymax);
-			printf("\t%5.2lf %5.2lf %5.2lf\n",
-					grid[i][j].n,
-					grid[i][j].s,
-					grid[i][j].s / grid[i][j].n);
-			printf("\t%5.2lf %5.2lf %5.2lf\n",
-					grid[i][j].n_star.val,
-					grid[i][j].s_star.val,
-					grid[i][j].s_star.val / grid[i][j].n_star.val);
-			printf("\t%5.2lf %5.2lf %5.2lf\n",
-					grid[i][j].n_bar.val,
-					grid[i][j].s_bar.val,
-					grid[i][j].s_bar.val / grid[i][j].n_bar.val);
-		}
-#else
-	(void) j;
+	lrg_debug(grid, xcnt, ycnt, stdout);
 #endif
 
 	free(args.dataset);

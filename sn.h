@@ -67,10 +67,11 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g);
 int grd_height(const struct grid *g);
 void grd_cleanup(const struct grid *g);
 struct grid* grd_copy(const struct grid *original);
-
 void grd_to_lrg(const struct grid *g, double res,
 		struct low_res_grid_cell ***grid,
 		int *xcnt, int *ycnt);
+
+void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, FILE *f);
 
 /**
  * Will update _ave values in a to minimize their variance as a mean of _star
