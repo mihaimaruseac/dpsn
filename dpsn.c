@@ -11,6 +11,9 @@
 #ifndef DEBUG_GRID_TREE
 #define DEBUG_GRID_TREE 0
 #endif
+#ifndef DEBUG_FINE_GRID
+#define DEBUG_FINE_GRID 0
+#endif
 
 /* Command line arguments */
 static struct {
@@ -129,10 +132,14 @@ int main(int argc, char **argv)
 	}
 #endif
 
-	grd_to_lrg(&g, args.resolution, &grid, &xcnt, &ycnt);
-
 	test_san_leaf_only(&sn, &g, args.tthresh);
 	test_san_cell(&sn, &g, args.tthresh);
+
+	grd_to_lrg(&g, args.resolution, &grid, &xcnt, &ycnt);
+	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
+
+#if DEBUG_FINE_GRID
+#endif
 
 	free(args.dataset);
 	sn_cleanup(&sn);
