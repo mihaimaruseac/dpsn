@@ -80,6 +80,72 @@ static int sensor_cmp(const void *a, const void *b)
 	return double_cmp(&sa->y, &sb->y);
 }
 
+static int overlap(const struct grid *g,
+		double xmin, double xmax, double ymin, double ymax)
+{
+	if (xmin >= g->xmax || g->xmin >= xmax)
+		return 0;
+	if (ymin >= g->ymax || g->ymin >= ymax)
+		return 0;
+
+	return 1;
+}
+
+static void answer_full(const struct grid *g, int arg,
+		double xmin, double xmax, double ymin, double ymax,
+		struct noisy_val *n_star, struct noisy_val *s_star,
+		struct noisy_val *n_bar, struct noisy_val *s_bar,
+		double *n, double *s)
+{
+	double ag, ar, f;
+	int i;
+
+	/* leaf or full cell coverage */
+	if ((!g->Nu) ||
+			((g->xmin == xmin) && (g->xmax == xmax) &&
+			 (g->ymin == ymin) && (g->ymax == ymax))) {
+		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
+		ar = (xmax - xmin) * (ymax - ymin);
+		f = ar / ag;
+		n_star->val += f * g->n_star.val; n_star->var += f * f * g->n_star.var;
+		s_star->val += f * g->s_star.val; s_star->var += f * f * g->s_star.var;
+		n_bar->val += f * g->n_bar.val; n_bar->var += f * f * g->n_bar.var;
+		s_bar->val += f * g->s_bar.val; s_bar->var += f * f * g->s_bar.var;
+		*n += f * g->n;
+		*s += f * g->s;
+		return;
+	}
+
+	for (i = 0; i < g->Nu * g->Nu; i++) {
+		if ((g->cells[i].xmin >= xmax) || (g->cells[i].xmax <= xmin)) {
+			i+= g->Nu - 1;
+			continue;
+		}
+		// TODO: might implement a jump for y
+		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax))
+			answer_full(&g->cells[i], arg + 5,
+					max(xmin, g->cells[i].xmin),
+					min(xmax, g->cells[i].xmax),
+					max(ymin, g->cells[i].ymin),
+					min(ymax, g->cells[i].ymax),
+					n_star, s_star, n_bar, s_bar, n, s);
+	}
+}
+
+static void answer(const struct grid *g,
+		struct low_res_grid_cell *cell)
+{
+	cell->n_star.val = 0; cell->n_star.var = 0;
+	cell->s_star.val = 0; cell->s_star.var = 0;
+	cell->n_bar.val = 0; cell->n_bar.var = 0;
+	cell->s_bar.val = 0; cell->s_bar.var = 0;
+	cell->n = 0; cell->s = 0;
+	answer_full(g, 1, cell->xmin, cell->xmax, cell->ymin, cell->ymax,
+			&cell->n_star, &cell->s_star,
+			&cell->n_bar, &cell->s_bar,
+			&cell->n, &cell->s);
+}
+
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g)
 {
 	int i;
@@ -254,80 +320,6 @@ struct grid* grd_copy(const struct grid *original)
 	return g;
 }
 
-static int overlap(const struct grid *g,
-		double xmin, double xmax, double ymin, double ymax)
-{
-	if (xmin >= g->xmax || g->xmin >= xmax)
-		return 0;
-	if (ymin >= g->ymax || g->ymin >= ymax)
-		return 0;
-
-	return 1;
-}
-
-static void answer_full(const struct grid *g, int arg,
-		double xmin, double xmax, double ymin, double ymax,
-		struct noisy_val *n_star, struct noisy_val *s_star,
-		struct noisy_val *n_bar, struct noisy_val *s_bar,
-		double *n, double *s)
-{
-	double ag, ar, f;
-	int i;
-
-	/* leaf or full cell coverage */
-	if ((!g->Nu) ||
-			((g->xmin == xmin) && (g->xmax == xmax) &&
-			 (g->ymin == ymin) && (g->ymax == ymax))) {
-		printf("%*cHit (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", arg, ' ',
-				g->xmin, g->ymin, g->xmax, g->ymax,
-				xmin, ymin, xmax, ymax);
-		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
-		ar = (xmax - xmin) * (ymax - ymin);
-		f = ar / ag;
-		printf("%*c %10.2f %10.2f %3.2f\n", arg, ' ', ag, ar, ar/ag);
-		n_star->val += f * g->n_star.val; n_star->var += f * f * g->n_star.var;
-		s_star->val += f * g->s_star.val; s_star->var += f * f * g->s_star.var;
-		n_bar->val += f * g->n_bar.val; n_bar->var += f * f * g->n_bar.var;
-		s_bar->val += f * g->s_bar.val; s_bar->var += f * f * g->s_bar.var;
-		*n += f * g->n;
-		*s += f * g->s;
-		return;
-	}
-
-	for (i = 0; i < g->Nu * g->Nu; i++) {
-		if ((g->cells[i].xmin >= xmax) || (g->cells[i].xmax <= xmin)) {
-			i+= g->Nu - 1;
-			continue;
-		}
-		printf("%*cTesting %d\n", arg, ' ', i);
-		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
-			printf("%*cOverlap %d (%5.2f, %5.2f) -- (%5.2f, %5.2f) ^ (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", arg, ' ', i,
-					g->cells[i].xmin, g->cells[i].ymin, g->cells[i].xmax, g->cells[i].ymax,
-					xmin, ymin, xmax, ymax);
-			answer_full(&g->cells[i], arg + 1,
-					max(xmin, g->cells[i].xmin),
-					min(xmax, g->cells[i].xmax),
-					max(ymin, g->cells[i].ymin),
-					min(ymax, g->cells[i].ymax),
-					n_star, s_star, n_bar, s_bar, n, s);
-		}
-	}
-}
-
-static void answer(const struct grid *g,
-		struct low_res_grid_cell *cell)
-{
-	cell->n_star.val = 0; cell->n_star.var = 0;
-	cell->s_star.val = 0; cell->s_star.var = 0;
-	cell->n_bar.val = 0; cell->n_bar.var = 0;
-	cell->s_bar.val = 0; cell->s_bar.var = 0;
-	cell->n = 0; cell->s = 0;
-	answer_full(g, 1, cell->xmin, cell->xmax, cell->ymin, cell->ymax,
-			&cell->n_star, &cell->s_star,
-			&cell->n_bar, &cell->s_bar,
-			&cell->n, &cell->s);
-}
-
 void grd_to_lrg(const struct grid *g, double res,
 		struct low_res_grid_cell ***grid,
 		int *xcnt, int *ycnt)
@@ -358,7 +350,6 @@ void grd_to_lrg(const struct grid *g, double res,
 			v += res;
 			(*grid)[i][j].ymax = min(v, g->ymax);
 			answer(g, &(*grid)[i][j]);
-			printf("---\n");
 		}
 
 	for (i = 0; i < *xcnt; i++)

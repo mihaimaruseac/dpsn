@@ -5,6 +5,18 @@
 
 #include "globals.h"
 
+static double laplace(double lambda, struct drand48_data *buffer)
+{
+	double rnd;
+
+	drand48_r(buffer, &rnd); /* rnd \in [0, 1)      */
+	rnd = 0.5 - rnd;         /* rnd \in (-0.5, 0.5] */
+
+	if (signbit(rnd)) /* rnd < 0 */
+		return lambda * log(1 + 2 * rnd);
+	return -lambda * log(1 - 2 * rnd);
+}
+
 void init_rng(long int seed, struct drand48_data *buffer)
 {
 	struct timeval now;
@@ -35,18 +47,6 @@ int double_cmp(const void *a, const void *b)
 int double_cmp_r(const void *a, const void *b)
 {
 	return -double_cmp(a, b);
-}
-
-static double laplace(double lambda, struct drand48_data *buffer)
-{
-	double rnd;
-
-	drand48_r(buffer, &rnd); /* rnd \in [0, 1)      */
-	rnd = 0.5 - rnd;         /* rnd \in (-0.5, 0.5] */
-
-	if (signbit(rnd)) /* rnd < 0 */
-		return lambda * log(1 + 2 * rnd);
-	return -lambda * log(1 - 2 * rnd);
 }
 
 double laplace_mechanism(double x, double eps, double sens,
