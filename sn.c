@@ -332,9 +332,6 @@ void grd_to_lrg(const struct grid *g, double res,
 	*xcnt = ceil(xspan / res);
 	*ycnt = ceil(yspan / res);
 
-	printf("%5.2f %5.2f\n", xspan, yspan);
-	printf("%d %d\n", *xcnt, *ycnt);
-
 	*grid = calloc(*xcnt, sizeof((*grid)[0]));
 	for (i = 0; i < *xcnt; i++)
 		(*grid)[i] = calloc(*ycnt, sizeof((*grid)[i][0]));
