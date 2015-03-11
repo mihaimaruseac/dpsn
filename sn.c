@@ -54,7 +54,8 @@ static void grd_print_cell_vals(const struct grid *g, FILE *f, int depth)
 
 	x = (g->xmin + g->xmax)/2;
 	y = (g->ymin + g->ymax)/2;
-	fprintf(f, "%5.2lf %5.2lf %d %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
+	fprintf(f, "%5.2lf %5.2lf %d %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf"
+			"%5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
 			x, y, g->n, g->s,
 			g->n_star.val, g->n_star.var, g->s_star.val, g->s_star.var,
 			g->n_ave.val, g->n_ave.var, g->s_ave.val, g->s_ave.var,
