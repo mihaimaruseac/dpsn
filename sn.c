@@ -351,28 +351,41 @@ void grd_to_lrg(const struct grid *g, double res,
 		}
 }
 
-void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, FILE *f)
+static inline double lrg_get_n(struct low_res_grid_cell **grid, int x, int y)
+{
+	return grid[x][y].n;
+}
+
+static inline double lrg_get_s(struct low_res_grid_cell **grid, int x, int y)
+{
+	return grid[x][y].s;
+}
+
+static inline double lrg_get_rho(struct low_res_grid_cell **grid, int x, int y)
+{
+	return noisy_div(grid[x][y].s, grid[x][y].n, 0);
+}
+
+static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
+		FILE *f, const char *section_label,
+		double (*get_field)(struct low_res_grid_cell **, int, int))
 {
 	int i, j;
 
-	for (i = 0; i < xcnt; i++)
-		for (j = 0; j < ycnt; j++) {
-			fprintf(f, "%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
-					grid[i][j].xmin, grid[i][j].ymin,
-					grid[i][j].xmax, grid[i][j].ymax);
-			fprintf(f, "\t%5.2lf %5.2lf %5.2lf\n",
-					grid[i][j].n,
-					grid[i][j].s,
-					grid[i][j].s / grid[i][j].n);
-			fprintf(f, "\t%5.2lf %5.2lf %5.2lf\n",
-					grid[i][j].n_star.val,
-					grid[i][j].s_star.val,
-					grid[i][j].s_star.val / grid[i][j].n_star.val);
-			fprintf(f, "\t%5.2lf %5.2lf %5.2lf\n",
-					grid[i][j].n_bar.val,
-					grid[i][j].s_bar.val,
-					grid[i][j].s_bar.val / grid[i][j].n_bar.val);
-		}
+	fprintf(f, "# %s\n", section_label);
+	for (i = 0; i < xcnt; i++) {
+		for (j = 0; j < ycnt; j++)
+			fprintf(f, "%5.2f ", get_field(grid, i, j));
+		fprintf(f, "\n");
+	}
+	fprintf(f, "\n");
+}
+
+void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, FILE *f)
+{
+	lrg_print_val(grid, xcnt, ycnt, f, "n", lrg_get_n);
+	lrg_print_val(grid, xcnt, ycnt, f, "s", lrg_get_s);
+	lrg_print_val(grid, xcnt, ycnt, f, "rho", lrg_get_rho);
 }
 
 void grd_average2(struct grid *a, const struct grid *b)
