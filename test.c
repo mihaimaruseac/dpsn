@@ -48,22 +48,14 @@ static void sm_parse(struct san_measure *sm, int val)
 		sm->first++;
 }
 
-static inline double div_0_rho(double s, double n, double t)
-{
-	// TODO: abs tests
-	if (n <= t)
-		return 0;
-	return s/n;
-}
-
 static int do_test_san_cell(const struct sensor_network *sn, const struct grid *g, double t)
 {
 	double rho, rho_star, rho_bar;
 	int ret = 0;
 
-	rho = div_0_rho(g->s, g->n, 0);
-	rho_star = div_0_rho(g->n_star.val, g->n_star.var, t);
-	rho_bar = div_0_rho(g->n_bar.val, g->n_bar.var, t);
+	rho = noisy_div(g->s, g->n, 0);
+	rho_star = noisy_div(g->n_star.val, g->n_star.var, t);
+	rho_bar = noisy_div(g->n_bar.val, g->n_bar.var, t);
 
 	ret |= (rho >= sn->theta) << 2;
 	/* TODO: might need a different threshold than theta */
