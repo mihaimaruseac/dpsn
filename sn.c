@@ -348,25 +348,6 @@ void grd_to_lrg(const struct grid *g, double res,
 			(*grid)[i][j].ymax = min(v, g->ymax);
 			answer(g, &(*grid)[i][j]);
 		}
-
-	for (i = 0; i < *xcnt; i++)
-		for (j = 0; j < *ycnt; j++) {
-			printf("%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
-					(*grid)[i][j].xmin, (*grid)[i][j].ymin,
-					(*grid)[i][j].xmax, (*grid)[i][j].ymax);
-			printf("\t%5.2lf %5.2lf %5.2lf\n",
-					(*grid)[i][j].n,
-					(*grid)[i][j].s,
-					(*grid)[i][j].s / (*grid)[i][j].n);
-			printf("\t%5.2lf %5.2lf %5.2lf\n",
-					(*grid)[i][j].n_star.val,
-					(*grid)[i][j].s_star.val,
-					(*grid)[i][j].s_star.val / (*grid)[i][j].n_star.val);
-			printf("\t%5.2lf %5.2lf %5.2lf\n",
-					(*grid)[i][j].n_bar.val,
-					(*grid)[i][j].s_bar.val,
-					(*grid)[i][j].s_bar.val / (*grid)[i][j].n_bar.val);
-		}
 }
 
 void grd_average2(struct grid *a, const struct grid *b)

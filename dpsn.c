@@ -12,7 +12,7 @@
 #define DEBUG_GRID_TREE 0
 #endif
 #ifndef DEBUG_FINE_GRID
-#define DEBUG_FINE_GRID 0
+#define DEBUG_FINE_GRID 1
 #endif
 
 /* Command line arguments */
@@ -101,8 +101,10 @@ int main(int argc, char **argv)
 {
 	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
-	int xcnt, ycnt, i;
+	int xcnt, ycnt, i, j, h;
+	char *fname = NULL;
 	struct grid g;
+	FILE *f;
 
 	parse_arguments(argc, argv);
 	sn_read_from_file(args.dataset, &sn);
@@ -113,23 +115,21 @@ int main(int argc, char **argv)
 	printf("Sanitization finished, grid height: %d\n", grd_height(&g));
 
 #if DEBUG_GRID_TREE
-	{
-		int h = grd_height(&g);
-		char *fname = NULL;
-		FILE *f;
+	h = grd_height(&g);
 
-		for (i = 0; i <= h; i++) {
-			asprintf(&fname, "debug_%05d", i);
-			f = fopen(fname, "w");
-			if (!f)
-				perror(fname);
-			else {
-				grd_debug(&sn, &g, f, i);
-				fclose(f);
-			}
-			free(fname);
+	for (i = 0; i <= h; i++) {
+		asprintf(&fname, "debug_%05d", i);
+		f = fopen(fname, "w");
+		if (!f)
+			perror(fname);
+		else {
+			grd_debug(&sn, &g, f, i);
+			fclose(f);
 		}
+		free(fname);
 	}
+#else
+	(void) h; (void) fname; (void) f;
 #endif
 
 	test_san_leaf_only(&sn, &g, args.tthresh);
@@ -139,6 +139,26 @@ int main(int argc, char **argv)
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
 
 #if DEBUG_FINE_GRID
+	for (i = 0; i < xcnt; i++)
+		for (j = 0; j < ycnt; j++) {
+			printf("%d %d (%5.2f, %5.2f) -- (%5.2f, %5.2f)\n", i, j,
+					grid[i][j].xmin, grid[i][j].ymin,
+					grid[i][j].xmax, grid[i][j].ymax);
+			printf("\t%5.2lf %5.2lf %5.2lf\n",
+					grid[i][j].n,
+					grid[i][j].s,
+					grid[i][j].s / grid[i][j].n);
+			printf("\t%5.2lf %5.2lf %5.2lf\n",
+					grid[i][j].n_star.val,
+					grid[i][j].s_star.val,
+					grid[i][j].s_star.val / grid[i][j].n_star.val);
+			printf("\t%5.2lf %5.2lf %5.2lf\n",
+					grid[i][j].n_bar.val,
+					grid[i][j].s_bar.val,
+					grid[i][j].s_bar.val / grid[i][j].n_bar.val);
+		}
+#else
+	(void) j;
 #endif
 
 	free(args.dataset);
