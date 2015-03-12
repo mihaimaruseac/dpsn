@@ -3,7 +3,7 @@
 plot_one () {
     file=$1
     cat << END | gnuplot
-set term svg enhanced mouse size 2000,2000 mouse
+set term svg enhanced mouse size 2000,2000
 set output "${file}".".svg"
 plot "${file}" i 0 u 1:2 w p pt 3 ps 0.5 notitle,\
     "${file}" i 0 u (\$1+0.3):(\$2-0.3):3 w labels font "arial,6" tc lt 0 notitle,\
