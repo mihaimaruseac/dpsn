@@ -142,6 +142,9 @@ int main(int argc, char **argv)
 	lrg_debug(grid, xcnt, ycnt, args.tthresh, stdout);
 #endif
 
+	// TODO: binary image + filters?
+	// TODO: san_measure tests (sanity tests)
+
 	free(args.dataset);
 	sn_cleanup(&sn);
 	grd_cleanup(&g);

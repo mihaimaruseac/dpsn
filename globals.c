@@ -77,6 +77,7 @@ int bsearch_i(const void *key, const void *base, size_t nmemb, size_t size,
 inline double noisy_div(double x, double y, double t)
 {
 	// TODO: abs tests
+	// TODO: abs on y?
 	if (y <= t)
 		return 0;
 	return x/y;

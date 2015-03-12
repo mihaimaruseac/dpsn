@@ -428,6 +428,8 @@ void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, FI
 	lrg_print_val(grid, xcnt, ycnt, 0, f, "n_bar", lrg_get_n_bar);
 	lrg_print_val(grid, xcnt, ycnt, 0, f, "s_bar", lrg_get_s_bar);
 	lrg_print_val(grid, xcnt, ycnt, t, f, "rho_bar", lrg_get_rho_bar);
+	// TODO: shape, shape_star, shape_bar
+	// TODO: shape_star_prob, shape_bar_prob
 }
 
 void grd_average2(struct grid *a, const struct grid *b)
