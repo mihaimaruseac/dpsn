@@ -455,7 +455,6 @@ void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, do
 	lrg_print_val(grid, xcnt, ycnt, 0, M, f, "shape", lrg_get_shape);
 	lrg_print_val(grid, xcnt, ycnt, t, M, f, "shape_star", lrg_get_shape_star);
 	lrg_print_val(grid, xcnt, ycnt, t, M, f, "shape_bar", lrg_get_shape_bar);
-	// TODO: shape, shape_star, shape_bar
 	// TODO: shape_star_prob, shape_bar_prob
 }
 
