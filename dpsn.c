@@ -9,7 +9,7 @@
 #include "test.h"
 
 #ifndef DEBUG_GRID_TREE
-#define DEBUG_GRID_TREE 0
+#define DEBUG_GRID_TREE 1
 #endif
 #ifndef DEBUG_FINE_GRID
 #define DEBUG_FINE_GRID 1
@@ -97,12 +97,28 @@ static void parse_arguments(int argc, char **argv)
 		args.seed = 42;
 }
 
+static FILE *get_file_pointer(const char *header, int ix)
+{
+	char *fname;
+	FILE *f;
+
+	if (ix >= 0)
+		asprintf(&fname, "debug_%s_%02d", header, ix);
+	else
+		asprintf(&fname, "debug_%s", header);
+	f = fopen(fname, "w");
+	if (!f)
+		perror(fname);
+
+	free(fname);
+	return f;
+}
+
 int main(int argc, char **argv)
 {
 	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
 	int xcnt, ycnt, i, h;
-	char *fname = NULL;
 	struct grid g;
 	FILE *f;
 
@@ -118,18 +134,13 @@ int main(int argc, char **argv)
 	h = grd_height(&g);
 
 	for (i = 0; i <= h; i++) {
-		asprintf(&fname, "debug_%05d", i);
-		f = fopen(fname, "w");
-		if (!f)
-			perror(fname);
-		else {
+		if ((f = get_file_pointer("tree_grid", i))) {
 			grd_debug(&sn, &g, f, i);
 			fclose(f);
 		}
-		free(fname);
 	}
 #else
-	(void) h; (void) fname; (void) f;
+	(void) h; (void) f;
 #endif
 
 	test_san_leaf_only(&sn, &g, args.tthresh);
@@ -139,7 +150,8 @@ int main(int argc, char **argv)
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
 
 #if DEBUG_FINE_GRID
-	lrg_debug(grid, xcnt, ycnt, args.tthresh, sn.theta, stdout);
+	f = get_file_pointer("uniform_grid", -1);
+	lrg_debug(grid, xcnt, ycnt, args.tthresh, sn.theta, f);
 #endif
 
 	// TODO: binary image + filters?
