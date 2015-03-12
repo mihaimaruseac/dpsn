@@ -48,19 +48,30 @@ static void sm_parse(struct san_measure *sm, int val)
 		sm->first++;
 }
 
+static int do_generic_test_san(double *rho, double *rho_star, double *rho_bar,
+		double t, double theta, double s, double n,
+		const struct noisy_val *n_star, const struct noisy_val *s_star,
+		const struct noisy_val *n_bar, const struct noisy_val *s_bar)
+{
+	int ret = 0;
+
+	*rho = noisy_div(s, n, 0);
+	*rho_star = noisy_div(s_star->val, n_star->val, t);
+	*rho_bar = noisy_div(s_bar->val, n_bar->val, t);
+
+	ret |= (*rho >= theta) << 2;
+	/* TODO: might need a different threshold than theta */
+	ret |= (*rho_star >= theta) << 1;
+	ret |= (*rho_bar >= theta) << 0;
+
+	return ret;
+}
+
 static int do_test_san_cell(const struct sensor_network *sn, const struct grid *g, double t)
 {
 	double rho, rho_star, rho_bar;
-	int ret = 0;
-
-	rho = noisy_div(g->s, g->n, 0);
-	rho_star = noisy_div(g->n_star.val, g->n_star.var, t);
-	rho_bar = noisy_div(g->n_bar.val, g->n_bar.var, t);
-
-	ret |= (rho >= sn->theta) << 2;
-	/* TODO: might need a different threshold than theta */
-	ret |= (rho_star >= sn->theta) << 1;
-	ret |= (rho_bar >= sn->theta) << 0;
+	int ret = do_generic_test_san(&rho, &rho_star, &rho_bar, t, sn->theta,
+			g->s, g->n, &g->n_star, &g->s_star, &g->n_bar, &g->s_bar);
 
 #if DEBUG_TEST_GRID_TREE
 	printf("%01x ~~ ", ret);
