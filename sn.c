@@ -351,83 +351,110 @@ void grd_to_lrg(const struct grid *g, double res,
 		}
 }
 
-static inline double lrg_get_n(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_n(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
 	(void) t;
+	(void) M;
 	return grid[x][y].n;
 }
 
-static inline double lrg_get_s(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_s(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
 	(void) t;
+	(void) M;
 	return grid[x][y].s;
 }
 
-static inline double lrg_get_rho(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_rho(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
+	(void) M;
 	return noisy_div(grid[x][y].s, grid[x][y].n, t);
 }
 
-static inline double lrg_get_n_star(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_n_star(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
 	(void) t;
+	(void) M;
 	return grid[x][y].n_star.val;
 }
 
-static inline double lrg_get_s_star(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_s_star(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
 	(void) t;
+	(void) M;
 	return grid[x][y].s_star.val;
 }
 
-static inline double lrg_get_rho_star(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_rho_star(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
+	(void) M;
 	return noisy_div(grid[x][y].s_star.val, grid[x][y].n_star.val, t);
 }
 
-static inline double lrg_get_n_bar(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_n_bar(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
 	(void) t;
+	(void) M;
 	return grid[x][y].n_bar.val;
 }
 
-static inline double lrg_get_s_bar(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_s_bar(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
 	(void) t;
+	(void) M;
 	return grid[x][y].s_bar.val;
 }
 
-static inline double lrg_get_rho_bar(struct low_res_grid_cell **grid, int x, int y, double t)
+static inline double lrg_get_rho_bar(struct low_res_grid_cell **grid, int x, int y, double t, double M)
 {
+	(void) M;
 	return noisy_div(grid[x][y].s_bar.val, grid[x][y].n_bar.val, t);
 }
 
+static inline double lrg_get_shape(struct low_res_grid_cell **grid, int x, int y, double t, double M)
+{
+	return noisy_div(grid[x][y].s, grid[x][y].n, t) < M;
+}
+
+static inline double lrg_get_shape_star(struct low_res_grid_cell **grid, int x, int y, double t, double M)
+{
+	return noisy_div(grid[x][y].s_star.val, grid[x][y].n_star.val, t) < M;
+}
+
+static inline double lrg_get_shape_bar(struct low_res_grid_cell **grid, int x, int y, double t, double M)
+{
+	return noisy_div(grid[x][y].s_bar.val, grid[x][y].n_bar.val, t) < M;
+}
+
 static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
-		double t, FILE *f, const char *section_label,
-		double (*get_field)(struct low_res_grid_cell **, int, int, double))
+		double t, double M, FILE *f, const char *section_label,
+		double (*get_field)(struct low_res_grid_cell **, int, int, double, double))
 {
 	int i, j;
 
 	fprintf(f, "# %s\n", section_label);
 	for (i = 0; i < xcnt; i++) {
 		for (j = 0; j < ycnt; j++)
-			fprintf(f, "%5.2f ", get_field(grid, i, j, t));
+			fprintf(f, "%5.2f ", get_field(grid, i, j, t, M));
 		fprintf(f, "\n");
 	}
 	fprintf(f, "\n");
 }
 
-void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, FILE *f)
+void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, double M, FILE *f)
 {
-	lrg_print_val(grid, xcnt, ycnt, 0, f, "n", lrg_get_n);
-	lrg_print_val(grid, xcnt, ycnt, 0, f, "s", lrg_get_s);
-	lrg_print_val(grid, xcnt, ycnt, 0, f, "rho", lrg_get_rho);
-	lrg_print_val(grid, xcnt, ycnt, 0, f, "n_star", lrg_get_n_star);
-	lrg_print_val(grid, xcnt, ycnt, 0, f, "s_star", lrg_get_s_star);
-	lrg_print_val(grid, xcnt, ycnt, t, f, "rho_star", lrg_get_rho_star);
-	lrg_print_val(grid, xcnt, ycnt, 0, f, "n_bar", lrg_get_n_bar);
-	lrg_print_val(grid, xcnt, ycnt, 0, f, "s_bar", lrg_get_s_bar);
-	lrg_print_val(grid, xcnt, ycnt, t, f, "rho_bar", lrg_get_rho_bar);
+	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "n", lrg_get_n);
+	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "s", lrg_get_s);
+	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "rho", lrg_get_rho);
+	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "n_star", lrg_get_n_star);
+	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "s_star", lrg_get_s_star);
+	lrg_print_val(grid, xcnt, ycnt, t, 0, f, "rho_star", lrg_get_rho_star);
+	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "n_bar", lrg_get_n_bar);
+	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "s_bar", lrg_get_s_bar);
+	lrg_print_val(grid, xcnt, ycnt, t, 0, f, "rho_bar", lrg_get_rho_bar);
+	lrg_print_val(grid, xcnt, ycnt, 0, M, f, "shape", lrg_get_shape);
+	lrg_print_val(grid, xcnt, ycnt, t, M, f, "shape_star", lrg_get_shape_star);
+	lrg_print_val(grid, xcnt, ycnt, t, M, f, "shape_bar", lrg_get_shape_bar);
 	// TODO: shape, shape_star, shape_bar
 	// TODO: shape_star_prob, shape_bar_prob
 }

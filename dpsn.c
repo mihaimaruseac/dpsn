@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
 
 #if DEBUG_FINE_GRID
-	lrg_debug(grid, xcnt, ycnt, args.tthresh, stdout);
+	lrg_debug(grid, xcnt, ycnt, args.tthresh, sn.M, stdout);
 #endif
 
 	// TODO: binary image + filters?
