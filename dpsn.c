@@ -9,7 +9,7 @@
 #include "test.h"
 
 #ifndef DEBUG_GRID_TREE
-#define DEBUG_GRID_TREE 1
+#define DEBUG_GRID_TREE 0
 #endif
 #ifndef DEBUG_FINE_GRID
 #define DEBUG_FINE_GRID 1
