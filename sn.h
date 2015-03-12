@@ -71,7 +71,7 @@ void grd_to_lrg(const struct grid *g, double res,
 		struct low_res_grid_cell ***grid,
 		int *xcnt, int *ycnt);
 
-void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, FILE *f);
+void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, FILE *f);
 
 /**
  * Will update _ave values in a to minimize their variance as a mean of _star
