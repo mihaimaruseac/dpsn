@@ -134,7 +134,7 @@ void test_san_shape(struct low_res_grid_cell **grid, int xcnt, int ycnt, double 
 
 	sm_init(&star);
 	sm_init(&bar);
-	// TODO
+
 	for (i = 0; i < xcnt; i++)
 		for (j = 0; j < ycnt; j++) {
 			r = do_generic_test_san(&rho, &rho_star, &rho_bar, t, theta,
@@ -144,7 +144,6 @@ void test_san_shape(struct low_res_grid_cell **grid, int xcnt, int ycnt, double 
 			sm_parse(&star, (r & 0x06) >> 1);
 			sm_parse(&bar, ((r & 0x04) >> 1) | (r & 0x01));
 		}
-
 
 	sm_print(&star);
 	printf(" | ");
