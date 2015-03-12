@@ -6,7 +6,7 @@ plot_one_cube () {
     ix=$3
     cat << END | gnuplot
 set term png
-set palette cubehelix
+set palette model RGB defined ( 0 'red', 1 'yellow', 2 'white' )
 set output "${file}_${title}.png"
 set title "${title}"
 set view map
