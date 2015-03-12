@@ -125,3 +125,29 @@ void test_san_cell(const struct sensor_network *sn, const struct grid *g, double
 {
 	do_test_san(sn, g, t, 1);
 }
+
+void test_san_shape(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, double theta)
+{
+	double rho, rho_star, rho_bar;
+	struct san_measure star, bar;
+	int i, j, r;
+
+	sm_init(&star);
+	sm_init(&bar);
+	// TODO
+	for (i = 0; i < xcnt; i++)
+		for (j = 0; j < ycnt; j++) {
+			r = do_generic_test_san(&rho, &rho_star, &rho_bar, t, theta,
+					grid[i][j].s, grid[i][j].n,
+					&grid[i][j].n_star, &grid[i][j].s_star,
+					&grid[i][j].n_bar, &grid[i][j].s_bar);
+			sm_parse(&star, (r & 0x06) >> 1);
+			sm_parse(&bar, ((r & 0x04) >> 1) | (r & 0x01));
+		}
+
+
+	sm_print(&star);
+	printf(" | ");
+	sm_print(&bar);
+	printf("\n");
+}

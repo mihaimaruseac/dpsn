@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 #endif
 
 	// TODO: binary image + filters?
-	// TODO: san_measure tests (sanity tests)
+	test_san_shape(grid, xcnt, ycnt, args.tthresh, sn.theta);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
