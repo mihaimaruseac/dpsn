@@ -432,7 +432,6 @@ static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
 {
 	int i, j;
 
-	// TODO: check ordering
 	// TODO: print coordinates?
 	fprintf(f, "# %s\n", section_label);
 	for (j = 0; j < ycnt; j++) {
