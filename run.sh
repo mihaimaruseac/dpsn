@@ -61,9 +61,9 @@ run () {
 
     run_uat ${datafile} ${outfile_base}_u u "${Nts}" "${gammas}"
     run_uat ${datafile} ${outfile_base}_a a "${Nts}" "${gammas}"
-    run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
+    #run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
 }
 
-for i in ${datasetdir}/*.dat; do
+for i in ${datasetdir}/debug_*.dat; do
     run $i
 done
