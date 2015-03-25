@@ -6,6 +6,11 @@
 #include "sanitization.h"
 #include "sn.h"
 
+/* remember that the split is always square of g->Nu */
+#ifndef MAX_SPLIT_SIZE
+#define MAX_SPLIT_SIZE 2500000
+#endif
+
 static void build_tree(const struct sensor_network *sn, struct grid *g,
 		double alpha, double beta, double gamma,
 		double K, int Nt, int max_depth,
@@ -51,6 +56,7 @@ again:
 	if (method != AGS && (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)) {
 		g->Nu = Nt;
 	}
+	g->Nu = min(g->Nu, MAX_SPLIT_SIZE);
 
 	/* 4. split */
 	grd_split_cells(sn, g);
