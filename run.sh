@@ -59,9 +59,9 @@ run () {
     outfile_base=${outputdir}/${datafile##*/}
     outfile_base=${outfile_base%.*}
 
-    run_uat ${datafile} ${outfile_base}_u u "${Nts}" "${gammas}"
-    run_uat ${datafile} ${outfile_base}_a a "${Nts}" "${gammas}"
-    #run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
+    #run_uat ${datafile} ${outfile_base}_u u "${Nts}" "${gammas}"
+    #run_uat ${datafile} ${outfile_base}_a a "${Nts}" "${gammas}"
+    run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
 }
 
 for i in ${datasetdir}/debug_*.dat; do
