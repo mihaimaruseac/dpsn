@@ -40,7 +40,7 @@ run_uat () {
                                             ${epsilon} ${meth} ${marg}\
                                             ${ttresh} ${resolution}\
                                             ${datafile} ${seed} >> ${outfile}
-                                        for f in debug_*; do
+                                        test -f debug_* && for f in debug_*; do
                                             mv $f ${outbase}_${f}_${alpha}_${beta}_$K_${Nt}_${epsilon}_${meth}_${marg}_${ttresh}_${resolution}_${seed}.gnpl
                                         done
                                     done
