@@ -126,7 +126,7 @@ static void do_test_san_shape(struct low_res_grid_cell **grid,
 	struct san_measure star, bar;
 	int i, j, r;
 
-	printf("Threshold: %5.2lf | Values: ", theta);
+	printf("Threshold: %5.2lf | Values: ", nt * theta);
 	sm_init(&star);
 	sm_init(&bar);
 
