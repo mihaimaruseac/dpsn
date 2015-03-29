@@ -8,7 +8,7 @@
 
 /* remember that the split is always square of g->Nu */
 #ifndef MAX_SPLIT_SIZE
-#define MAX_SPLIT_SIZE 2500000
+#define MAX_SPLIT_SIZE 10
 #endif
 
 static void build_tree(const struct sensor_network *sn, struct grid *g,
