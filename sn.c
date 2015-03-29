@@ -444,8 +444,8 @@ static inline double lrg_get_rho_star_var(struct low_res_grid_cell **grid, int x
 {
 	(void) theta;
 	double rho = noisy_div(grid[x][y].s, grid[x][y].n, 0);
-	double s = grid[x][y].s; s = noisy_div(grid[x][y].s_star.var, s * s, 0);
-	double n = grid[x][y].n; n = noisy_div(grid[x][y].n_star.var, n * n, 0);
+	double s = grid[x][y].s; s = noisy_div(grid[x][y].s_star.var, s * s, t);
+	double n = grid[x][y].n; n = noisy_div(grid[x][y].n_star.var, n * n, t);
 	return rho * rho * (s * 10000 + n);
 }
 
