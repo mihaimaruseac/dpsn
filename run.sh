@@ -13,7 +13,7 @@ seeds="42 142 100"
 resolutions="1 5 10"
 
 datasetdir="datasets"
-outputdir="output/output.r4.unifgrid"
+outputdir="output/output.r5.unifgrid"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
@@ -59,8 +59,8 @@ run () {
     outfile_base=${outputdir}/${datafile##*/}
     outfile_base=${outfile_base%.*}
 
-    #run_uat ${datafile} ${outfile_base}_u u "${Nts}" "${gammas}"
-    #run_uat ${datafile} ${outfile_base}_a a "${Nts}" "${gammas}"
+    run_uat ${datafile} ${outfile_base}_u u "${Nts}" "${gammas}"
+    run_uat ${datafile} ${outfile_base}_a a "${Nts}" "${gammas}"
     run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
 }
 
