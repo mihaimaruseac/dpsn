@@ -3,7 +3,7 @@
 alphas="0.2 0.5 0.9"
 betas="0.2 0.5 0.9"
 gammas="0.01 0.05 0.2"
-depths="3 4 5"
+depths="3 4"
 Ks="5 10 100"
 Nts="3 4 5"
 TNts="3 5 7"
