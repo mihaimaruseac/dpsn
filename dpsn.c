@@ -97,6 +97,7 @@ static void parse_arguments(int argc, char **argv)
 		args.seed = 42;
 }
 
+#if DEBUG_GRID_TREE || DEBUG_FINE_GRID
 static FILE *get_file_pointer(const char *header, int ix)
 {
 	char *fname;
@@ -113,6 +114,7 @@ static FILE *get_file_pointer(const char *header, int ix)
 	free(fname);
 	return f;
 }
+#endif
 
 int main(int argc, char **argv)
 {
