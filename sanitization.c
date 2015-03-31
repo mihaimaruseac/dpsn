@@ -11,6 +11,10 @@
 #define MAX_SPLIT_SIZE 10
 #endif
 
+#ifndef AG_SPLIT_ALWAYS_IN_TWO
+#define AG_SPLIT_ALWAYS_IN_TWO 1
+#endif
+
 static void build_tree(const struct sensor_network *sn, struct grid *g,
 		double alpha, double beta, double gamma,
 		double K, int Nt, int max_depth,
@@ -79,8 +83,14 @@ again:
 
 			Nu = epsilon * K * beta * (1 - beta) * (1 - alpha) *
 				(g->cells[i].n_star.val + g->cells[i].s_star.val / sn->M);
-			if (Nu < 0 || (g->cells[i].Nu = (int)sqrt(Nu)) < Nt)
+			if (Nu < 0 || (g->cells[i].Nu = (int)sqrt(Nu)) < Nt) {
+#if AG_SPLIT_ALWAYS_IN_TWO
 				g->cells[i].Nu = Nt;
+#else
+				g->cells[i].Nu = 0;
+				continue;
+#endif
+			}
 			grd_split_cells(sn, &g->cells[i]);
 
 			for (j = 0; j < g->cells[i].Nu * g->cells[i].Nu; j++)
