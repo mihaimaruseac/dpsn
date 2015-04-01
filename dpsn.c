@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 #endif
 
 	// TODO: binary image + filters?
-	test_san_shape(grid, xcnt, ycnt, args.tthresh, sn.theta, sn.M);
+	test_san_shape(&sn, grid, xcnt, ycnt, args.tthresh);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
