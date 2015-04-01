@@ -55,7 +55,7 @@ static void test_san(const struct sensor_network *sn, const struct grid *g,
 
 	if (full_tree || !g->Nu) {
 		for (i = 0; i < smc_cnt; i++)
-			smc[i].update(&smc[i], sn, &g);
+			smc[i].update(&smc[i], sn, g);
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
