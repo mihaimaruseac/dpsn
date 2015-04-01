@@ -12,7 +12,7 @@
 #define DEBUG_GRID_TREE 0
 #endif
 #ifndef DEBUG_FINE_GRID
-#define DEBUG_FINE_GRID 0
+#define DEBUG_FINE_GRID 1
 #endif
 
 /* Command line arguments */
