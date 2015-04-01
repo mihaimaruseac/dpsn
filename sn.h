@@ -62,6 +62,7 @@ void sn_cleanup(const struct sensor_network *sn);
 
 void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f,
 		int depth);
+void grd_debug0(const struct sensor_network *sn, const struct grid *g);
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer);
 void grd_split_cells(const struct sensor_network *sn, struct grid *g);

@@ -217,6 +217,24 @@ void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f, i
 	grd_print_cell_vals(g, f, depth);
 }
 
+static void do_grd_debug0(const struct sensor_network *sn, const struct grid *g,
+		int d)
+{
+	int i;
+
+	printf("%*c s=%5.2lf n=%5d", d, ' ', g->s, g->n);
+	printf("| s=%5.2lf n=%5.2lf", d, ' ', g->s_star.val, g->n_star.val);
+	printf("| s=%5.2lf n=%5.2lf", d, ' ', g->s_bar.val, g->n_bar.val);
+	printf("\n");
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		do_grd_debug0(sn, &g->cells[i], d+1);
+}
+
+void grd_debug0(const struct sensor_network *sn, const struct grid *g)
+{
+	do_grd_debug0(sn, g, 1);
+}
+
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer)
 {

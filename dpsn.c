@@ -11,6 +11,9 @@
 #ifndef DEBUG_GRID_TREE
 #define DEBUG_GRID_TREE 0
 #endif
+#ifndef DEBUG_GRID_TREE_TEXT
+#define DEBUG_GRID_TREE_TEXT 1
+#endif
 #ifndef DEBUG_FINE_GRID
 #define DEBUG_FINE_GRID 1
 #endif
@@ -143,6 +146,9 @@ int main(int argc, char **argv)
 	}
 #else
 	(void) h; (void) f;
+#endif
+#if DEBUG_GRID_TREE_TEXT
+	grd_debug0(&sn, &g);
 #endif
 
 	test_san_leaf_only(&sn, &g, args.tthresh);
