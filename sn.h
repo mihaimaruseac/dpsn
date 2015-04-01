@@ -60,7 +60,8 @@ void sn_read_from_file(const char *fname, struct sensor_network *sn);
 void sn_convert_to_grid_root(const struct sensor_network *sn, struct grid *g);
 void sn_cleanup(const struct sensor_network *sn);
 
-void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f, int depth);
+void grd_debug(const struct sensor_network *sn, const struct grid *g, FILE *f,
+		int depth);
 void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 		double epsilon, double beta, struct drand48_data *buffer);
 void grd_split_cells(const struct sensor_network *sn, struct grid *g);
@@ -71,7 +72,8 @@ void grd_to_lrg(const struct grid *g, double res,
 		struct low_res_grid_cell ***grid,
 		int *xcnt, int *ycnt);
 
-void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, double theta, FILE *f);
+void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
+		double theta, FILE *f);
 
 /**
  * Will update _ave values in a to minimize their variance as a mean of _star

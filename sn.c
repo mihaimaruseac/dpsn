@@ -465,7 +465,8 @@ static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
 	fprintf(f, "\n");
 }
 
-void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t, double theta, FILE *f)
+void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
+		double theta, FILE *f)
 {
 	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "n", lrg_get_n);
 	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "s", lrg_get_s);
