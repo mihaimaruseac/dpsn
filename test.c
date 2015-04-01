@@ -169,7 +169,7 @@ void test_san_cell(const struct sensor_network *sn, const struct grid *g, double
 }
 
 void test_san_shape(struct low_res_grid_cell **grid, int xcnt, int ycnt,
-		double t, double theta)
+		double t, double theta, double M)
 {
 	do_test_san_shape(grid, xcnt, ycnt, t,  .75, theta);
 	do_test_san_shape(grid, xcnt, ycnt, t,   .9, theta);

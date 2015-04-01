@@ -28,6 +28,7 @@ plot_one () {
     plot_one_cube ${file} "shape" 9
     plot_one_cube ${file} "shape_star" 10
     plot_one_cube ${file} "shape_bar" 11
+    plot_one_cube ${file} "shape_delta_bar" 14
 }
 
 for i in $@; do

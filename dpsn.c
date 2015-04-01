@@ -153,12 +153,12 @@ int main(int argc, char **argv)
 
 #if DEBUG_FINE_GRID
 	f = get_file_pointer("uniform_grid", -1);
-	lrg_debug(grid, xcnt, ycnt, args.tthresh, sn.theta, f);
+	lrg_debug(grid, xcnt, ycnt, args.tthresh, sn.theta, sn.M, f);
 	fclose(f);
 #endif
 
 	// TODO: binary image + filters?
-	test_san_shape(grid, xcnt, ycnt, args.tthresh, sn.theta);
+	test_san_shape(grid, xcnt, ycnt, args.tthresh, sn.theta, sn.M);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
