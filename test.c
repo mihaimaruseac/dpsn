@@ -47,34 +47,6 @@ static void test_san_print(const struct san_measure_comp *self)
 	printf("\n");
 }
 
-static void test_san_tree(const struct sensor_network *sn, const struct grid *g,
-		int full_tree, int smc_cnt,
-		struct san_measure_comp *smc)
-{
-	int i;
-
-	if (full_tree || !g->Nu) {
-		for (i = 0; i < smc_cnt; i++)
-			smc[i].update(&smc[i], sn, g);
-	}
-
-	for (i = 0; i < g->Nu * g->Nu; i++)
-		test_san_tree(sn, &g->cells[i], full_tree, smc_cnt, smc);
-}
-
-static void test_san_low_res(const struct sensor_network *sn,
-		struct low_res_grid_cell **grid,
-		int xcnt, int ycnt, int smc_cnt,
-		struct san_measure_comp *smc)
-{
-	int i, j, k;
-
-	for (i = 0; i < xcnt; i++)
-		for (j = 0; j < ycnt; j++)
-			for (k = 0; k < smc_cnt; k++)
-				smc[k].update(&smc[k], sn, &grid[i][j]);
-}
-
 static void generic_update(struct san_measure_comp* self,
 			const struct sensor_network *sn,
 			double s, double n,
@@ -125,6 +97,34 @@ static void test_san_grid_cell(struct san_measure_comp* self,
 	const struct low_res_grid_cell *g = arg;
 	generic_update(self, sn, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
+}
+
+static void test_san_tree(const struct sensor_network *sn, const struct grid *g,
+		int full_tree, int smc_cnt,
+		struct san_measure_comp *smc)
+{
+	int i;
+
+	if (full_tree || !g->Nu) {
+		for (i = 0; i < smc_cnt; i++)
+			smc[i].update(&smc[i], sn, g);
+	}
+
+	for (i = 0; i < g->Nu * g->Nu; i++)
+		test_san_tree(sn, &g->cells[i], full_tree, smc_cnt, smc);
+}
+
+static void test_san_low_res(const struct sensor_network *sn,
+		struct low_res_grid_cell **grid,
+		int xcnt, int ycnt, int smc_cnt,
+		struct san_measure_comp *smc)
+{
+	int i, j, k;
+
+	for (i = 0; i < xcnt; i++)
+		for (j = 0; j < ycnt; j++)
+			for (k = 0; k < smc_cnt; k++)
+				smc[k].update(&smc[k], sn, &grid[i][j]);
 }
 
 static struct san_measure_comp *setup_smcs(const struct sensor_network *sn,
