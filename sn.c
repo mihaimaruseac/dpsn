@@ -440,15 +440,6 @@ static inline double lrg_get_s_star_var(struct low_res_grid_cell **grid, int x, 
 	return grid[x][y].s_star.var;
 }
 
-static inline double lrg_get_rho_star_var(struct low_res_grid_cell **grid, int x, int y, double t, double theta)
-{
-	(void) theta;
-	double rho = noisy_div(grid[x][y].s, grid[x][y].n, 0);
-	double s = grid[x][y].s; s = noisy_div(grid[x][y].s_star.var, s * s, t);
-	double n = grid[x][y].n; n = noisy_div(grid[x][y].n_star.var, n * n, t);
-	return rho * rho * (s * 10000 + n);
-}
-
 static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
 		double t, double theta, FILE *f, const char *section_label,
 		double (*get_field)(struct low_res_grid_cell **, int, int, double, double))
@@ -482,7 +473,6 @@ void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
 	lrg_print_val(grid, xcnt, ycnt, t, theta, f, "shape_bar", lrg_get_shape_bar);
 	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "n_star_var", lrg_get_n_star_var);
 	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "s_star_var", lrg_get_s_star_var);
-	lrg_print_val(grid, xcnt, ycnt, 0, 0, f, "rho_star_var", lrg_get_rho_star_var);
 	// TODO: shape_star_prob, shape_bar_prob
 }
 
