@@ -447,7 +447,7 @@ static inline double lrg_get_shape_bar_delta(struct low_res_grid_cell **grid,
 	double p = sqrt(var / a->p);
 	if (eta < -p) return 0;
 	if (eta > p) return 1;
-	return 0.5 * eta / p + 0.5;
+	return 1 / (1 + exp(-5 * eta / p));
 }
 
 static inline double lrg_get_n_star_var(struct low_res_grid_cell **grid,
