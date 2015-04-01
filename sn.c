@@ -222,9 +222,11 @@ static void do_grd_debug0(const struct sensor_network *sn, const struct grid *g,
 {
 	int i;
 
-	printf("%*c s=%5.2lf n=%5d", d, ' ', g->s, g->n);
-	printf("| s=%5.2lf n=%5.2lf", d, ' ', g->s_star.val, g->n_star.val);
-	printf("| s=%5.2lf n=%5.2lf", d, ' ', g->s_bar.val, g->n_bar.val);
+	printf("%*c (%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)", d, ' ',
+			g->xmin, g->ymin, g->xmax, g->ymax);
+	printf("| s=%9.2lf n=%8d ", g->s, g->n);
+	printf("| s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
+	printf("| s=%9.2lf n=%8.2lf ", g->s_bar.val, g->n_bar.val);
 	printf("\n");
 	for (i = 0; i < g->Nu * g->Nu; i++)
 		do_grd_debug0(sn, &g->cells[i], d+1);
