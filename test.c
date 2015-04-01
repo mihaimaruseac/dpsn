@@ -22,7 +22,7 @@ struct san_measure_comp {
 	double t; /* threshold for testing against 0 */
 	void (*update)(struct san_measure_comp*,
 			const struct sensor_network *,
-			void *);
+			const void *);
 	void (*print)(const struct san_measure_comp*);
 };
 
@@ -47,7 +47,7 @@ static void test_san_print(const struct san_measure_comp *self)
 	printf("\n");
 }
 
-static void test_san(const struct sensor_network *sn, const struct grid *g,
+static void test_san_tree(const struct sensor_network *sn, const struct grid *g,
 		int full_tree, int smc_cnt,
 		struct san_measure_comp *smc)
 {
@@ -59,10 +59,10 @@ static void test_san(const struct sensor_network *sn, const struct grid *g,
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++)
-		test_san(sn, &g->cells[i], full_tree, smc_cnt, smc);
+		test_san_tree(sn, &g->cells[i], full_tree, smc_cnt, smc);
 }
 
-static void do_test_san_shape(const struct sensor_network *sn,
+static void test_san_low_res(const struct sensor_network *sn,
 		struct low_res_grid_cell **grid,
 		int xcnt, int ycnt, int smc_cnt,
 		struct san_measure_comp *smc)
@@ -112,17 +112,17 @@ static void generic_update(struct san_measure_comp* self,
 }
 
 static void test_san_tree_cell(struct san_measure_comp* self,
-			const struct sensor_network *sn, void *arg)
+			const struct sensor_network *sn, const void *arg)
 {
-	struct grid *g = arg;
+	const struct grid *g = arg;
 	generic_update(self, sn, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
 
 static void test_san_grid_cell(struct san_measure_comp* self,
-			const struct sensor_network *sn, void *arg)
+			const struct sensor_network *sn, const void *arg)
 {
-	struct low_res_grid_cell *g = arg;
+	const struct low_res_grid_cell *g = arg;
 	generic_update(self, sn, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
@@ -154,7 +154,7 @@ void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g, d
 	for (i = 0; i < smc_cnt; i++)
 		smcs[i].update = test_san_tree_cell;
 
-	test_san(sn, g, 0, ratios_cnt, smcs);
+	test_san_tree(sn, g, 0, ratios_cnt, smcs);
 	for (i = 0; i < smc_cnt; i++)
 		smcs[i].print(&smcs[i]);
 	free(smcs);
@@ -169,7 +169,7 @@ void test_san_cell(const struct sensor_network *sn, const struct grid *g, double
 	for (i = 0; i < smc_cnt; i++)
 		smcs[i].update = test_san_tree_cell;
 
-	test_san(sn, g, 1, ratios_cnt, smcs);
+	test_san_tree(sn, g, 1, ratios_cnt, smcs);
 	for (i = 0; i < smc_cnt; i++)
 		smcs[i].print(&smcs[i]);
 	free(smcs);
@@ -185,7 +185,7 @@ void test_san_shape(const struct sensor_network *sn,
 	for (i = 0; i < smc_cnt; i++)
 		smcs[i].update = test_san_grid_cell;
 
-	do_test_san_shape(sn, grid, xcnt, ycnt, ratios_cnt, smcs);
+	test_san_low_res(sn, grid, xcnt, ycnt, ratios_cnt, smcs);
 	for (i = 0; i < smc_cnt; i++)
 		smcs[i].print(&smcs[i]);
 	free(smcs);
