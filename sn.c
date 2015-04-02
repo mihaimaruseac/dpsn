@@ -246,7 +246,7 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	epsilon_s = epsilon - epsilon_n;
 
 	g->n_star.val = laplace_mechanism(g->n, epsilon_n, 1, buffer);
-	g->s_star.val = laplace_mechanism(g->n, epsilon_s, sn->M, buffer);
+	g->s_star.val = laplace_mechanism(g->s, epsilon_s, sn->M, buffer);
 
 	g->n_star.var = 2 / (epsilon_n * epsilon_n);
 	g->s_star.var = 2 / (epsilon_s * epsilon_s);
