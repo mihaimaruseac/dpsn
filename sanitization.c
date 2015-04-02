@@ -8,7 +8,7 @@
 
 /* remember that the split is always square of g->Nu */
 #ifndef MAX_SPLIT_SIZE
-#define MAX_SPLIT_SIZE 10
+#define MAX_SPLIT_SIZE 1
 #endif
 
 #ifndef AG_SPLIT_ALWAYS_IN_TWO
@@ -56,7 +56,8 @@ again:
 		} else
 			g->Nu = (int)sqrt(Nu);
 		if (g->Nu < 2) goto again; /* should do a split in at least 4 cells */
-		g->Nu = min(g->Nu, MAX_SPLIT_SIZE);
+		if (grd_size(g) < MAX_SPLIT_SIZE) goto again; /* don't split if area is too small */
+		//g->Nu = min(g->Nu, MAX_SPLIT_SIZE);
 	}
 	if (method != AGS && (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)) {
 		g->Nu = Nt;
