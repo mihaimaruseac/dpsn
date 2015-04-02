@@ -13,7 +13,7 @@ seeds="42 142 100"
 resolutions="10"
 
 datasetdir="datasets"
-outputdir="output/output.r9.april"
+outputdir="output/output.r10.april"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
