@@ -1,8 +1,8 @@
 #!/bin/bash
 
-alphas="0.2 0.5 0.9"
-betas="0.2 0.5 0.9"
-gammas="0.01 0.05 0.2"
+alphas="0.5"
+betas="0.5"
+gammas="0.01"
 depths="3"
 Ks="10"
 Nts="3"
@@ -13,7 +13,7 @@ seeds="42 142 100"
 resolutions="10"
 
 datasetdir="datasets"
-outputdir="output/output.r6.april"
+outputdir="output/output.r9.april"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
