@@ -12,7 +12,7 @@
 #endif
 
 #ifndef AG_SPLIT_ALWAYS_IN_TWO
-#define AG_SPLIT_ALWAYS_IN_TWO 1
+#define AG_SPLIT_ALWAYS_IN_TWO 16
 #endif
 
 static void build_tree(const struct sensor_network *sn, struct grid *g,
