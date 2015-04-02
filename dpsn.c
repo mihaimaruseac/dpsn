@@ -121,6 +121,27 @@ static FILE *get_file_pointer(const char *header, int ix)
 
 int main(int argc, char **argv)
 {
+#if 0
+	{
+		struct drand48_data randbuffer;
+		init_rng(42, &randbuffer);
+		int i, N = 2;
+		double x, mean = 0, var = 0, delta, M = 100, eps = 0.0625;
+
+		for (i = 0; i < N; i++) {
+			x = laplace_mechanism(13038.31, eps, 1, &randbuffer);
+			x = laplace_mechanism(13038.31, eps, M, &randbuffer);
+			printf("%.lf\n", x);
+			delta = x - mean;
+			mean += delta / (i + 1);
+			var += delta * (x - mean);
+		}
+
+		printf("Got: Mean %lf, Variance %lf\n", mean, var / (N - 1));
+		printf("Should be: Mean 0.0, Variance %lf\n", 2 * (M / eps) * (M / eps));
+		exit(0);
+	}
+#endif
 	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
 	int xcnt, ycnt, i, h;
