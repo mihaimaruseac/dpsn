@@ -87,7 +87,7 @@ static void test_san_tree_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct grid *g = arg;
-	generic_update(self, sn, grd_size(g), g->s, g->n,
+	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
 
