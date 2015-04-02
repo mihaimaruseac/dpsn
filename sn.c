@@ -92,6 +92,7 @@ static int overlap(const struct grid *g,
 	return 1;
 }
 
+// TODO: copy instead of de-aggregating
 static void answer_full(const struct grid *g, int arg,
 		double xmin, double xmax, double ymin, double ymax,
 		struct noisy_val *n_star, struct noisy_val *s_star,
@@ -108,6 +109,7 @@ static void answer_full(const struct grid *g, int arg,
 		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
 		ar = (xmax - xmin) * (ymax - ymin);
 		f = ar / ag;
+		// TODO: ensure f is at most 1
 		n_star->val += f * g->n_star.val; n_star->var += f * f * g->n_star.var;
 		s_star->val += f * g->s_star.val; s_star->var += f * f * g->s_star.var;
 		n_bar->val += f * g->n_bar.val; n_bar->var += f * f * g->n_bar.var;
