@@ -319,6 +319,11 @@ int grd_height(const struct grid *g)
 	return h;
 }
 
+double grd_size(const struct grid *g)
+{
+	return (g->xmax - g->xmin) * (g->ymax - g->ymin);
+}
+
 void grd_cleanup(const struct grid *g)
 {
 	if (g->cells) {

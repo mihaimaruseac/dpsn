@@ -49,7 +49,7 @@ static void test_san_print(const struct san_measure_comp *self)
 
 static void generic_update(struct san_measure_comp* self,
 			const struct sensor_network *sn,
-			double s, double n,
+			double weight, double s, double n,
 			struct noisy_val s_star, struct noisy_val n_star,
 			struct noisy_val s_bar, struct noisy_val n_bar)
 {
@@ -59,26 +59,26 @@ static void generic_update(struct san_measure_comp* self,
 	rho_star = noisy_div(s_star.val, n_star.val, self->t);
 	rho_bar = noisy_div(s_bar.val, n_bar.val, self->t);
 
-	self->sm_star.all++;
-	self->sm_bar.all++;
+	self->sm_star.all += weight;
+	self->sm_bar.all += weight;
 
 	if (rho > sn->theta) {
-		self->sm_star.first++;
-		self->sm_bar.first++;
-		self->sm_star.either++;
-		self->sm_bar.either++;
-		if (rho_star < self->ratio) self->sm_star.flip++;
-		else self->sm_star.both++;
-		if (rho_bar < self->ratio) self->sm_bar.flip++;
-		else self->sm_bar.both++;
+		self->sm_star.first += weight;
+		self->sm_bar.first += weight;
+		self->sm_star.either += weight;
+		self->sm_bar.either += weight;
+		if (rho_star < self->ratio) self->sm_star.flip += weight;
+		else self->sm_star.both += weight;
+		if (rho_bar < self->ratio) self->sm_bar.flip += weight;
+		else self->sm_bar.both += weight;
 	} else {
 		if (rho_star > self->ratio) {
-			self->sm_star.flip++;
-			self->sm_star.either++;
+			self->sm_star.flip += weight;
+			self->sm_star.either += weight;
 		}
 		if (rho_bar > self->ratio) {
-			self->sm_bar.flip++;
-			self->sm_bar.either++;
+			self->sm_bar.flip += weight;
+			self->sm_bar.either += weight;
 		}
 	}
 }
@@ -87,7 +87,7 @@ static void test_san_tree_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct grid *g = arg;
-	generic_update(self, sn, g->s, g->n,
+	generic_update(self, sn, grd_size(g), g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
 
@@ -95,7 +95,7 @@ static void test_san_grid_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct low_res_grid_cell *g = arg;
-	generic_update(self, sn, g->s, g->n,
+	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
 
