@@ -29,6 +29,12 @@ plot_one () {
     plot_one_cube ${file} "shape_star" 10
     plot_one_cube ${file} "shape_bar" 11
     plot_one_cube ${file} "shape_delta_bar" 14
+    plot_one_cube ${file} "voting_above_star" 15
+    plot_one_cube ${file} "voting_below_star" 16
+    plot_one_cube ${file} "voting_above_bar" 17
+    plot_one_cube ${file} "voting_below_bar" 18
+    plot_one_cube ${file} "voting_real_star" 19
+    plot_one_cube ${file} "voting_real_bar" 20
 }
 
 for i in $@; do
