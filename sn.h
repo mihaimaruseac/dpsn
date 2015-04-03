@@ -32,7 +32,7 @@ struct grid {
 	/* grid zise */
 	int Nu;
 	/* grid parent */
-	const struct grid *parent;
+	struct grid *parent;
 
 	/* real count and sum */
 	int n;

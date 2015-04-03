@@ -26,7 +26,7 @@ struct san_measure_comp {
 	void (*print)(const struct san_measure_comp*);
 };
 
-static double ratios[] = {.75, .9, .95, 1, 1.05, 1.1, 1.25};
+static double ratios[] = {1}; //.75, .9, .95, 1, 1.05, 1.1, 1.25};
 static const double ratios_cnt = sizeof(ratios) / sizeof(ratios[0]);
 
 static void sm_print(const struct san_measure *sm)
@@ -59,6 +59,17 @@ static void generic_update(struct san_measure_comp* self,
 	rho_star = noisy_div(s_star.val, n_star.val, self->t);
 	rho_bar = noisy_div(s_bar.val, n_bar.val, self->t);
 
+	//if (n < self->t) goto compute;
+	printf("| s=%9.2lf n=%9.2lf ", s, n);
+	printf("| s=%9.2lf n=%8.2lf ", s_star.val, n_star.val);
+	printf("| s=%9.2lf n=%8.2lf ", s_bar.val, n_bar.val);
+	printf("-v-> s=%9.2lf n=%8.2lf ", s_star.var, n_star.var);
+	printf("| s=%9.2lf n=%8.2lf ", s_bar.var, n_bar.var);
+	printf("\n");
+	printf("%*c  %9.2lf | %22.2lf | %22.2lf\n", 50, ' ',
+			rho, rho_star, rho_bar);
+compute:
+
 	self->sm_star.all += weight;
 	self->sm_bar.all += weight;
 
@@ -87,6 +98,10 @@ static void test_san_tree_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct grid *g = arg;
+	////if (g->n < self->t) goto compute;
+	printf("(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
+			g->xmin, g->ymin, g->xmax, g->ymax);
+compute:
 	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
@@ -95,6 +110,10 @@ static void test_san_grid_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct low_res_grid_cell *g = arg;
+	//if (g->n < self->t) goto compute;
+	printf("(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
+			g->xmin, g->ymin, g->xmax, g->ymax);
+compute:
 	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }

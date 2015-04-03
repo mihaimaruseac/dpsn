@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,7 +9,7 @@
 
 /* remember that the split is always square of g->Nu */
 #ifndef MAX_SPLIT_SIZE
-#define MAX_SPLIT_SIZE 0.04
+#define MAX_SPLIT_SIZE 2
 #endif
 
 #ifndef AG_SPLIT_ALWAYS_IN_TWO
@@ -28,6 +29,8 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 		epsilon = gamma * g->epsilon;
 	else
 		epsilon = alpha * g->epsilon;
+	printf("%d: g->epsilon: %lf, epsilon: %lf\n", 3 - max_depth, g->epsilon, epsilon); // TODO: need to test for more than one level for t and then for u and a
+	printf("~~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)\n", g->xmin, g->ymin, g->xmax, g->ymax);
 	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
 
 	/* 2. compute split factor */
@@ -40,6 +43,8 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 
 	/* 3. Compute split size */
 	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
+	printf("   g->n_star:%lf g->s_star/M:%lf\n", g->n_star.val, g->s_star.val/sn->M);
+	printf("   Nu:%lf\n", Nu);
 
 	/* 3. recursion end */
 	if (method == AGS) {
@@ -47,17 +52,22 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 			struct grid *gc;
 again:
 			gc = grd_copy(g);
+			printf("C~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)\n", gc->xmin, gc->ymin, gc->xmax, gc->ymax);
 			grd_compute_noisy(sn, gc, g->epsilon - epsilon, beta, randbuffer);
+			printf("C  g->n_star:%lf g->s_star/M:%lf\n", gc->n_star.val, gc->s_star.val/sn->M);
 			grd_average2(g, gc);
+			printf("A  g->n_ave:%lf g->s_ave/M:%lf\n", g->n_ave.val, g->s_ave.val/sn->M);
+			printf("Av g->n_ave:%lf g->s_ave:%lf\n", g->n_ave.var, g->s_ave.var);
 			grd_cleanup(gc);
 			free(gc);
 			g->Nu = 0; /* block further recursion */
 			return;
 		} else
 			g->Nu = (int)sqrt(Nu);
+		printf(".. Nu:%d area:%lf\n", g->Nu, grd_size(g));
 		if (g->Nu < 2) goto again; /* should do a split in at least 4 cells */
-		if (grd_size(g) < MAX_SPLIT_SIZE) goto again; /* don't split if area is too small */
-		//g->Nu = min(g->Nu, MAX_SPLIT_SIZE);
+		//if (grd_size(g) < MAX_SPLIT_SIZE) goto again; /* don't split if area is too small */
+		g->Nu = min(g->Nu, MAX_SPLIT_SIZE);
 	}
 	if (method != AGS && (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)) {
 		g->Nu = Nt;
@@ -140,6 +150,16 @@ static void update_tree_ave(struct grid *g)
 		update_tree_ave(&g->cells[i]);
 
 	grd_averagev(g);
+
+	int p = 0;
+	struct grid *gp = g->parent;
+	while (gp) {p++; gp=gp->parent;}
+	printf("%d (%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)", p,
+			g->xmin, g->ymin, g->xmax, g->ymax);
+	printf("| s=%9.2lf n=%8d ", g->s, g->n);
+	printf("| s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
+	printf("| s=%9.2lf n=%8.2lf ", g->s_ave.val, g->n_ave.val);
+	printf("\n");
 }
 
 static void update_tree_bar(struct grid *g)
@@ -169,6 +189,8 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 	if (method != AGS) max_depth = 1; /* constant 1 */
 	build_tree(sn, g, alpha, beta, gamma, K, Nt, max_depth,
 			&randbuffer, method);
+
+	printf("Tree build, sanitization up following\n");
 
 	/* 3. update _ave values */
 	if (method != AGS) update_ave_leaves(g);

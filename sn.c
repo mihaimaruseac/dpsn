@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +22,16 @@ static void grd_init(struct grid *g,
 
 static void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix)
 {
+	int c = (g->xmin <= sn->sensors[ix].x) &&
+		(g->ymin <= sn->sensors[ix].y) &&
+		(g->xmax > sn->sensors[ix].x) &&
+		(g->ymax > sn->sensors[ix].y);
+	if (!c) {
+		printf("~~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)\n",
+				g->xmin, g->ymin, g->xmax, g->ymax);
+		printf("~~~%5.2lf %5.2lf\n", sn->sensors[ix].x, sn->sensors[ix].y);
+	}
+	assert(c);
 	g->n++;
 	g->s += sn->sensors[ix].val;
 }
@@ -93,7 +104,7 @@ static int overlap(const struct grid *g,
 }
 
 // TODO: copy instead of de-aggregating
-static void answer_full(const struct grid *g, int arg,
+static int answer_full(const struct grid *g, int arg,
 		double xmin, double xmax, double ymin, double ymax,
 		struct noisy_val *n_star, struct noisy_val *s_star,
 		struct noisy_val *n_bar, struct noisy_val *s_bar,
@@ -109,14 +120,14 @@ static void answer_full(const struct grid *g, int arg,
 		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
 		ar = (xmax - xmin) * (ymax - ymin);
 		f = ar / ag;
+		f = 1;
 		// TODO: ensure f is at most 1
 		n_star->val += f * g->n_star.val; n_star->var += f * f * g->n_star.var;
 		s_star->val += f * g->s_star.val; s_star->var += f * f * g->s_star.var;
 		n_bar->val += f * g->n_bar.val; n_bar->var += f * f * g->n_bar.var;
 		s_bar->val += f * g->s_bar.val; s_bar->var += f * f * g->s_bar.var;
-		*n += f * g->n;
-		*s += f * g->s;
-		return;
+		*n = f * g->n;
+		*s = f * g->s;
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++) {
@@ -125,13 +136,15 @@ static void answer_full(const struct grid *g, int arg,
 			continue;
 		}
 		// TODO: might implement a jump for y
-		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax))
+		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
 			answer_full(&g->cells[i], arg + 5,
 					max(xmin, g->cells[i].xmin),
 					min(xmax, g->cells[i].xmax),
 					max(ymin, g->cells[i].ymin),
 					min(ymax, g->cells[i].ymax),
 					n_star, s_star, n_bar, s_bar, n, s);
+			return;
+		}
 	}
 }
 
@@ -226,9 +239,9 @@ static void do_grd_debug0(const struct sensor_network *sn, const struct grid *g,
 
 	printf("%*c (%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)", d, ' ',
 			g->xmin, g->ymin, g->xmax, g->ymax);
-	printf("| s=%9.2lf n=%8d ", g->s, g->n);
-	printf("| s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
-	printf("| s=%9.2lf n=%8.2lf ", g->s_bar.val, g->n_bar.val);
+	printf("| s=%9.2lf n=%8d %8.2lf", g->s, g->n, noisy_div(g->s, g->n, 0.01));
+	printf("| s=%9.2lf n=%8.2lf %8.2lf", g->s_star.val, g->n_star.val, noisy_div(g->s_star.val, g->n_star.val, 0.01));
+	printf("| s=%9.2lf n=%8.2lf %8.2lf", g->s_bar.val, g->n_bar.val, noisy_div(g->s_bar.val, g->n_bar.val, 0.01));
 	printf("\n");
 	for (i = 0; i < g->Nu * g->Nu; i++)
 		do_grd_debug0(sn, &g->cells[i], d+1);
@@ -247,21 +260,30 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	epsilon_n = beta * epsilon;
 	epsilon_s = epsilon - epsilon_n;
 
+	printf("   epsilon: %lf, epsilon_n: %lf, epsilon_s %lf\n",
+			epsilon, epsilon_n, epsilon_s); // TODO: need to test for more than one level for t and then for u and a
+
 	g->n_star.val = laplace_mechanism(g->n, epsilon_n, 1, buffer);
 	g->s_star.val = laplace_mechanism(g->s, epsilon_s, sn->M, buffer);
 
 	g->n_star.var = 2 / (epsilon_n * epsilon_n);
 	g->s_star.var = 2 / (epsilon_s * epsilon_s);
+
+	printf("   > s=%9.2lf n=%8d ", g->s, g->n);
+	printf("| s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
+	printf("| s=%9.2lf n=%8.2lf ", g->s_star.var, g->n_star.var);
+	printf("\n");
 }
 
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 {
 	double *xlimits, *ylimits, xdelta, ydelta;
+	int i, j, k, st, en, c = 0, cnd;
 	struct sensor tmp_s;
-	int i, j, k, st, en;
 
 	xdelta = (g->xmax - g->xmin) / g->Nu;
 	ydelta = (g->ymax - g->ymin) / g->Nu;
+	printf("   xdelta=%lf, ydelta=%lf\n", xdelta, ydelta);
 
 	xlimits = calloc(1 + g->Nu, sizeof(xlimits[0]));
 	if (!xlimits) die("Out of memory %d sz=%lu", 1 + g->Nu, (1 + g->Nu) * sizeof(xlimits[0]));
@@ -284,22 +306,51 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 					ylimits[j], ylimits[j+1], g);
 
 	/* split points */
+#if 0
 	tmp_s.x = g->xmin; tmp_s.y = g->ymin;
 	st = bsearch_i(&tmp_s, sn->sensors, sn->num_s, sizeof(sn->sensors[0]), sensor_cmp);
 	tmp_s.x = g->xmax; tmp_s.y = g->ymax;
 	en = bsearch_i(&tmp_s, sn->sensors, sn->num_s, sizeof(sn->sensors[0]), sensor_cmp);
 	st = st < 0 ? -st-1 : st-1;
 	en = en < 0 ? -en-1 : en-1;
+	printf("   st=%d, en=%d\n", st, en);
 	for (i = st; i < en; i++) {
+#else
+	for (i = 0; i < sn->num_s; i++) {
+#endif
+#if 0
 		struct sensor *s = &sn->sensors[i];
 		j = bsearch_i(&s->x, xlimits, 1 + g->Nu, sizeof(xlimits[0]), double_cmp);
 		k = bsearch_i(&s->y, ylimits, 1 + g->Nu, sizeof(ylimits[0]), double_cmp);
+		//TODO: printf("s  i=%d x=%lf, y=%lf, val=%lf k=%d j=%d\n", i, s->x, s->y, s->val, k, j);
 		j = j < 0 ? -j-2 : j-1;
 		k = k < 0 ? -k-2 : k-1;
-		if (j < 0 || k < 0 || j >= g->Nu || k >= g->Nu)
+		j = j < 0 ? 0 : j;
+		k = k < 0 ? 0 : k;
+		//TODO: printf("S  i=%d x=%lf, y=%lf, val=%lf k=%d j=%d\n", i, s->x, s->y, s->val, k, j);
+		if (j < 0 || k < 0 || j >= g->Nu || k >= g->Nu) {
+			printf("!!!i=%d x=%lf, y=%lf, val=%lf k=%d j=%d\n", i, s->x, s->y, s->val, k, j);
 			continue;
+		}
 		grd_add_point(sn, &g->cells[j * g->Nu + k], i);
+#else
+		for (j = 0; j < g->Nu * g->Nu; j++) {
+			cnd = (g->cells[j].xmin <= sn->sensors[i].x) &&
+			      (g->cells[j].ymin <= sn->sensors[i].y) &&
+			      (g->cells[j].xmax  > sn->sensors[i].x) &&
+			      (g->cells[j].ymax  > sn->sensors[i].y);
+			if (cnd) {
+				grd_add_point(sn, &g->cells[j], i);
+#endif
+		c++;
+#if 0
+#else
+				break;
+			}
+		}
+#endif
 	}
+	assert(c == g->n);
 
 	free(xlimits);
 	free(ylimits);

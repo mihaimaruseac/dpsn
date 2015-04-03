@@ -173,7 +173,9 @@ int main(int argc, char **argv)
 #endif
 
 	test_san_leaf_only(&sn, &g, args.tthresh);
+	printf("Tested sanity of leaves\n");
 	test_san_cell(&sn, &g, args.tthresh);
+	printf("Tested sanity of tree\n");
 
 	grd_to_lrg(&g, args.resolution, &grid, &xcnt, &ycnt);
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
@@ -186,6 +188,7 @@ int main(int argc, char **argv)
 
 	// TODO: binary image + filters?
 	test_san_shape(&sn, grid, xcnt, ycnt, args.tthresh);
+	printf("Tested sanity of heatmap\n");
 
 	free(args.dataset);
 	sn_cleanup(&sn);

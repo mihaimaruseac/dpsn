@@ -19,7 +19,7 @@ def model_fun(x, y):
     #a = math.sqrt(a)
     #ret = 90 - 250 * math.sin(a)/(a + 10)
     d = (x - 60) ** 2 + (y - 15) ** 2
-    ret = m + M * math.exp(-d/50)
+    ret = m + M * math.exp(-d/500)
     if ret > M: ret = M
     return ret
 
