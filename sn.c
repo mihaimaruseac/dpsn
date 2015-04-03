@@ -108,7 +108,7 @@ static void answer_full(const struct grid *g, double theta, double t,
 		struct low_res_grid_cell *cell,
 		double xmin, double xmax, double ymin, double ymax)
 {
-	double ag, ar, f;
+	double ag, ar, f, w;
 	int i;
 
 	/* leaf or full cell coverage */
@@ -140,15 +140,24 @@ static void answer_full(const struct grid *g, double theta, double t,
 					min(xmax, g->cells[i].xmax),
 					max(ymin, g->cells[i].ymin),
 					min(ymax, g->cells[i].ymax));
+
+#if 0
+			w = 1;
+#else
+			w = (min(xmax, g->cells[i].xmax) - max(xmin, g->cells[i].xmin)) *
+			    (min(ymax, g->cells[i].ymax) - max(ymin, g->cells[i].ymin));
+			assert(w > 0);
+#endif
+
 			/* voting on outcome */
 			if (noisy_div(g->cells[i].s_bar.val, g->cells[i].n_bar.val, t) >= theta)
-				cell->g_bar_above++;
+				cell->g_bar_above += w;
 			else
-				cell->g_bar_below++;
+				cell->g_bar_below += w;
 			if (noisy_div(g->cells[i].s_star.val, g->cells[i].n_star.val, t) >= theta)
-				cell->g_star_above++;
+				cell->g_star_above += w;
 			else
-				cell->g_star_below++;
+				cell->g_star_below += w;
 		}
 	}
 }
@@ -439,6 +448,7 @@ struct lrg_get_args {
 	double theta;
 	double M;
 	double p;
+	double x;
 };
 
 static inline double lrg_get_n(struct low_res_grid_cell **grid,
@@ -578,15 +588,21 @@ static inline double lrg_get_bar_vote_below(struct low_res_grid_cell **grid,
 static inline double lrg_get_star_real_vote(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
-	(void) a;
-	return grid[x][y].g_star_below - grid[x][y].g_star_below;
+	double test;
+
+	test = grid[x][y].g_star_below - grid[x][y].g_star_below;
+	if (test >= -a->x) return test + 2 * a->x;
+	return test - 2 * a->x;
 }
 
 static inline double lrg_get_bar_real_vote(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
-	(void) a;
-	return grid[x][y].g_bar_above - grid[x][y].g_bar_below;
+	double test;
+
+	test = grid[x][y].g_bar_above - grid[x][y].g_bar_below;
+	if (test >= -a->x) return test + 2 * a->x;
+	return test - 2 * a->x;
 }
 
 static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
@@ -615,6 +631,7 @@ void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
 		.theta = theta,
 		.M = M,
 		.p = 0.9,
+		.x = 0,
 	};
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "n", lrg_get_n);
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "s", lrg_get_s);
