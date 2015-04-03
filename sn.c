@@ -547,6 +547,34 @@ static inline double lrg_get_s_star_var(struct low_res_grid_cell **grid,
 	return grid[x][y].s_star.var;
 }
 
+static inline double lrg_get_star_vote_above(struct low_res_grid_cell **grid,
+		int x, int y, const struct lrg_get_args *a)
+{
+	(void) a;
+	return grid[x][y].g_star_above;
+}
+
+static inline double lrg_get_star_vote_below(struct low_res_grid_cell **grid,
+		int x, int y, const struct lrg_get_args *a)
+{
+	(void) a;
+	return grid[x][y].g_star_below;
+}
+
+static inline double lrg_get_bar_vote_above(struct low_res_grid_cell **grid,
+		int x, int y, const struct lrg_get_args *a)
+{
+	(void) a;
+	return grid[x][y].g_bar_above;
+}
+
+static inline double lrg_get_bar_vote_below(struct low_res_grid_cell **grid,
+		int x, int y, const struct lrg_get_args *a)
+{
+	(void) a;
+	return grid[x][y].g_bar_below;
+}
+
 static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
 		const struct lrg_get_args *a,
 		FILE *f, const char *section_label,
@@ -589,7 +617,10 @@ void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "n_star_var", lrg_get_n_star_var);
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "s_star_var", lrg_get_s_star_var);
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "shape_delta", lrg_get_shape_bar_delta);
-	// TODO: shape_star_prob, shape_bar_prob
+	lrg_print_val(grid, xcnt, ycnt, &a, f, "star_vote_above", lrg_get_star_vote_above);
+	lrg_print_val(grid, xcnt, ycnt, &a, f, "star_vote_below", lrg_get_star_vote_below);
+	lrg_print_val(grid, xcnt, ycnt, &a, f, "bar_vote_above", lrg_get_bar_vote_above);
+	lrg_print_val(grid, xcnt, ycnt, &a, f, "bar_vote_below", lrg_get_bar_vote_below);
 }
 
 void grd_average2(struct grid *a, const struct grid *b)
