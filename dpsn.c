@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 	test_san_cell(&sn, &g, args.tthresh);
 	printf("Tested sanity of tree\n");
 
-	grd_to_lrg(&g, args.resolution, &grid, &xcnt, &ycnt);
+	grd_to_lrg(&sn, &g, args.resolution, &grid, &xcnt, &ycnt, args.tthresh);
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
 
 #if DEBUG_FINE_GRID

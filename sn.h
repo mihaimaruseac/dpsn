@@ -54,6 +54,8 @@ struct low_res_grid_cell {
 	struct noisy_val n_star, s_star;
 	struct noisy_val n_bar, s_bar;
 	double n, s;
+	int g_star_above, g_star_below;
+	int g_bar_above, g_bar_below;
 };
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn);
@@ -70,9 +72,9 @@ int grd_height(const struct grid *g);
 double grd_size(const struct grid *g);
 void grd_cleanup(const struct grid *g);
 struct grid* grd_copy(const struct grid *original);
-void grd_to_lrg(const struct grid *g, double res,
-		struct low_res_grid_cell ***grid,
-		int *xcnt, int *ycnt);
+void grd_to_lrg(const struct sensor_network *sn, const struct grid *g,
+		double res, struct low_res_grid_cell ***grid,
+		int *xcnt, int *ycnt, double t);
 
 void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
 		double theta, double M, FILE *f);
