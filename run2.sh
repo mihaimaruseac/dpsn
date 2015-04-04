@@ -3,17 +3,17 @@
 alphas="0.5"
 betas="0.5"
 gammas="0.01"
-depths="3"
+depths="3 4 5"
 Ks="10"
 Nts="3"
 TNts="3"
 epsilons="0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
-ttreshes="0.01"
+ttreshes="0.01 1"
 seeds="42 142 100"
-resolutions="10"
+resolutions="1"
 
 datasetdir="datasets"
-outputdir="output/output.r10.april"
+outputdir="output/new.4.4/splitsz4-nodebug"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
@@ -34,13 +34,13 @@ run_uat () {
                     for Nt in ${NTargs}; do
                         for epsilon in ${epsilons}; do
                             for ttresh in ${ttreshes}; do
-                                for seed in ${seeds}; do
-                                    for resolution in ${resolutions}; do
+                                for resolution in ${resolutions}; do
+                                    for seed in ${seeds}; do
                                         ./dpsn ${alpha} ${beta} $K ${Nt}\
                                             ${epsilon} ${meth} ${marg}\
                                             ${ttresh} ${resolution}\
                                             ${datafile} ${seed} >> ${outfile}
-                                        test -f debug_* && for f in debug_*; do
+                                        test -f debug_uniform_grid && for f in debug_*; do
                                             mv $f ${outbase}_${f}_${alpha}_${beta}_$K_${Nt}_${epsilon}_${meth}_${marg}_${ttresh}_${resolution}_${seed}.gnpl
                                         done
                                     done
@@ -64,6 +64,6 @@ run () {
     run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
 }
 
-for i in ${datasetdir}/debug_N20000*.dat; do
+for i in ${datasetdir}/new*.dat; do
     run $i
 done
