@@ -13,7 +13,7 @@ seeds="42 142 100"
 resolutions="1"
 
 datasetdir="datasets"
-outputdir="output/new.4.4/splitsz4-nodebug"
+outputdir="output/new.4.4/splitsz2-nodebug"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 

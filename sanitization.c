@@ -9,7 +9,7 @@
 
 /* remember that the split is always square of g->Nu */
 #ifndef MAX_SPLIT_SIZE
-#define MAX_SPLIT_SIZE 4
+#define MAX_SPLIT_SIZE 2
 #endif
 
 #ifndef AG_SPLIT_ALWAYS_IN_TWO
