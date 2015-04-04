@@ -12,10 +12,10 @@
 #define DEBUG_GRID_TREE 0
 #endif
 #ifndef DEBUG_GRID_TREE_TEXT
-#define DEBUG_GRID_TREE_TEXT 1
+#define DEBUG_GRID_TREE_TEXT 0
 #endif
 #ifndef DEBUG_FINE_GRID
-#define DEBUG_FINE_GRID 1
+#define DEBUG_FINE_GRID 0
 #endif
 
 /* Command line arguments */
@@ -173,9 +173,13 @@ int main(int argc, char **argv)
 #endif
 
 	test_san_leaf_only(&sn, &g, args.tthresh);
+#if DEBUG_GRID_TREE_TEXT
 	printf("Tested sanity of leaves\n");
+#endif
 	test_san_cell(&sn, &g, args.tthresh);
+#if DEBUG_GRID_TREE_TEXT
 	printf("Tested sanity of tree\n");
+#endif
 
 	grd_to_lrg(&sn, &g, args.resolution, &grid, &xcnt, &ycnt, args.tthresh);
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
@@ -188,7 +192,9 @@ int main(int argc, char **argv)
 
 	// TODO: binary image + filters?
 	test_san_shape(&sn, grid, xcnt, ycnt, args.tthresh);
+#if DEBUG_GRID_TREE_TEXT
 	printf("Tested sanity of heatmap\n");
+#endif
 
 	free(args.dataset);
 	sn_cleanup(&sn);

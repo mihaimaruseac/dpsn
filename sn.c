@@ -26,11 +26,13 @@ static void grd_add_point(const struct sensor_network *sn, struct grid *g, int i
 		(g->ymin <= sn->sensors[ix].y) &&
 		(g->xmax > sn->sensors[ix].x) &&
 		(g->ymax > sn->sensors[ix].y);
+#if DEBUG_GRID_TREE_TEXT
 	if (!c) {
 		printf("~~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)\n",
 				g->xmin, g->ymin, g->xmax, g->ymax);
 		printf("~~~%5.2lf %5.2lf\n", sn->sensors[ix].x, sn->sensors[ix].y);
 	}
+#endif
 	assert(c);
 	g->n++;
 	g->s += sn->sensors[ix].val;
@@ -274,8 +276,10 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	epsilon_n = beta * epsilon;
 	epsilon_s = epsilon - epsilon_n;
 
+#if DEBUG_GRID_TREE_TEXT
 	printf("   epsilon: %lf, epsilon_n: %lf, epsilon_s %lf\n",
 			epsilon, epsilon_n, epsilon_s); // TODO: need to test for more than one level for t and then for u and a
+#endif
 
 	g->n_star.val = laplace_mechanism(g->n, epsilon_n, 1, buffer);
 	g->s_star.val = laplace_mechanism(g->s, epsilon_s, sn->M, buffer);
@@ -283,10 +287,12 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	g->n_star.var = 2 / (epsilon_n * epsilon_n);
 	g->s_star.var = 2 / (epsilon_s * epsilon_s);
 
+#if DEBUG_GRID_TREE_TEXT
 	printf("   > s=%9.2lf n=%8d ", g->s, g->n);
 	printf("| s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
 	printf("| s=%9.2lf n=%8.2lf ", g->s_star.var, g->n_star.var);
 	printf("\n");
+#endif
 }
 
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)
@@ -297,7 +303,9 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 
 	xdelta = (g->xmax - g->xmin) / g->Nu;
 	ydelta = (g->ymax - g->ymin) / g->Nu;
+#if DEBUG_GRID_TREE_TEXT
 	printf("   xdelta=%lf, ydelta=%lf\n", xdelta, ydelta);
+#endif
 
 	xlimits = calloc(1 + g->Nu, sizeof(xlimits[0]));
 	if (!xlimits) die("Out of memory %d sz=%lu", 1 + g->Nu, (1 + g->Nu) * sizeof(xlimits[0]));

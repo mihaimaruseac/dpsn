@@ -59,6 +59,7 @@ static void generic_update(struct san_measure_comp* self,
 	rho_star = noisy_div(s_star.val, n_star.val, self->t);
 	rho_bar = noisy_div(s_bar.val, n_bar.val, self->t);
 
+#if DEBUG_GRID_TREE_TEXT
 	//if (n < self->t) goto compute;
 	printf("| s=%9.2lf n=%9.2lf ", s, n);
 	printf("| s=%9.2lf n=%8.2lf ", s_star.val, n_star.val);
@@ -69,7 +70,7 @@ static void generic_update(struct san_measure_comp* self,
 	printf("%*c  %9.2lf | %22.2lf | %22.2lf\n", 50, ' ',
 			rho, rho_star, rho_bar);
 compute:
-
+#endif
 	self->sm_star.all += weight;
 	self->sm_bar.all += weight;
 
@@ -98,10 +99,12 @@ static void test_san_tree_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct grid *g = arg;
+#if DEBUG_GRID_TREE_TEXT
 	////if (g->n < self->t) goto compute;
 	printf("(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
 			g->xmin, g->ymin, g->xmax, g->ymax);
 compute:
+#endif
 	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
@@ -110,10 +113,12 @@ static void test_san_grid_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct low_res_grid_cell *g = arg;
+#if DEBUG_GRID_TREE_TEXT
 	//if (g->n < self->t) goto compute;
 	printf("(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
 			g->xmin, g->ymin, g->xmax, g->ymax);
 compute:
+#endif
 	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
