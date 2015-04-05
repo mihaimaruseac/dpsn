@@ -6,6 +6,10 @@
 #include "globals.h"
 #include "sn.h"
 
+#ifndef DEBUG_NOISE
+#define DEBUG_NOISE 1
+#endif
+
 static void grd_init(struct grid *g,
 		double xmin, double xmax, double ymin, double ymax,
 		struct grid *parent)
@@ -22,17 +26,17 @@ static void grd_init(struct grid *g,
 
 static void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix)
 {
+	// TODO: remove the if after complete refactoring of point
+	// addition&splitting is done
 	int c = (g->xmin <= sn->sensors[ix].x) &&
 		(g->ymin <= sn->sensors[ix].y) &&
 		(g->xmax > sn->sensors[ix].x) &&
 		(g->ymax > sn->sensors[ix].y);
-#if DEBUG_GRID_TREE_TEXT
 	if (!c) {
 		printf("~~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)\n",
 				g->xmin, g->ymin, g->xmax, g->ymax);
 		printf("~~~%5.2lf %5.2lf\n", sn->sensors[ix].x, sn->sensors[ix].y);
 	}
-#endif
 	assert(c);
 	g->n++;
 	g->s += sn->sensors[ix].val;
@@ -276,10 +280,8 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	epsilon_n = beta * epsilon;
 	epsilon_s = epsilon - epsilon_n;
 
-#if DEBUG_GRID_TREE_TEXT
-	printf("   epsilon: %lf, epsilon_n: %lf, epsilon_s %lf\n",
-			epsilon, epsilon_n, epsilon_s); // TODO: need to test for more than one level for t and then for u and a
-#endif
+	debug(DEBUG_NOISE, "   epsilon: %lf, epsilon_n: %lf, epsilon_s %lf",
+			epsilon, epsilon_n, epsilon_s);
 
 	g->n_star.val = laplace_mechanism(g->n, epsilon_n, 1, buffer);
 	g->s_star.val = laplace_mechanism(g->s, epsilon_s, sn->M, buffer);
@@ -287,12 +289,15 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 	g->n_star.var = 2 / (epsilon_n * epsilon_n);
 	g->s_star.var = 2 / (epsilon_s * epsilon_s);
 
-#if DEBUG_GRID_TREE_TEXT
-	printf("   > s=%9.2lf n=%8d ", g->s, g->n);
-	printf("| s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
-	printf("| s=%9.2lf n=%8.2lf ", g->s_star.var, g->n_star.var);
-	printf("\n");
-#endif
+	debug(DEBUG_NOISE, "Real: s=%10.2lf n=%8d", g->s, g->n);
+	debug(DEBUG_NOISE, "Star: s=%10.2lf n=%11.2lf", g->s_star.val, g->n_star.val);
+	debug(DEBUG_NOISE, "Var:  s=%10.2lf n=%11.2lf", g->s_star.var, g->n_star.var);
+	debug(DEBUG_NOISE, "Magn: s=%10.2lf n=%11.2lf",
+			fabs(g->s - g->s_star.val),
+			fabs(g->n - g->n_star.val));
+	debug(DEBUG_NOISE, "Delt: s=%10.2lf n=%11.2lf",
+			sn->M * sqrt(g->s_star.var) * 1.6282, //log 10 / sqrt 2
+			sqrt(g->n_star.var) * 1.6282);
 }
 
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)
@@ -303,9 +308,6 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 
 	xdelta = (g->xmax - g->xmin) / g->Nu;
 	ydelta = (g->ymax - g->ymin) / g->Nu;
-#if DEBUG_GRID_TREE_TEXT
-	printf("   xdelta=%lf, ydelta=%lf\n", xdelta, ydelta);
-#endif
 
 	xlimits = calloc(1 + g->Nu, sizeof(xlimits[0]));
 	if (!xlimits) die("Out of memory %d sz=%lu", 1 + g->Nu, (1 + g->Nu) * sizeof(xlimits[0]));
