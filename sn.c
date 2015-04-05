@@ -621,7 +621,7 @@ static inline double lrg_get_star_real_vote(struct low_res_grid_cell **grid,
 {
 	double test;
 
-	test = grid[x][y].g_star_below - grid[x][y].g_star_below;
+	test = grid[x][y].g_star_above - grid[x][y].g_star_below;
 	if (test >= -a->x) return test + 2 * a->x;
 	return test - 2 * a->x;
 }
