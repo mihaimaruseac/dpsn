@@ -8,6 +8,21 @@
 		exit(EXIT_FAILURE); \
 	} while (0)
 
+#ifndef VERBOSE_DEBUG
+#define VERBOSE_DEBUG 0
+#endif
+
+#if VERBOSE_DEBUG
+#define debug(cls, fmt, ...) \
+	do {\
+		if (cls)\
+			printf("[%s: %s %d] "fmt"\n", __FILE__, \
+				__func__, __LINE__, ##__VA_ARGS__); \
+	} while (0)
+#else
+#define debug(...)
+#endif
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
