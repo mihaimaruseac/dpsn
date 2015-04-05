@@ -7,7 +7,7 @@
 #include "sn.h"
 
 #ifndef DEBUG_NOISE
-#define DEBUG_NOISE 1
+#define DEBUG_NOISE 0
 #endif
 
 static void grd_init(struct grid *g,

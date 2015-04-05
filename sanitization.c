@@ -9,7 +9,7 @@
 
 /* remember that the split is always square of g->Nu */
 #ifndef MAX_SPLIT_SIZE
-#define MAX_SPLIT_SIZE 2
+#define MAX_SPLIT_SIZE 10
 #endif
 
 #ifndef AG_SPLIT_ALWAYS_IN_TWO
@@ -23,11 +23,11 @@
 #endif
 /* weighted averaging */
 #ifndef DEBUG_TREE_SANITIZATION_UP
-#define DEBUG_TREE_SANITIZATION_UP 1
+#define DEBUG_TREE_SANITIZATION_UP 0
 #endif
 /* sum consistency */
 #ifndef DEBUG_TREE_SANITIZATION_DOWN
-#define DEBUG_TREE_SANITIZATION_DOWN 1
+#define DEBUG_TREE_SANITIZATION_DOWN 0
 #endif
 #define DEBUG_TREE_SANITIZATION (DEBUG_TREE_SANITIZATION_BUILD ||\
 		DEBUG_TREE_SANITIZATION_UP || DEBUG_TREE_SANITIZATION_DOWN)
@@ -47,7 +47,7 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 		epsilon = alpha * g->epsilon;
 
 	debug(DEBUG_TREE_SANITIZATION_BUILD, "%d: g->epsilon: %lf, epsilon: %lf", grd_level(g), g->epsilon, epsilon);
-	debug(DEBUG_TREE_SANITIZATION_BUILD, "   (%5.2lf %5.2lf) -- (%5.2lf %5.2lf)", g->xmin, g->ymin, g->xmax, g->ymax);
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "   (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)", g->xmin, g->ymin, g->xmax, g->ymax);
 	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
 
 	/* 2. compute split factor */
@@ -62,6 +62,7 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
 	debug(DEBUG_TREE_SANITIZATION_BUILD, "   g->n_star:%lf g->s_star/M:%lf", g->n_star.val, g->s_star.val/sn->M);
 	debug(DEBUG_TREE_SANITIZATION_BUILD, "   Nu:%lf", Nu);
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "Nt:%d, n*:%5.2lf", Nt, g->n_star.val);
 
 	/* 3. recursion end */
 	if (method == AGS) {
@@ -72,7 +73,6 @@ again:
 			grd_compute_noisy(sn, gc, g->epsilon - epsilon, beta, randbuffer);
 			grd_average2(g, gc);
 
-			debug(DEBUG_TREE_SANITIZATION_BUILD, "C~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)", gc->xmin, gc->ymin, gc->xmax, gc->ymax);
 			debug(DEBUG_TREE_SANITIZATION_BUILD, "C  g->n_star:%lf g->s_star/M:%lf", gc->n_star.val, gc->s_star.val/sn->M);
 			debug(DEBUG_TREE_SANITIZATION_BUILD, "A  g->n_ave:%lf g->s_ave/M:%lf", g->n_ave.val, g->s_ave.val/sn->M);
 			debug(DEBUG_TREE_SANITIZATION_BUILD, "Av g->n_ave:%lf g->s_ave:%lf", g->n_ave.var, g->s_ave.var);
