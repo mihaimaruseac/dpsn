@@ -9,6 +9,9 @@
 #ifndef DEBUG_NOISE
 #define DEBUG_NOISE 0
 #endif
+#ifndef DEBUG_GRD2LRG
+#define DEBUG_GRD2LRG 0
+#endif
 
 static void grd_init(struct grid *g,
 		double xmin, double xmax, double ymin, double ymax,
@@ -117,6 +120,11 @@ static void answer_full(const struct grid *g, double theta, double t,
 	double ag, ar, f, w;
 	int i;
 
+	debug(DEBUG_GRD2LRG, "cell: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)",
+			cell->xmin, cell->ymin, cell->xmax, cell->ymax);
+	debug(DEBUG_GRD2LRG, "g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %d",
+			g->xmin, g->ymin, g->xmax, g->ymax, g->Nu);
+
 	/* leaf or full cell coverage */
 	if ((!g->Nu) ||
 			((g->xmin == xmin) && (g->xmax == xmax) &&
@@ -124,7 +132,6 @@ static void answer_full(const struct grid *g, double theta, double t,
 		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
 		ar = (xmax - xmin) * (ymax - ymin);
 		f = ar / ag;
-		f = 1;
 		// TODO: ensure f is at most 1
 		cell->n_star.val += f * g->n_star.val; cell->n_star.var += f * f * g->n_star.var;
 		cell->s_star.val += f * g->s_star.val; cell->s_star.var += f * f * g->s_star.var;
@@ -456,6 +463,13 @@ void grd_to_lrg(const struct sensor_network *sn, const struct grid *g,
 			(*grid)[i][j].ymin = v;
 			v += res;
 			(*grid)[i][j].ymax = min(v, g->ymax);
+
+			debug(DEBUG_GRD2LRG, "i: %3d j: %3d :: "
+					"(%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)",
+					i, j,
+					(*grid)[i][j].xmin, (*grid)[i][j].ymin,
+					(*grid)[i][j].xmax, (*grid)[i][j].ymax);
+
 			answer(sn, g, &(*grid)[i][j], t);
 		}
 }
