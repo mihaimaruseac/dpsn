@@ -153,13 +153,19 @@ static void answer_full(const struct grid *g, double theta, double t,
 					min(xmax, g->cells[i].xmax),
 					max(ymin, g->cells[i].ymin),
 					min(ymax, g->cells[i].ymax));
-
 #if 0
+			if (!g->cells[i].Nu) continue;
+#endif
+#if 1
 			w = 1;
 #else
+#if 1
 			w = (min(xmax, g->cells[i].xmax) - max(xmin, g->cells[i].xmin)) *
 			    (min(ymax, g->cells[i].ymax) - max(ymin, g->cells[i].ymin));
 			assert(w > 0);
+#else
+			w = grd_height(g);
+#endif
 #endif
 
 			/* voting on outcome */
