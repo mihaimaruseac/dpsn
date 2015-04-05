@@ -47,7 +47,7 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 		epsilon = alpha * g->epsilon;
 
 	debug(DEBUG_TREE_SANITIZATION_BUILD, "%d: g->epsilon: %lf, epsilon: %lf", grd_level(g), g->epsilon, epsilon);
-	debug(DEBUG_TREE_SANITIZATION_BUILD, "~~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)", g->xmin, g->ymin, g->xmax, g->ymax);
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "   (%5.2lf %5.2lf) -- (%5.2lf %5.2lf)", g->xmin, g->ymin, g->xmax, g->ymax);
 	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
 
 	/* 2. compute split factor */
@@ -84,7 +84,7 @@ again:
 		} else
 			g->Nu = (int)sqrt(Nu);
 
-		debug(DEBUG_TREE_SANITIZATION_BUILD, ".. Nu:%d area:%lf", g->Nu, grd_size(g));
+		debug(DEBUG_TREE_SANITIZATION_BUILD, "   Nu:%d area:%lf", g->Nu, grd_size(g));
 
 		if (g->Nu < 2) goto again; /* should do a split in at least 4 cells */
 		//if (grd_size(g) < MAX_SPLIT_SIZE) goto again; /* don't split if area is too small */
