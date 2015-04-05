@@ -8,7 +8,7 @@
 #include "sn.h"
 
 #ifndef DEBUG_SAN_VALUES
-#define DEBUG_SAN_VALUES 1
+#define DEBUG_SAN_VALUES 0
 #endif
 
 struct san_measure {
@@ -63,6 +63,13 @@ static void generic_update(struct san_measure_comp* self,
 	rho_star = noisy_div(s_star.val, n_star.val, self->t);
 	rho_bar = noisy_div(s_bar.val, n_bar.val, self->t);
 
+#if DEBUG_SAN_VALUES
+	sm_print(&self->sm_star);
+	printf(" | ");
+	sm_print(&self->sm_bar);
+	printf("\n");
+#endif
+
 	debug(DEBUG_SAN_VALUES, "Real: s=%10.2lf n=%11.2lf", s, n);
 	debug(DEBUG_SAN_VALUES, "Star: s=%10.2lf n=%11.2lf", s_star.val, n_star.val);
 	debug(DEBUG_SAN_VALUES, " Bar: s=%10.2lf n=%11.2lf", s_bar.val, n_bar.val);
@@ -92,6 +99,13 @@ static void generic_update(struct san_measure_comp* self,
 			self->sm_bar.either += weight;
 		}
 	}
+
+#if DEBUG_SAN_VALUES
+	sm_print(&self->sm_star);
+	printf(" | ");
+	sm_print(&self->sm_bar);
+	printf("\n");
+#endif
 }
 
 static void test_san_tree_cell(struct san_measure_comp* self,

@@ -175,6 +175,8 @@ int main(int argc, char **argv)
 	test_san_leaf_only(&sn, &g, args.tthresh);
 	test_san_cell(&sn, &g, args.tthresh);
 
+	/* all OK until here */
+
 	grd_to_lrg(&sn, &g, args.resolution, &grid, &xcnt, &ycnt, args.tthresh);
 	printf("Fine grid built, size %d x %d\n", xcnt, ycnt);
 

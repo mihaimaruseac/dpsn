@@ -19,7 +19,7 @@
 /* debug tree sanitization macros */
 /* build the tree, divide budget, etc. */
 #ifndef DEBUG_TREE_SANITIZATION_BUILD
-#define DEBUG_TREE_SANITIZATION_BUILD 1
+#define DEBUG_TREE_SANITIZATION_BUILD 0
 #endif
 /* weighted averaging */
 #ifndef DEBUG_TREE_SANITIZATION_UP
