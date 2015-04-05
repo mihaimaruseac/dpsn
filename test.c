@@ -7,6 +7,10 @@
 #include "test.h"
 #include "sn.h"
 
+#ifndef DEBUG_SAN_VALUES
+#define DEBUG_SAN_VALUES 1
+#endif
+
 struct san_measure {
 	int first; /* bits of 1 in the first set (the real values) */
 	int both; /* bits of 1 in the intersection */
@@ -59,18 +63,13 @@ static void generic_update(struct san_measure_comp* self,
 	rho_star = noisy_div(s_star.val, n_star.val, self->t);
 	rho_bar = noisy_div(s_bar.val, n_bar.val, self->t);
 
-#if DEBUG_GRID_TREE_TEXT
-	//if (n < self->t) goto compute;
-	printf("| s=%9.2lf n=%9.2lf ", s, n);
-	printf("| s=%9.2lf n=%8.2lf ", s_star.val, n_star.val);
-	printf("| s=%9.2lf n=%8.2lf ", s_bar.val, n_bar.val);
-	printf("-v-> s=%9.2lf n=%8.2lf ", s_star.var, n_star.var);
-	printf("| s=%9.2lf n=%8.2lf ", s_bar.var, n_bar.var);
-	printf("\n");
-	printf("%*c  %9.2lf | %22.2lf | %22.2lf\n", 50, ' ',
-			rho, rho_star, rho_bar);
-compute:
-#endif
+	debug(DEBUG_SAN_VALUES, "Real: s=%10.2lf n=%11.2lf", s, n);
+	debug(DEBUG_SAN_VALUES, "Star: s=%10.2lf n=%11.2lf", s_star.val, n_star.val);
+	debug(DEBUG_SAN_VALUES, " Bar: s=%10.2lf n=%11.2lf", s_bar.val, n_bar.val);
+	debug(DEBUG_SAN_VALUES, "SVar:  s=%10.2lf n=%11.2lf", s_star.var, n_star.var);
+	debug(DEBUG_SAN_VALUES, "BVar:  s=%10.2lf n=%11.2lf", s_bar.var, n_bar.var);
+	debug(DEBUG_SAN_VALUES, "Rho:  %5.2lf | %5.2lf  | %5.2lf", rho, rho_star, rho_bar);
+
 	self->sm_star.all += weight;
 	self->sm_bar.all += weight;
 
@@ -99,12 +98,8 @@ static void test_san_tree_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct grid *g = arg;
-#if DEBUG_GRID_TREE_TEXT
-	////if (g->n < self->t) goto compute;
-	printf("(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
+	debug(DEBUG_SAN_VALUES, "(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
 			g->xmin, g->ymin, g->xmax, g->ymax);
-compute:
-#endif
 	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
@@ -113,12 +108,8 @@ static void test_san_grid_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct low_res_grid_cell *g = arg;
-#if DEBUG_GRID_TREE_TEXT
-	//if (g->n < self->t) goto compute;
-	printf("(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
+	debug(DEBUG_SAN_VALUES, "(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
 			g->xmin, g->ymin, g->xmax, g->ymax);
-compute:
-#endif
 	generic_update(self, sn, 1, g->s, g->n,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
