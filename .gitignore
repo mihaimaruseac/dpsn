@@ -1,2 +1,3 @@
 *.o
 dpsn
+debug_uniform_grid*
