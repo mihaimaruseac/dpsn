@@ -16,6 +16,22 @@
 #define AG_SPLIT_ALWAYS_IN_TWO 1
 #endif
 
+/* debug tree sanitization macros */
+/* build the tree, divide budget, etc. */
+#ifndef DEBUG_TREE_SANITIZATION_BUILD
+#define DEBUG_TREE_SANITIZATION_BUILD 1
+#endif
+/* weighted averaging */
+#ifndef DEBUG_TREE_SANITIZATION_UP
+#define DEBUG_TREE_SANITIZATION_UP 1
+#endif
+/* sum consistency */
+#ifndef DEBUG_TREE_SANITIZATION_DOWN
+#define DEBUG_TREE_SANITIZATION_DOWN 1
+#endif
+#define DEBUG_TREE_SANITIZATION (DEBUG_TREE_SANITIZATION_BUILD ||\
+		DEBUG_TREE_SANITIZATION_UP || DEBUG_TREE_SANITIZATION_DOWN)
+
 static void build_tree(const struct sensor_network *sn, struct grid *g,
 		double alpha, double beta, double gamma,
 		double K, int Nt, int max_depth,
@@ -29,10 +45,9 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 		epsilon = gamma * g->epsilon;
 	else
 		epsilon = alpha * g->epsilon;
-#if DEBUG_GRID_TREE_TEXT
-	printf("%d: g->epsilon: %lf, epsilon: %lf\n", 3 - max_depth, g->epsilon, epsilon); // TODO: need to test for more than one level for t and then for u and a
-	printf("~~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)\n", g->xmin, g->ymin, g->xmax, g->ymax);
-#endif
+
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "%d: g->epsilon: %lf, epsilon: %lf", grd_level(g), g->epsilon, epsilon);
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "~~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)", g->xmin, g->ymin, g->xmax, g->ymax);
 	grd_compute_noisy(sn, g, epsilon, beta, randbuffer);
 
 	/* 2. compute split factor */
@@ -45,10 +60,8 @@ static void build_tree(const struct sensor_network *sn, struct grid *g,
 
 	/* 3. Compute split size */
 	Nu = factor * g->epsilon * (g->n_star.val + g->s_star.val / sn->M);
-#if DEBUG_GRID_TREE_TEXT
-	printf("   g->n_star:%lf g->s_star/M:%lf\n", g->n_star.val, g->s_star.val/sn->M);
-	printf("   Nu:%lf\n", Nu);
-#endif
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "   g->n_star:%lf g->s_star/M:%lf", g->n_star.val, g->s_star.val/sn->M);
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "   Nu:%lf", Nu);
 
 	/* 3. recursion end */
 	if (method == AGS) {
@@ -58,21 +71,21 @@ again:
 			gc = grd_copy(g);
 			grd_compute_noisy(sn, gc, g->epsilon - epsilon, beta, randbuffer);
 			grd_average2(g, gc);
-#if DEBUG_GRID_TREE_TEXT
-			printf("C~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)\n", gc->xmin, gc->ymin, gc->xmax, gc->ymax);
-			printf("C  g->n_star:%lf g->s_star/M:%lf\n", gc->n_star.val, gc->s_star.val/sn->M);
-			printf("A  g->n_ave:%lf g->s_ave/M:%lf\n", g->n_ave.val, g->s_ave.val/sn->M);
-			printf("Av g->n_ave:%lf g->s_ave:%lf\n", g->n_ave.var, g->s_ave.var);
-#endif
+
+			debug(DEBUG_TREE_SANITIZATION_BUILD, "C~~(%5.2lf %5.2lf) -- (%5.2lf %5.2lf)", gc->xmin, gc->ymin, gc->xmax, gc->ymax);
+			debug(DEBUG_TREE_SANITIZATION_BUILD, "C  g->n_star:%lf g->s_star/M:%lf", gc->n_star.val, gc->s_star.val/sn->M);
+			debug(DEBUG_TREE_SANITIZATION_BUILD, "A  g->n_ave:%lf g->s_ave/M:%lf", g->n_ave.val, g->s_ave.val/sn->M);
+			debug(DEBUG_TREE_SANITIZATION_BUILD, "Av g->n_ave:%lf g->s_ave:%lf", g->n_ave.var, g->s_ave.var);
+
 			grd_cleanup(gc);
 			free(gc);
 			g->Nu = 0; /* block further recursion */
 			return;
 		} else
 			g->Nu = (int)sqrt(Nu);
-#if DEBUG_GRID_TREE_TEXT
-		printf(".. Nu:%d area:%lf\n", g->Nu, grd_size(g));
-#endif
+
+		debug(DEBUG_TREE_SANITIZATION_BUILD, ".. Nu:%d area:%lf", g->Nu, grd_size(g));
+
 		if (g->Nu < 2) goto again; /* should do a split in at least 4 cells */
 		//if (grd_size(g) < MAX_SPLIT_SIZE) goto again; /* don't split if area is too small */
 		g->Nu = min(g->Nu, MAX_SPLIT_SIZE);
@@ -159,17 +172,11 @@ static void update_tree_ave(struct grid *g)
 
 	grd_averagev(g);
 
-#if DEBUG_GRID_TREE_TEXT
-	int p = 0;
-	struct grid *gp = g->parent;
-	while (gp) {p++; gp=gp->parent;}
-	printf("%d (%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)", p,
-			g->xmin, g->ymin, g->xmax, g->ymax);
-	printf("| s=%9.2lf n=%8d ", g->s, g->n);
-	printf("| s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
-	printf("| s=%9.2lf n=%8.2lf ", g->s_ave.val, g->n_ave.val);
-	printf("\n");
-#endif
+	debug(DEBUG_TREE_SANITIZATION_UP, "%d (%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
+			grd_level(g), g->xmin, g->ymin, g->xmax, g->ymax);
+	debug(DEBUG_TREE_SANITIZATION_UP, "Real: | s=%9.2lf n=%8d ", g->s, g->n);
+	debug(DEBUG_TREE_SANITIZATION_UP, "Nois: | s=%9.2lf n=%8.2lf ", g->s_star.val, g->n_star.val);
+	debug(DEBUG_TREE_SANITIZATION_UP, "Aver: | s=%9.2lf n=%8.2lf ", g->s_ave.val, g->n_ave.val);
 }
 
 static void update_tree_bar(struct grid *g)
@@ -200,9 +207,7 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 	build_tree(sn, g, alpha, beta, gamma, K, Nt, max_depth,
 			&randbuffer, method);
 
-#if DEBUG_GRID_TREE_TEXT
-	printf("Tree build, sanitization up following\n");
-#endif
+	debug(DEBUG_TREE_SANITIZATION_BUILD, "Tree build, sanitization up following");
 
 	/* 3. update _ave values */
 	if (method != AGS) update_ave_leaves(g);
@@ -210,8 +215,12 @@ void sanitize(const struct sensor_network *sn, struct grid *g,
 	else update_tree_ave(g);
 	if (method != AGS) update_ave_copy(g);
 
+	debug(DEBUG_TREE_SANITIZATION_UP, "Averaging done, sanitization down following");
+
 	/* 4. update _bar values */
 	update_bar_copy(g);
 	if (method == UG) for (i = 0; i < g->Nu * g->Nu; i++) update_bar_copy(&g->cells[i]);
 	else update_tree_bar(g);
+
+	debug(DEBUG_TREE_SANITIZATION, "Grid-tree built and consistently created");
 }
