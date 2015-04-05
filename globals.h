@@ -11,11 +11,14 @@
 #ifndef VERBOSE_DEBUG
 #define VERBOSE_DEBUG 1
 #endif
+#ifndef DEBUG_ALL
+#define DEBUG_ALL 0
+#endif
 
 #if VERBOSE_DEBUG
 #define debug(cls, fmt, ...) \
 	do {\
-		if (cls)\
+		if (cls || DEBUG_ALL)\
 			printf("[%s: %s %d] "fmt"\n", __FILE__, \
 				__func__, __LINE__, ##__VA_ARGS__); \
 	} while (0)
