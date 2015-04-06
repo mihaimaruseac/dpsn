@@ -676,12 +676,14 @@ static inline double lrg_get_bar_real_vote(struct low_res_grid_cell **grid,
 static inline double lrg_get_star_vote(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
+	(void) a;
 	return grid[x][y].g_star_above / (grid[x][y].g_star_above + grid[x][y].g_star_below);
 }
 
 static inline double lrg_get_bar_vote(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
+	(void) a;
 	return grid[x][y].g_bar_above / (grid[x][y].g_bar_above + grid[x][y].g_bar_below);
 }
 
