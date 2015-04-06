@@ -7,10 +7,6 @@
 #include "test.h"
 #include "sn.h"
 
-#ifndef DEBUG_SAN_VALUES
-#define DEBUG_SAN_VALUES 0
-#endif
-
 struct san_measure {
 	int first; /* bits of 1 in the first set (the real values) */
 	int both; /* bits of 1 in the intersection */
@@ -51,91 +47,64 @@ static void test_san_print(const struct san_measure_comp *self)
 	printf("\n");
 }
 
-static void generic_update(struct san_measure_comp* self,
-			const struct sensor_network *sn,
-			double weight, double s, double n,
-			struct noisy_val s_star, struct noisy_val n_star,
-			struct noisy_val s_bar, struct noisy_val n_bar)
+static void generic_update(struct san_measure_comp* self, double weight,
+		double real, double star, double bar,
+		double real_t, double private_t)
 {
-	double rho, rho_star, rho_bar;
-
-	rho = noisy_div(s, n, 0);
-	rho_star = noisy_div(s_star.val, n_star.val, self->t);
-	rho_bar = noisy_div(s_bar.val, n_bar.val, self->t);
-
-#if DEBUG_SAN_VALUES
-	sm_print(&self->sm_star);
-	printf(" | ");
-	sm_print(&self->sm_bar);
-	printf("\n");
-#endif
-
-	debug(DEBUG_SAN_VALUES, "Real: s=%10.2lf n=%11.2lf", s, n);
-	debug(DEBUG_SAN_VALUES, "Star: s=%10.2lf n=%11.2lf", s_star.val, n_star.val);
-	debug(DEBUG_SAN_VALUES, " Bar: s=%10.2lf n=%11.2lf", s_bar.val, n_bar.val);
-	debug(DEBUG_SAN_VALUES, "SVar:  s=%10.2lf n=%11.2lf", s_star.var, n_star.var);
-	debug(DEBUG_SAN_VALUES, "BVar:  s=%10.2lf n=%11.2lf", s_bar.var, n_bar.var);
-	debug(DEBUG_SAN_VALUES, "Rho:  %5.2lf | %5.2lf  | %5.2lf", rho, rho_star, rho_bar);
-
 	self->sm_star.all += weight;
 	self->sm_bar.all += weight;
 
-	if (rho > sn->theta) {
+	if (real >= real_t) {
 		self->sm_star.first += weight;
 		self->sm_bar.first += weight;
 		self->sm_star.either += weight;
 		self->sm_bar.either += weight;
-		if (rho_star < self->ratio) self->sm_star.flip += weight;
+		if (star < private_t) self->sm_star.flip += weight;
 		else self->sm_star.both += weight;
-		if (rho_bar < self->ratio) self->sm_bar.flip += weight;
+		if (bar < private_t) self->sm_bar.flip += weight;
 		else self->sm_bar.both += weight;
 	} else {
-		if (rho_star > self->ratio) {
+		if (star > private_t) {
 			self->sm_star.flip += weight;
 			self->sm_star.either += weight;
 		}
-		if (rho_bar > self->ratio) {
+		if (bar > private_t) {
 			self->sm_bar.flip += weight;
 			self->sm_bar.either += weight;
 		}
 	}
-
-#if DEBUG_SAN_VALUES
-	sm_print(&self->sm_star);
-	printf(" | ");
-	sm_print(&self->sm_bar);
-	printf("\n");
-#endif
 }
 
 static void test_san_tree_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct grid *g = arg;
-	debug(DEBUG_SAN_VALUES, "(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
-			g->xmin, g->ymin, g->xmax, g->ymax);
-	generic_update(self, sn, 1, g->s, g->n,
-			g->s_star, g->n_star, g->s_bar, g->n_bar);
+	generic_update(self, 1,
+			noisy_div(g->s, g->n, self->t),
+			noisy_div(g->s_star.val, g->n_star.val, self->t),
+			noisy_div(g->s_bar.val, g->n_bar.val, self->t),
+			sn->theta, self->ratio);
 }
 
 static void test_san_grid_cell(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct low_res_grid_cell *g = arg;
-	debug(DEBUG_SAN_VALUES, "(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
-			g->xmin, g->ymin, g->xmax, g->ymax);
-	generic_update(self, sn, 1, g->s, g->n,
-			g->s_star, g->n_star, g->s_bar, g->n_bar);
+	generic_update(self, 1,
+			noisy_div(g->s, g->n, self->t),
+			noisy_div(g->s_star.val, g->n_star.val, self->t),
+			noisy_div(g->s_bar.val, g->n_bar.val, self->t),
+			sn->theta, self->ratio);
 }
 
 static void test_san_grid_votes_above(struct san_measure_comp* self,
 			const struct sensor_network *sn, const void *arg)
 {
 	const struct low_res_grid_cell *g = arg;
-	debug(DEBUG_SAN_VALUES, "(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
-			g->xmin, g->ymin, g->xmax, g->ymax);
-	generic_update(self, sn, 1, g->s, g->n,
-			g->s_star, g->n_star, g->s_bar, g->n_bar);
+	(void)sn;
+	generic_update(self, 1,
+			g->g_above, g->g_star_above, g->g_bar_above,
+			self->t, self->t);
 }
 
 static void test_san_tree(const struct sensor_network *sn, const struct grid *g,
