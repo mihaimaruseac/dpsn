@@ -629,7 +629,13 @@ static inline double lrg_get_star_vote_above(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
 	(void) a;
+#if 0
 	return grid[x][y].g_star_above;
+#else
+	double v = grid[x][y].g_star_above;
+	if (v >= 2) return v;
+	return 0;
+#endif
 }
 
 static inline double lrg_get_star_vote_below(struct low_res_grid_cell **grid,
@@ -643,7 +649,13 @@ static inline double lrg_get_bar_vote_above(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
 	(void) a;
+#if 0
 	return grid[x][y].g_bar_above;
+#else
+	double v = grid[x][y].g_bar_above;
+	if (v >= 2) return v;
+	return 0;
+#endif
 }
 
 static inline double lrg_get_bar_vote_below(struct low_res_grid_cell **grid,
@@ -677,14 +689,18 @@ static inline double lrg_get_star_vote(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
 	(void) a;
-	return grid[x][y].g_star_above / (grid[x][y].g_star_above + grid[x][y].g_star_below);
+	double v = grid[x][y].g_star_above / (grid[x][y].g_star_above + grid[x][y].g_star_below);
+	if (v >= 0.5) return v;
+	return 0;
 }
 
 static inline double lrg_get_bar_vote(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
 	(void) a;
-	return grid[x][y].g_bar_above / (grid[x][y].g_bar_above + grid[x][y].g_bar_below);
+	double v = grid[x][y].g_bar_above / (grid[x][y].g_bar_above + grid[x][y].g_bar_below);
+	if (v >= 0.5) return v;
+	return 0;
 }
 
 static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
