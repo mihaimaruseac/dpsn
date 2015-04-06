@@ -120,25 +120,32 @@ static void answer_full(const struct grid *g, double theta, double t,
 	double ag, ar, f, w;
 	int i;
 
-	debug(DEBUG_GRD2LRG, "cell: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)",
+	ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
+	ar = (xmax - xmin) * (ymax - ymin);
+
+	debug(DEBUG_GRD2LRG, "  Now cell: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)",
 			cell->xmin, cell->ymin, cell->xmax, cell->ymax);
-	debug(DEBUG_GRD2LRG, "g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %d",
+	debug(DEBUG_GRD2LRG, "  Now    g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %d",
 			g->xmin, g->ymin, g->xmax, g->ymax, g->Nu);
+	debug(DEBUG_GRD2LRG, "         n: %5.2lf | %5.2lf | %5.2lf", cell->n, cell->n_star.val, cell->n_bar.val);
+	debug(DEBUG_GRD2LRG, "         s: %5.2lf | %5.2lf | %5.2lf", cell->s, cell->s_star.val, cell->s_bar.val);
+	debug(DEBUG_GRD2LRG, "         +:       | %5.2lf | %5.2lf", cell->g_star_above, cell->g_bar_above);
+	debug(DEBUG_GRD2LRG, "         -:       | %5.2lf | %5.2lf", cell->g_star_below, cell->g_bar_below);
 
 	/* leaf or full cell coverage */
 	if ((!g->Nu) ||
 			((g->xmin == xmin) && (g->xmax == xmax) &&
 			 (g->ymin == ymin) && (g->ymax == ymax))) {
-		ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
-		ar = (xmax - xmin) * (ymax - ymin);
 		f = ar / ag;
-		// TODO: ensure f is at most 1
+		debug(DEBUG_GRD2LRG, "Leaf, f=%lf", f);
+
 		cell->n_star.val += f * g->n_star.val; cell->n_star.var += f * f * g->n_star.var;
 		cell->s_star.val += f * g->s_star.val; cell->s_star.var += f * f * g->s_star.var;
 		cell->n_bar.val += f * g->n_bar.val; cell->n_bar.var += f * f * g->n_bar.var;
 		cell->s_bar.val += f * g->s_bar.val; cell->s_bar.var += f * f * g->s_bar.var;
 		cell->n += f * g->n;
 		cell->s += f * g->s;
+		goto vote;
 	}
 
 	for (i = 0; i < g->Nu * g->Nu; i++) {
@@ -148,42 +155,66 @@ static void answer_full(const struct grid *g, double theta, double t,
 		}
 
 		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
+			debug(DEBUG_GRD2LRG, "Overlap %d", i);
 			answer_full(&g->cells[i], theta, t, cell,
 					max(xmin, g->cells[i].xmin),
 					min(xmax, g->cells[i].xmax),
 					max(ymin, g->cells[i].ymin),
 					min(ymax, g->cells[i].ymax));
-#if 0
-			if (!g->cells[i].Nu) continue;
+		}
+	}
+
+vote:
+	debug(DEBUG_GRD2LRG, "V n : %9.2lf | %9.2lf | %9.2lf",
+			0.0 + g->n, g->n_star.val, g->n_bar.val);
+	debug(DEBUG_GRD2LRG, "V s : %9.2lf | %9.2lf | %9.2lf",
+			g->s, g->s_star.val, g->s_bar.val);
+	debug(DEBUG_GRD2LRG, "Vrho: %9.2lf | %9.2lf | %9.2lf",
+			noisy_div(g->s, g->n, 0),
+			noisy_div(g->s_star.val, g->n_star.val, t),
+			noisy_div(g->s_bar.val, g->n_bar.val, t));
+#if 1
+	w = 1;
+#else
+#if 1
+#if 1
+	w = ag;
+#else
+	w = ag/af;
 #endif
-#if 1
-			w = 1;
+	assert(w > 0);
 #else
-#if 1
-			w = (min(xmax, g->cells[i].xmax) - max(xmin, g->cells[i].xmin)) *
-			    (min(ymax, g->cells[i].ymax) - max(ymin, g->cells[i].ymin));
-			assert(w > 0);
-#else
-			w = grd_height(g);
+	w = grd_height(g);
 #endif
 #endif
 
-			/* voting on outcome */
-			if (noisy_div(g->cells[i].s_bar.val, g->cells[i].n_bar.val, t) >= theta)
-				cell->g_bar_above += w;
-			else
-				cell->g_bar_below += w;
-			if (noisy_div(g->cells[i].s_star.val, g->cells[i].n_star.val, t) >= theta)
-				cell->g_star_above += w;
-			else
-				cell->g_star_below += w;
-		}
-	}
+	/* voting on outcome */
+	if (noisy_div(g->s_bar.val, g->n_bar.val, t) >= theta)
+		cell->g_bar_above += w;
+	else
+		cell->g_bar_below += w;
+	if (noisy_div(g->s_star.val, g->n_star.val, t) >= theta)
+		cell->g_star_above += w;
+	else
+		cell->g_star_below += w;
+
+	debug(DEBUG_GRD2LRG, "  End cell: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)",
+			cell->xmin, cell->ymin, cell->xmax, cell->ymax);
+	debug(DEBUG_GRD2LRG, "  End    g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %d",
+			g->xmin, g->ymin, g->xmax, g->ymax, g->Nu);
+	debug(DEBUG_GRD2LRG, "         n: %5.2lf | %5.2lf | %5.2lf", cell->n, cell->n_star.val, cell->n_bar.val);
+	debug(DEBUG_GRD2LRG, "         s: %5.2lf | %5.2lf | %5.2lf", cell->s, cell->s_star.val, cell->s_bar.val);
+	debug(DEBUG_GRD2LRG, "         +:       | %5.2lf | %5.2lf", cell->g_star_above, cell->g_bar_above);
+	debug(DEBUG_GRD2LRG, "         -:       | %5.2lf | %5.2lf", cell->g_star_below, cell->g_bar_below);
 }
 
 static void answer(const struct sensor_network *sn, const struct grid *g,
 		struct low_res_grid_cell *cell, double t)
 {
+	debug(DEBUG_GRD2LRG, "Start cell: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)",
+			cell->xmin, cell->ymin, cell->xmax, cell->ymax);
+	debug(DEBUG_GRD2LRG, "Start    g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %d",
+			g->xmin, g->ymin, g->xmax, g->ymax, g->Nu);
 	cell->n_star.val = 0; cell->n_star.var = 0;
 	cell->s_star.val = 0; cell->s_star.var = 0;
 	cell->n_bar.val = 0; cell->n_bar.var = 0;
@@ -191,7 +222,7 @@ static void answer(const struct sensor_network *sn, const struct grid *g,
 	cell->n = 0; cell->s = 0;
 	cell->g_star_above = 0; cell->g_star_below = 0;
 	cell->g_bar_above = 0; cell->g_bar_below = 0;
-	answer_full(g, sn->M, t, cell,
+	answer_full(g, sn->theta, t, cell,
 			cell->xmin, cell->xmax, cell->ymin, cell->ymax);
 }
 
