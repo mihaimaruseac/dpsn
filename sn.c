@@ -170,7 +170,7 @@ vote:
 	debug(DEBUG_GRD2LRG, "V s : %9.2lf | %9.2lf | %9.2lf",
 			g->s, g->s_star.val, g->s_bar.val);
 	debug(DEBUG_GRD2LRG, "Vrho: %9.2lf | %9.2lf | %9.2lf",
-			noisy_div(g->s, g->n, 0),
+			noisy_div(g->s, g->n, t),
 			noisy_div(g->s_star.val, g->n_star.val, t),
 			noisy_div(g->s_bar.val, g->n_bar.val, t));
 #if 1
