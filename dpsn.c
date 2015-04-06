@@ -186,6 +186,9 @@ int main(int argc, char **argv)
 
 	test_san_shape(&sn, grid, xcnt, ycnt, args.tthresh);
 
+	printf("Testing on absolute positive votes\n");
+	test_san_votes(&sn, grid, xcnt, ycnt, 2);
+
 	free(args.dataset);
 	sn_cleanup(&sn);
 	grd_cleanup(&g);
