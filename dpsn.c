@@ -145,8 +145,8 @@ int main(int argc, char **argv)
 	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
 	int xcnt, ycnt, i, h;
+	FILE *f = NULL;
 	struct grid g;
-	FILE *f;
 
 	parse_arguments(argc, argv);
 	sn_read_from_file(args.dataset, &sn);
@@ -154,10 +154,10 @@ int main(int argc, char **argv)
 	sanitize(&sn, &g, args.eps, args.alpha, args.beta, args.gamma,
 			args.K, args.Nt, args.depth, args.seed, args.method);
 
-	printf("Sanitization finished, grid height: %d\n", grd_height(&g));
+	h = grd_height(&g);
+	printf("Sanitization finished, grid height: %d\n", h);
 
 #if DEBUG_GRID_TREE
-	h = grd_height(&g);
 
 	for (i = 0; i <= h; i++) {
 		if ((f = get_file_pointer("tree_grid", i))) {
@@ -165,8 +165,6 @@ int main(int argc, char **argv)
 			fclose(f);
 		}
 	}
-#else
-	(void) h; (void) f;
 #endif
 #if DEBUG_GRID_TREE_TEXT
 	grd_debug0(&sn, &g);
@@ -186,11 +184,15 @@ int main(int argc, char **argv)
 
 	test_san_shape(&sn, grid, xcnt, ycnt, args.tthresh);
 
-	printf("Testing on absolute positive votes\n");
-	test_san_votes(&sn, grid, xcnt, ycnt, 2);
+	for (i = 1; i <= h / 2 + 1; i++) {
+		printf("Testing on absolute positive votes %d\n", i);
+		test_san_votes(&sn, grid, xcnt, ycnt, 2);
+	}
 
-	printf("Testing on relative positive votes\n");
+	printf("Testing on relative positive votes 0.5\n");
 	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.5);
+	printf("Testing on relative positive votes 0.75\n");
+	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.75);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
