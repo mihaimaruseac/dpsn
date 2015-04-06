@@ -189,6 +189,9 @@ int main(int argc, char **argv)
 	printf("Testing on absolute positive votes\n");
 	test_san_votes(&sn, grid, xcnt, ycnt, 2);
 
+	printf("Testing on relative positive votes\n");
+	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.5);
+
 	free(args.dataset);
 	sn_cleanup(&sn);
 	grd_cleanup(&g);
