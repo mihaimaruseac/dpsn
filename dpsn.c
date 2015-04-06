@@ -15,7 +15,7 @@
 #define DEBUG_GRID_TREE_TEXT 0
 #endif
 #ifndef DEBUG_FINE_GRID
-#define DEBUG_FINE_GRID 1
+#define DEBUG_FINE_GRID 0
 #endif
 
 /* Command line arguments */

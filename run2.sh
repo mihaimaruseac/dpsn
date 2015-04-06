@@ -7,13 +7,13 @@ depths="3 4 5"
 Ks="10"
 Nts="3"
 TNts="3"
-epsilons="0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
+epsilons="0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0"
 ttreshes="0.01 1"
 seeds="42 142 100"
 resolutions="1"
 
 datasetdir="datasets"
-outputdir="output/new.4.4/splitsz2-nodebug"
+outputdir="output/new.4.6/splitsz2"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
