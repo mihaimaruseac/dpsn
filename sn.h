@@ -54,6 +54,7 @@ struct low_res_grid_cell {
 	struct noisy_val n_star, s_star;
 	struct noisy_val n_bar, s_bar;
 	double n, s;
+	double g_above, g_below;
 	double g_star_above, g_star_below;
 	double g_bar_above, g_bar_below;
 };

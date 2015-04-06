@@ -129,8 +129,8 @@ static void answer_full(const struct grid *g, double theta, double t,
 			g->xmin, g->ymin, g->xmax, g->ymax, g->Nu);
 	debug(DEBUG_GRD2LRG, "         n: %5.2lf | %5.2lf | %5.2lf", cell->n, cell->n_star.val, cell->n_bar.val);
 	debug(DEBUG_GRD2LRG, "         s: %5.2lf | %5.2lf | %5.2lf", cell->s, cell->s_star.val, cell->s_bar.val);
-	debug(DEBUG_GRD2LRG, "         +:       | %5.2lf | %5.2lf", cell->g_star_above, cell->g_bar_above);
-	debug(DEBUG_GRD2LRG, "         -:       | %5.2lf | %5.2lf", cell->g_star_below, cell->g_bar_below);
+	debug(DEBUG_GRD2LRG, "         +: %5.2lf | %5.2lf | %5.2lf", cell->g_above, cell->g_star_above, cell->g_bar_above);
+	debug(DEBUG_GRD2LRG, "         -: %5.2lf | %5.2lf | %5.2lf", cell->g_below, cell->g_star_below, cell->g_bar_below);
 
 	/* leaf or full cell coverage */
 	if ((!g->Nu) ||
@@ -189,6 +189,10 @@ vote:
 #endif
 
 	/* voting on outcome */
+	if (noisy_div(g->s, g->n, t) >= theta)
+		cell->g_above += w;
+	else
+		cell->g_below += w;
 	if (noisy_div(g->s_bar.val, g->n_bar.val, t) >= theta)
 		cell->g_bar_above += w;
 	else
@@ -204,8 +208,8 @@ vote:
 			g->xmin, g->ymin, g->xmax, g->ymax, g->Nu);
 	debug(DEBUG_GRD2LRG, "         n: %5.2lf | %5.2lf | %5.2lf", cell->n, cell->n_star.val, cell->n_bar.val);
 	debug(DEBUG_GRD2LRG, "         s: %5.2lf | %5.2lf | %5.2lf", cell->s, cell->s_star.val, cell->s_bar.val);
-	debug(DEBUG_GRD2LRG, "         +:       | %5.2lf | %5.2lf", cell->g_star_above, cell->g_bar_above);
-	debug(DEBUG_GRD2LRG, "         -:       | %5.2lf | %5.2lf", cell->g_star_below, cell->g_bar_below);
+	debug(DEBUG_GRD2LRG, "         +: %5.2lf | %5.2lf | %5.2lf", cell->g_above, cell->g_star_above, cell->g_bar_above);
+	debug(DEBUG_GRD2LRG, "         -: %5.2lf | %5.2lf | %5.2lf", cell->g_below, cell->g_star_below, cell->g_bar_below);
 }
 
 static void answer(const struct sensor_network *sn, const struct grid *g,
