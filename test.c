@@ -174,7 +174,7 @@ static struct san_measure_comp *setup_smcs(const struct sensor_network *sn,
 	return smcs;
 }
 
-static test_result_cleanup(struct san_measure_comp *smcs, int smc_cnt)
+static void test_result_cleanup(struct san_measure_comp *smcs, int smc_cnt)
 {
 	int i;
 
