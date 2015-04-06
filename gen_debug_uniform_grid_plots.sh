@@ -35,6 +35,8 @@ plot_one () {
     plot_one_cube ${file} "voting_below_bar" 18
     plot_one_cube ${file} "voting_real_star" 19
     plot_one_cube ${file} "voting_real_bar" 20
+    plot_one_cube ${file} "voting_star" 21
+    plot_one_cube ${file} "voting_bar" 22
 }
 
 for i in $@; do
