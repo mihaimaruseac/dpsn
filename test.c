@@ -128,6 +128,16 @@ static void test_san_grid_cell(struct san_measure_comp* self,
 			g->s_star, g->n_star, g->s_bar, g->n_bar);
 }
 
+static void test_san_grid_votes_above(struct san_measure_comp* self,
+			const struct sensor_network *sn, const void *arg)
+{
+	const struct low_res_grid_cell *g = arg;
+	debug(DEBUG_SAN_VALUES, "(%6.2lf, %6.2lf) -- (%6.2lf, %6.2lf)",
+			g->xmin, g->ymin, g->xmax, g->ymax);
+	generic_update(self, sn, 1, g->s, g->n,
+			g->s_star, g->n_star, g->s_bar, g->n_bar);
+}
+
 static void test_san_tree(const struct sensor_network *sn, const struct grid *g,
 		int full_tree, int smc_cnt,
 		struct san_measure_comp *smc)
@@ -233,5 +243,5 @@ void test_san_shape(const struct sensor_network *sn,
 void test_san_votes(const struct sensor_network *sn,
 		struct low_res_grid_cell **grid, int xcnt, int ycnt, double t)
 {
-	test_san_lrg(sn, grid, xcnt, ycnt, t, test_san_grid_cell);
+	test_san_lrg(sn, grid, xcnt, ycnt, t, test_san_grid_votes_above);
 }
