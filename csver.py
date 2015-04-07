@@ -74,7 +74,7 @@ for fname in sys.argv[1:]:
         line = f.readline()                                                   # Called with: argc=12
         while line:
             assert line.startswith("Called")
-            line = f.readline().split(     )                                  # ./dpsn 0.2 0.2 5 3 0.2 t 3 0.01 1 datasets/debug_N20000_theta20.dat 42 
+            line = f.readline().split()                                       # ./dpsn 0.2 0.2 5 3 0.2 t 3 0.01 1 datasets/debug_N20000_theta20.dat 42
             exp = Experiment(dict(zip(["./dpsn", "ALPHA", "BETA", "K", "NT",
                 "EPS", "METHOD", "METHODARG", "TESTTHRESH", "RESOLUTION",
                 "DATASET", "SEED"], line)))
