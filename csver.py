@@ -19,16 +19,27 @@ class Experiment:
         self.tree_data_leaf = {}
         self.tree_data_all = {}
         self.unif_data = {}
+        self.absolute_votes = {}
+        self.relative_votes = {}
+
+    def start_absolute(self, c):
+        k = int(c)
+        self.absolute_votes[k] = {}
+        self._d = self.absolute_votes[k]
+
+    def start_relative(self, c):
+        k = float(c)
+        self.relative_votes[k] = {}
+        self._d = self.relative_votes[k]
 
     def record_height(self, h):
         self.height = int(h)
 
-    def record_data(self, threshold, star_j, star_fr, bar_j, bar_fr):
+    def record_data(self, threshold, star_values, bar_values):
         threshold = float(threshold)
-        d = { "star_j" : float(star_j)
-            , "star_fr" : float(star_fr)
-            , "bar_j" : float(bar_j)
-            , "bar_fr" : float(bar_fr)
+        assert len(star_values) == 7 and len(bar_values) == 7
+        d = { "sv" : map(float, star_values)
+            , "bv" : map(float, bar_values)
             }
         if not self.tree_data_leaf.has_key(threshold):
             self.tree_data_leaf[threshold] = d
@@ -36,6 +47,8 @@ class Experiment:
             self.tree_data_all[threshold] = d
         elif not self.unif_data.has_key(threshold):
             self.unif_data[threshold] = d
+        elif not self._d.has_key(threshold):
+            self._d[threshold] = d
         else:
             raise Exception("Repeated threshold: This case should not be reached!")
 
@@ -44,12 +57,15 @@ class Experiment:
 
     def print_exp(self):
         l = []
-        for d in [self.unif_data]:
+        for d in [self.tree_data_leaf, self.tree_data_all, self.unif_data,
+                self.relative_votes[0.5]] + [self.absolute_votes[k] for k in
+                        sorted(self.absolute_votes.keys())]:
             for k in sorted(d.keys()):
-                l += [d[k]['star_j'], d[k]['star_fr'], d[k]['bar_j'], d[k]['bar_fr']]
+                l += d[k]['sv']
+                l += d[k]['bv']
         print ','.join(map(str, [self.ALPHA, self.BETA, self.K, self.NT,
             self.EPS, self.METHOD, self.METHODARG, self.TESTTHRESH,
-            self.RESOLUTION, self.SENSORS, self.SEED,
+            self.RESOLUTION, self.SENSORS, self.SEED, self.height,
             self.resolution] + l))
 
 for fname in sys.argv[1:]:
@@ -70,9 +86,13 @@ for fname in sys.argv[1:]:
                     if line.startswith("Fine"):                               # Fine grid built, size 100 x 100
                         exp.record_resolution(line.split()[-1])
                         continue
-                    else:
-                        break
+                    if line.startswith("Testing on absolute"):                # Testing on absolute positive votes 1
+                        exp.start_absolute(line.split()[-1])
+                        continue
+                    if line.startswith("Testing on relative"):                # Testing on relative positive votes 0.5
+                        exp.start_relative(line.split()[-1])
+                        continue
+                    break
                 line = line.split()
-                exp.record_data(line[1], line[9], line[10],
-                        line[17], line[18])
+                exp.record_data(line[1], line[4:11], line[12:19])
             exp.print_exp()
