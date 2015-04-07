@@ -1,19 +1,19 @@
 #!/bin/bash
 
-alphas="0.5"
-betas="0.5"
+alphas="0.2 0.5 0.8"
+betas="0.2 0.5 0.8"
 gammas="0.01"
 depths="3 4 5"
 Ks="10"
 Nts="3"
 TNts="3"
-epsilons="0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0"
-ttreshes="0.01 1"
-seeds="42 142 100"
+epsilons="0.2 0.4 0.6 0.8 1.0"
+ttreshes="1"
+seeds="112288 148445 779888 288613 942277 57111 99852 19158 45622 31234"
 resolutions="1"
 
 datasetdir="datasets"
-outputdir="output/new.4.6/splitsz2"
+outputdir="output/new.4.7/run_all"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
