@@ -13,7 +13,7 @@ seeds="112288 148445 779888 288613 942277 57111 99852 19158 45622 31234"
 resolutions="1"
 
 datasetdir="datasets"
-outputdir="output/new.4.7/run_all"
+outputdir="output/new.4.7/run_all/K"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
@@ -59,8 +59,8 @@ run () {
     outfile_base=${outputdir}/${datafile##*/}
     outfile_base=${outfile_base%.*}
 
-    run_uat ${datafile} ${outfile_base}_u u "${Nts}" "${gammas}"
-    run_uat ${datafile} ${outfile_base}_a a "${Nts}" "${gammas}"
+    #run_uat ${datafile} ${outfile_base}_u u "${Nts}" "${gammas}"
+    #run_uat ${datafile} ${outfile_base}_a a "${Nts}" "${gammas}"
     run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
 }
 
