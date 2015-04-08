@@ -92,8 +92,8 @@ for i in `seq 0 6`; do
         ix=18
         for method in ${methods}; do
             for estimate in star bar; do
-                plot_versus_alpha $index t $ix j_ab_a-${method}-${estimate}-${beta}-${epsilon}
-                plot_versus_alpha $index b $((ix + 1)) fr_ab_a-${method}-${estimate}-${beta}-${epsilon}
+                plot_versus_alpha $index t $ix j-ab-a-${method}-${estimate}-${beta}-${epsilon}
+                plot_versus_alpha $index b $((ix + 1)) fr-ab-a-${method}-${estimate}-${beta}-${epsilon}
                 ix=$((ix + 7))
             done
         done
@@ -141,8 +141,8 @@ for i in `seq 0 3`; do
         ix=18
         for method in ${methods}; do
             for estimate in star bar; do
-                plot_versus_beta $index t $ix j_ab_b-${method}-${estimate}-${alpha}-${epsilon}
-                plot_versus_beta $index b $((ix + 1)) fr_ab_b-${method}-${estimate}-${alpha}-${epsilon}
+                plot_versus_beta $index t $ix j-ab-b-${method}-${estimate}-${alpha}-${epsilon}
+                plot_versus_beta $index b $((ix + 1)) fr-ab-b-${method}-${estimate}-${alpha}-${epsilon}
                 ix=$((ix + 7))
             done
         done
@@ -193,8 +193,8 @@ for i in `seq 0 2`; do
             ix=18
             for method in ${methods}; do
                 for estimate in star bar; do
-                    plot_versus_N $index t $ix j_N-${method}-${estimate}-${alpha}-${beta}-${epsilon}
-                    plot_versus_N $index b $((ix + 1)) fr_N-${method}-${estimate}-${alpha}-${beta}-${epsilon}
+                    plot_versus_N $index t $ix j-N-${method}-${estimate}-${alpha}-${beta}-${epsilon}
+                    plot_versus_N $index b $((ix + 1)) fr-N-${method}-${estimate}-${alpha}-${beta}-${epsilon}
                     ix=$((ix + 7))
                 done
             done
@@ -223,7 +223,7 @@ set terminal post eps enhanced font "Helvetica,28"
 set datafile separator ","
 set key ${key} right
 set xrange [1:6]
-set xlabel "max\_split"
+set xlabel "max_split" noenhanced
 set yrange [-0.1:1.1]
 set ylabel "${ylabel}"
 set output "${output}".".eps"
@@ -245,8 +245,8 @@ for i in `seq 0 1`; do
             ix=18
             for method in ${methods}; do
                 for estimate in star bar; do
-                    plot_versus_max_split $index t $ix j_MS-${method}-${estimate}-${alpha}-${beta}-${epsilon}
-                    plot_versus_max_split $index b $((ix + 1)) fr_MS-${method}-${estimate}-${alpha}-${beta}-${epsilon}
+                    plot_versus_max_split $index t $ix j-MS-${method}-${estimate}-${alpha}-${beta}-${epsilon}
+                    plot_versus_max_split $index b $((ix + 1)) fr-MS-${method}-${estimate}-${alpha}-${beta}-${epsilon}
                     ix=$((ix + 7))
                 done
             done
