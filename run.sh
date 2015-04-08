@@ -13,7 +13,7 @@ seeds="42 142 100"
 resolutions="1 5 10"
 
 datasetdir="datasets"
-outputdir="output/output.r5.unifgrid"
+outputdir="output/results/ab"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 

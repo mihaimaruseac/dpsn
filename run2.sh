@@ -1,7 +1,7 @@
 #!/bin/bash
 
-alphas="0.2 0.5 0.8"
-betas="0.2 0.5 0.8"
+alphas="0.2 0.3 0.4 0.5"
+betas="0.2 0.3 0.4 0.5 0.6 0.7 0.8"
 gammas="0.01"
 depths="3 4 5"
 Ks="10"
@@ -13,7 +13,7 @@ seeds="112288 148445 779888 288613 942277 57111 99852 19158 45622 31234"
 resolutions="1"
 
 datasetdir="datasets"
-outputdir="output/new.4.7/run_all/K"
+outputdir="output/results/ab"
 
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
@@ -64,6 +64,6 @@ run () {
     run_uat ${datafile} ${outfile_base}_t t "${TNts}" "${depths}"
 }
 
-for i in ${datasetdir}/new*.dat; do
+for i in ${datasetdir}/new_N20000_theta80.dat; do
     run $i
 done
