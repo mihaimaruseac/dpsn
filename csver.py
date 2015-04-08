@@ -1,4 +1,22 @@
+import itertools
 import sys
+
+all_exps = {}
+
+class Exp:
+    def __init__(self):
+        self._l = []
+        self._n = 0
+
+    def record(self, l):
+        self._l = map(lambda (x, y): x + y,
+                itertools.izip_longest(self._l, l, fillvalue=0))
+        self._n += 1
+
+    def print_exp(self, k):
+        self._l = map(lambda x: x / (0.0+self._n), self._l)
+        self._n = None # prevent more records of the experiment
+        print ','.join(map(str, list(k) + self._l))
 
 class Experiment:
     def __init__(self, kwargs):
@@ -63,10 +81,16 @@ class Experiment:
             for k in sorted(d.keys()):
                 l += d[k]['sv']
                 l += d[k]['bv']
-        print ','.join(map(str, [self.ALPHA, self.BETA, self.K, self.NT,
-            self.EPS, self.METHOD, self.METHODARG, self.TESTTHRESH,
-            self.RESOLUTION, self.SENSORS, self.SEED, self.height,
-            self.resolution] + l))
+        l1 = [self.ALPHA, self.BETA, self.K, self.NT, self.EPS, self.METHOD,
+                self.METHODARG, self.TESTTHRESH, self.RESOLUTION,
+                self.SENSORS]
+        l2 = [self.height, self.resolution]
+        #print ','.join(map(str, l1 + [self.SEED] + l2 + l))
+
+        key = tuple(l1)
+        o = all_exps.get(key, Exp())
+        o.record(l2 + l)
+        all_exps[key] = o
 
 for fname in sys.argv[1:]:
     exp = None
@@ -96,3 +120,7 @@ for fname in sys.argv[1:]:
                 line = line.split()
                 exp.record_data(line[1], line[4:11], line[12:19])
             exp.print_exp()
+
+#print '======================================================================'
+for k in sorted(all_exps.keys()):
+    all_exps[k].print_exp(k)
