@@ -277,8 +277,8 @@ plot_t3_b46_e48() {
     cat << END | gnuplot
 set terminal post eps enhanced font "Helvetica,28"
 set datafile separator ","
-set key right
-set xrange [0:0.6]
+set key bottom left
+set xrange [0.1:0.6]
 set xlabel "{/Symbol a}"
 set yrange [-0.1:1.1]
 set ylabel "${ylabel}"
@@ -356,7 +356,7 @@ plot_t3_a25_b5_e48_N() {
     cat << END | gnuplot
 set terminal post eps enhanced font "Helvetica,28"
 set datafile separator ","
-set key right
+set key bottom right
 set xrange [0:60000]
 set xtics ("10" 10000, "20" 20000, "30" 30000, "40" 40000, "50" 50000)
 set xlabel "N"
@@ -421,7 +421,7 @@ generate_t34_a2_b5_e48_max_split() {
 }
 
 ###################### Comment here lines which are disabled
-#generate_versus_epsilon
+generate_versus_epsilon
 #generate_versus_alpha
 #generate_versus_beta
 #generate_versus_N
