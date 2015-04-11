@@ -21,18 +21,17 @@ plot_versus_epsilon() {
     cat << END | gnuplot
 set terminal post eps enhanced font "Helvetica,28"
 set datafile separator ","
-set key ${key} right
+set key ${key} left
 set xrange [0:1.1]
 set xlabel "{/Symbol e}"
 set yrange [-0.1:1.1]
 set ylabel "${ylabel}"
 set output "${output}".".eps"
 s = 5 * ${block_num}
-plot "u.csv" u 5:${column} every ::s+1::s+5 w lp ps 2 lt 1 pt 4 title 'u',\
-     "a.csv" u 5:${column} every ::s+1::s+5 w lp ps 2 lt 1 pt 6 title 'a',\
-     "t.csv" u 5:${column} every 3::3*s+1::3*s+15 w lp ps 2 lt 1 pt 8 title 't 3',\
-     "t.csv" u 5:${column} every 3::3*s+2::3*s+16 w lp ps 2 lt 1 pt 10 title 't 4',\
-     "t.csv" u 5:${column} every 3::3*s+3::3*s+17 w lp ps 2 lt 1 pt 12 title 't 5'
+plot "u.csv" u 5:${column} every ::s+1::s+5 w lp ps 2 lt 1 pt 4 title 'U',\
+     "a.csv" u 5:${column} every ::s+1::s+5 w lp ps 2 lt 1 pt 6 title 'AG',\
+     "t.csv" u 5:${column} every 3::3*s+1::3*s+15 w lp ps 2 lt 1 pt 8 title 't,d=3',\
+     "t.csv" u 5:${column} every 3::3*s+2::3*s+16 w lp ps 2 lt 1 pt 10 title 't,d=4'
 END
 }
 
@@ -317,7 +316,7 @@ plot_t3_a25_e48() {
     cat << END | gnuplot
 set terminal post eps enhanced font "Helvetica,28"
 set datafile separator ","
-set key right
+unset key #bottom right
 set xrange [0:1]
 set xlabel "{/Symbol b}"
 set yrange [-0.1:1.1]
@@ -358,7 +357,7 @@ set terminal post eps enhanced font "Helvetica,28"
 set datafile separator ","
 set key bottom right
 set xrange [0:60000]
-set xtics ("10" 10000, "20" 20000, "30" 30000, "40" 40000, "50" 50000)
+set xtics ("10K" 10000, "20K" 20000, "30K" 30000, "40K" 40000, "50K" 50000)
 set xlabel "N"
 set yrange [-0.1:1.1]
 set ylabel "${ylabel}"
@@ -402,10 +401,10 @@ set xlabel "max_split" noenhanced
 set yrange [-0.1:1.1]
 set ylabel "${ylabel}"
 set output "${output}".".eps"
-plot "t_ms.csv" u 9:${column} every 60::20 w lp ps 2 lt 1 pt 4 title 't 3 {/Symbol e} 0.4',\
-     "t_ms.csv" u 9:${column} every 60::21 w lp ps 2 lt 1 pt 5 title 't 4 {/Symbol e} 0.4',\
-     "t_ms.csv" u 9:${column} every 60::26 w lp ps 2 lt 1 pt 6 title 't 3 {/Symbol e} 0.8',\
-     "t_ms.csv" u 9:${column} every 60::27 w lp ps 2 lt 1 pt 7 title 't 4 {/Symbol e} 0.8'
+plot "t_ms.csv" u 9:${column} every 60::20 w lp ps 2 lt 1 pt 4 title 't,d=3 {/Symbol e} 0.4',\
+     "t_ms.csv" u 9:${column} every 60::21 w lp ps 2 lt 1 pt 5 title 't,d=4 {/Symbol e} 0.4',\
+     "t_ms.csv" u 9:${column} every 60::26 w lp ps 2 lt 1 pt 6 title 't,d=3 {/Symbol e} 0.8',\
+     "t_ms.csv" u 9:${column} every 60::27 w lp ps 2 lt 1 pt 7 title 't,d=4 {/Symbol e} 0.8'
 END
 }
 
