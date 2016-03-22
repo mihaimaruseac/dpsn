@@ -5,11 +5,11 @@ plot_one_cube () {
     title=$2
     ix=$3
     cat << END | gnuplot
-set terminal post eps enhanced font "Helvetica,28"
+set terminal png enhanced #post eps enhanced font "Helvetica,28"
 set size square
-set palette model RGB defined ( 0 'white', 1 'black' )
-set output "${file}_${title}.eps"
-set title "Shape"
+set palette model RGB defined ( 0 'white', 0.5 'blue', 1 'red' )
+set output "${file}_${title}.png" #eps"
+#set title "Shape"
 set xtics 0,20,100
 set ytics 0,20,100
 set view map
