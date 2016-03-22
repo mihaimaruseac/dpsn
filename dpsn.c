@@ -137,7 +137,6 @@ int main(int argc, char **argv)
 	printf("Sanitization finished, grid height: %d\n", h);
 
 #if DEBUG_GRID_TREE
-
 	for (i = 0; i <= h; i++) {
 		if ((f = get_file_pointer("tree_grid", i))) {
 			grd_debug(&sn, &g, f, i);
