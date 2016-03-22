@@ -124,8 +124,11 @@ int main(int argc, char **argv)
 	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
 	int xcnt, ycnt, i, h;
-	FILE *f = NULL;
 	struct grid g;
+
+#if DEBUG_GRID_TREE || DEBUG_FINE_GRID
+	FILE *f = NULL;
+#endif
 
 	parse_arguments(argc, argv);
 	sn_read_from_file(args.dataset, &sn);
