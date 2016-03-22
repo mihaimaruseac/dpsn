@@ -351,8 +351,12 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 {
 	double *xlimits, *ylimits, xdelta, ydelta;
+#if 0
 	int i, j, k, st, en, c = 0, cnd;
 	struct sensor tmp_s;
+#else
+	int i, j, c = 0, cnd;
+#endif
 
 	xdelta = (g->xmax - g->xmin) / g->Nu;
 	ydelta = (g->ymax - g->ymin) / g->Nu;

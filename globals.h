@@ -51,6 +51,6 @@ int bsearch_i(const void *key, const void *base, size_t nmemb, size_t size,
 		int (*compar)(const void *, const void *));
 
 /* divide x by y only if y is at least t (avoid noisy division by 0 */
-inline double noisy_div(double x, double y, double t);
+double noisy_div(double x, double y, double t);
 
 #endif
