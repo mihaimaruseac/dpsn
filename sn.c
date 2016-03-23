@@ -137,7 +137,7 @@ static void answer_full(const struct grid *g, double theta, double t,
 			((g->xmin == xmin) && (g->xmax == xmax) &&
 			 (g->ymin == ymin) && (g->ymax == ymax))) {
 		f = ar / ag;
-		debug(DEBUG_GRD2LRG, "Leaf, f=%lf", f);
+		debug(DEBUG_GRD2LRG, "Leaf, f=%lf ar=%lf ag=%lf", f, ar, ag);
 
 		cell->n_star.val += f * g->n_star.val; cell->n_star.var += f * f * g->n_star.var;
 		cell->s_star.val += f * g->s_star.val; cell->s_star.var += f * f * g->s_star.var;

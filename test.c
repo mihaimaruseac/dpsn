@@ -14,7 +14,7 @@
 #define DEBUG_SMC_COMP_GC 0
 #endif
 #ifndef DEBUG_SMC_COMP_VA
-#define DEBUG_SMC_COMP_VA 1
+#define DEBUG_SMC_COMP_VA 0
 #endif
 #ifndef DEBUG_SMC_COMP_VR
 #define DEBUG_SMC_COMP_VR 0
