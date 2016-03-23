@@ -116,6 +116,11 @@ static void test_san_grid_cell(struct san_measure_comp* self,
 #if DEBUG_SMC_COMP_GC
 	printf(" g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %5.2lf\n",
 			g->xmin, g->ymin, g->xmax, g->ymax, self->t);
+	printf("args: %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
+			noisy_div(g->s, g->n, self->t),
+			noisy_div(g->s_star.val, g->n_star.val, self->t),
+			noisy_div(g->s_bar.val, g->n_bar.val, self->t),
+			sn->theta, self->ratio);
 	printf("Before: ");
 	self->print(self);
 #endif
@@ -138,6 +143,9 @@ static void test_san_grid_votes_above(struct san_measure_comp* self,
 #if DEBUG_SMC_COMP_VA
 	printf(" g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %5.2lf\n",
 			g->xmin, g->ymin, g->xmax, g->ymax, self->t);
+	printf("args: %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
+			g->g_above, g->g_star_above, g->g_bar_above,
+			self->t, self->t);
 	printf("Before: ");
 	self->print(self);
 #endif
@@ -158,6 +166,11 @@ static void test_san_grid_votes(struct san_measure_comp* self,
 #if DEBUG_SMC_COMP_VR
 	printf(" g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %5.2lf\n",
 			g->xmin, g->ymin, g->xmax, g->ymax, self->t);
+	printf("args: %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
+			g->g_above / (g->g_above + g->g_below),
+			g->g_star_above / (g->g_star_above + g->g_star_below),
+			g->g_bar_above / (g->g_bar_above + g->g_bar_below),
+			self->t, self->t);
 	printf("Before: ");
 	self->print(self);
 #endif
