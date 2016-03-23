@@ -87,7 +87,6 @@ again:
 		debug(DEBUG_TREE_SANITIZATION_BUILD, "   Nu:%d area:%lf", g->Nu, grd_size(g));
 
 		if (g->Nu < 2) goto again; /* should do a split in at least 4 cells */
-		//if (grd_size(g) < MAX_SPLIT_SIZE) goto again; /* don't split if area is too small */
 		g->Nu = min(g->Nu, MAX_SPLIT_SIZE);
 	}
 	if (method != AGS && (Nu < 0 || (g->Nu = (int)sqrt(Nu)) < Nt)) {

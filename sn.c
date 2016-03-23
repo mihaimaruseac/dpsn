@@ -13,6 +13,10 @@
 #define DEBUG_GRD2LRG 0
 #endif
 
+#ifndef WEIGHTED_VOTING
+#define WEIGHTED_VOTING 0
+#endif
+
 static void grd_init(struct grid *g,
 		double xmin, double xmax, double ymin, double ymax,
 		struct grid *parent)
@@ -29,8 +33,6 @@ static void grd_init(struct grid *g,
 
 static void grd_add_point(const struct sensor_network *sn, struct grid *g, int ix)
 {
-	// TODO: remove the if after complete refactoring of point
-	// addition&splitting is done
 	int c = (g->xmin <= sn->sensors[ix].x) &&
 		(g->ymin <= sn->sensors[ix].y) &&
 		(g->xmax > sn->sensors[ix].x) &&
@@ -112,7 +114,6 @@ static int overlap(const struct grid *g,
 	return 1;
 }
 
-// TODO: copy instead of de-aggregating
 static void answer_full(const struct grid *g, double theta, double t,
 		struct low_res_grid_cell *cell,
 		double xmin, double xmax, double ymin, double ymax)
@@ -173,19 +174,10 @@ vote:
 			noisy_div(g->s, g->n, t),
 			noisy_div(g->s_star.val, g->n_star.val, t),
 			noisy_div(g->s_bar.val, g->n_bar.val, t));
-#if 1
+
+#if WEIGHTED_VOTING
+#else
 	w = 1;
-#else
-#if 1
-#if 1
-	w = ag;
-#else
-	w = ag/af;
-#endif
-	assert(w > 0);
-#else
-	w = grd_height(g);
-#endif
 #endif
 
 	/* voting on outcome */
@@ -351,12 +343,7 @@ void grd_compute_noisy(const struct sensor_network *sn, struct grid *g,
 void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 {
 	double *xlimits, *ylimits, xdelta, ydelta;
-#if 0
-	int i, j, k, st, en, c = 0, cnd;
-	struct sensor tmp_s;
-#else
 	int i, j, c = 0, cnd;
-#endif
 
 	xdelta = (g->xmax - g->xmin) / g->Nu;
 	ydelta = (g->ymax - g->ymin) / g->Nu;
@@ -382,34 +369,7 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 					ylimits[j], ylimits[j+1], g);
 
 	/* split points */
-#if 0
-	tmp_s.x = g->xmin; tmp_s.y = g->ymin;
-	st = bsearch_i(&tmp_s, sn->sensors, sn->num_s, sizeof(sn->sensors[0]), sensor_cmp);
-	tmp_s.x = g->xmax; tmp_s.y = g->ymax;
-	en = bsearch_i(&tmp_s, sn->sensors, sn->num_s, sizeof(sn->sensors[0]), sensor_cmp);
-	st = st < 0 ? -st-1 : st-1;
-	en = en < 0 ? -en-1 : en-1;
-	printf("   st=%d, en=%d\n", st, en);
-	for (i = st; i < en; i++) {
-#else
 	for (i = 0; i < sn->num_s; i++) {
-#endif
-#if 0
-		struct sensor *s = &sn->sensors[i];
-		j = bsearch_i(&s->x, xlimits, 1 + g->Nu, sizeof(xlimits[0]), double_cmp);
-		k = bsearch_i(&s->y, ylimits, 1 + g->Nu, sizeof(ylimits[0]), double_cmp);
-		//TODO: printf("s  i=%d x=%lf, y=%lf, val=%lf k=%d j=%d\n", i, s->x, s->y, s->val, k, j);
-		j = j < 0 ? -j-2 : j-1;
-		k = k < 0 ? -k-2 : k-1;
-		j = j < 0 ? 0 : j;
-		k = k < 0 ? 0 : k;
-		//TODO: printf("S  i=%d x=%lf, y=%lf, val=%lf k=%d j=%d\n", i, s->x, s->y, s->val, k, j);
-		if (j < 0 || k < 0 || j >= g->Nu || k >= g->Nu) {
-			printf("!!!i=%d x=%lf, y=%lf, val=%lf k=%d j=%d\n", i, s->x, s->y, s->val, k, j);
-			continue;
-		}
-		grd_add_point(sn, &g->cells[j * g->Nu + k], i);
-#else
 		for (j = 0; j < g->Nu * g->Nu; j++) {
 			cnd = (g->cells[j].xmin <= sn->sensors[i].x) &&
 			      (g->cells[j].ymin <= sn->sensors[i].y) &&
@@ -417,14 +377,10 @@ void grd_split_cells(const struct sensor_network *sn, struct grid *g)
 			      (g->cells[j].ymax  > sn->sensors[i].y);
 			if (cnd) {
 				grd_add_point(sn, &g->cells[j], i);
-#endif
-		c++;
-#if 0
-#else
+				c++;
 				break;
 			}
 		}
-#endif
 	}
 	assert(c == g->n);
 
@@ -637,13 +593,7 @@ static inline double lrg_get_star_vote_above(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
 	(void) a;
-#if 0
 	return grid[x][y].g_star_above;
-#else
-	double v = grid[x][y].g_star_above;
-	if (v >= 2) return v;
-	return 0;
-#endif
 }
 
 static inline double lrg_get_star_vote_below(struct low_res_grid_cell **grid,
@@ -657,13 +607,7 @@ static inline double lrg_get_bar_vote_above(struct low_res_grid_cell **grid,
 		int x, int y, const struct lrg_get_args *a)
 {
 	(void) a;
-#if 0
 	return grid[x][y].g_bar_above;
-#else
-	double v = grid[x][y].g_bar_above;
-	if (v >= 2) return v;
-	return 0;
-#endif
 }
 
 static inline double lrg_get_bar_vote_below(struct low_res_grid_cell **grid,
@@ -719,7 +663,6 @@ static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
 {
 	int i, j;
 
-	// TODO: print coordinates?
 	fprintf(f, "# %s\n", section_label);
 	for (j = 0; j < ycnt; j++) {
 		for (i = 0; i < xcnt; i++)
