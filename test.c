@@ -77,11 +77,11 @@ static void generic_update(struct san_measure_comp* self, double weight,
 		if (bar < private_t) self->sm_bar.flip += weight;
 		else self->sm_bar.both += weight;
 	} else {
-		if (star > private_t) {
+		if (star >= private_t) {
 			self->sm_star.flip += weight;
 			self->sm_star.either += weight;
 		}
-		if (bar > private_t) {
+		if (bar >= private_t) {
 			self->sm_bar.flip += weight;
 			self->sm_bar.either += weight;
 		}
