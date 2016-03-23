@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 
 	for (i = 1; i <= h / 2 + 1; i++) {
 		printf("Testing on absolute positive votes %d\n", i);
-		test_san_votes(&sn, grid, xcnt, ycnt, 2);
+		test_san_votes(&sn, grid, xcnt, ycnt, i);
 	}
 
 	printf("Testing on relative positive votes 0.5\n");
