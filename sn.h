@@ -57,6 +57,7 @@ struct low_res_grid_cell {
 	double g_above, g_below;
 	double g_star_above, g_star_below;
 	double g_bar_above, g_bar_below;
+	double g_p_star, g_p_bar;
 };
 
 void sn_read_from_file(const char *fname, struct sensor_network *sn);

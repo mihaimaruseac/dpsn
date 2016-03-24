@@ -10,11 +10,7 @@
 #define DEBUG_NOISE 0
 #endif
 #ifndef DEBUG_GRD2LRG
-#define DEBUG_GRD2LRG 0
-#endif
-
-#ifndef WEIGHTED_VOTING
-#define WEIGHTED_VOTING 0
+#define DEBUG_GRD2LRG 1
 #endif
 
 static void grd_init(struct grid *g,
@@ -114,11 +110,41 @@ static int overlap(const struct grid *g,
 	return 1;
 }
 
+static double answer_prob(struct noisy_val s, struct noisy_val n,
+		double T, double t, double M)
+{
+	double vn, vs, rho, e, v, p;
+
+	if (fabs(s.val) <= t || fabs(n.val) <= t) {
+		debug(DEBUG_GRD2LRG, "         n/a");
+		return 0; /* not applicable */
+	}
+
+	vn = n.var / n.val / n.val;
+	vs = M * M * s.var / s.val / s.val;
+	debug(DEBUG_GRD2LRG, "  prob   s: %5.2lf , %5.2lf, %5.2lf", s.val, s.var, vs);
+	debug(DEBUG_GRD2LRG, "  prob   n: %5.2lf , %5.2lf, %5.2lf", n.val, n.var, vn);
+
+	rho = s.val / n.val;
+	e = rho * (1 + vn);
+	v = rho * rho * (vs + vn);
+	debug(DEBUG_GRD2LRG, "   rho/e/v: %5.2lf , %5.2lf, %5.2lf", rho, e, v);
+
+	if (e < T) {
+		debug(DEBUG_GRD2LRG, "         neg");
+		return 0; /* negative case */
+	}
+
+	p = v / (v + (e - T) * (e - T));
+	debug(DEBUG_GRD2LRG, "  prob   p: %5.2lf", p);
+	return 1 - p;
+}
+
 static void answer_full(const struct grid *g, double theta, double t,
-		struct low_res_grid_cell *cell,
+		struct low_res_grid_cell *cell, double M,
 		double xmin, double xmax, double ymin, double ymax)
 {
-	double ag, ar, f, w;
+	double ag, ar, f;
 	int i;
 
 	ag = (g->xmax - g->xmin) * (g->ymax - g->ymin);
@@ -157,7 +183,7 @@ static void answer_full(const struct grid *g, double theta, double t,
 
 		if (overlap(&g->cells[i], xmin, xmax, ymin, ymax)) {
 			debug(DEBUG_GRD2LRG, "Overlap %d", i);
-			answer_full(&g->cells[i], theta, t, cell,
+			answer_full(&g->cells[i], theta, t, cell, M,
 					max(xmin, g->cells[i].xmin),
 					min(xmax, g->cells[i].xmax),
 					max(ymin, g->cells[i].ymin),
@@ -175,24 +201,23 @@ vote:
 			noisy_div(g->s_star.val, g->n_star.val, t),
 			noisy_div(g->s_bar.val, g->n_bar.val, t));
 
-#if WEIGHTED_VOTING
-#else
-	w = 1;
-#endif
-
-	/* voting on outcome */
+	/* voting */
 	if (noisy_div(g->s, g->n, t) >= theta)
-		cell->g_above += w;
+		cell->g_above++;
 	else
-		cell->g_below += w;
-	if (noisy_div(g->s_bar.val, g->n_bar.val, t) >= theta)
-		cell->g_bar_above += w;
-	else
-		cell->g_bar_below += w;
+		cell->g_below++;
 	if (noisy_div(g->s_star.val, g->n_star.val, t) >= theta)
-		cell->g_star_above += w;
+		cell->g_star_above++;
 	else
-		cell->g_star_below += w;
+		cell->g_star_below++;
+	if (noisy_div(g->s_bar.val, g->n_bar.val, t) >= theta)
+		cell->g_bar_above++;
+	else
+		cell->g_bar_below++;
+
+	/* weighted voting */
+	cell->g_p_star += answer_prob(g->s_star, g->n_star, theta, t, M);
+	cell->g_p_bar += answer_prob(g->s_bar, g->n_bar, theta, t, M);
 
 	debug(DEBUG_GRD2LRG, "  End cell: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf)",
 			cell->xmin, cell->ymin, cell->xmax, cell->ymax);
@@ -202,6 +227,7 @@ vote:
 	debug(DEBUG_GRD2LRG, "         s: %5.2lf | %5.2lf | %5.2lf", cell->s, cell->s_star.val, cell->s_bar.val);
 	debug(DEBUG_GRD2LRG, "         +: %5.2lf | %5.2lf | %5.2lf", cell->g_above, cell->g_star_above, cell->g_bar_above);
 	debug(DEBUG_GRD2LRG, "         -: %5.2lf | %5.2lf | %5.2lf", cell->g_below, cell->g_star_below, cell->g_bar_below);
+	debug(DEBUG_GRD2LRG, "   prob  p:       | %5.2lf | %5.2lf", cell->g_p_star, cell->g_p_bar);
 }
 
 static void answer(const struct sensor_network *sn, const struct grid *g,
@@ -218,7 +244,7 @@ static void answer(const struct sensor_network *sn, const struct grid *g,
 	cell->n = 0; cell->s = 0;
 	cell->g_star_above = 0; cell->g_star_below = 0;
 	cell->g_bar_above = 0; cell->g_bar_below = 0;
-	answer_full(g, sn->theta, t, cell,
+	answer_full(g, sn->theta, t, cell, sn->M,
 			cell->xmin, cell->xmax, cell->ymin, cell->ymax);
 }
 
