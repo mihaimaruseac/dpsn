@@ -176,7 +176,6 @@ int main(int argc, char **argv)
 	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.75);
 
 	printf("Testing on probabilistic weights\n");
-	/* TODO */
 	test_san_p(&sn, grid, xcnt, ycnt);
 	printf("Testing on extreme probabilistic weights 0.5\n");
 	/* TODO */

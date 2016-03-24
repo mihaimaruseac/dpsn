@@ -19,6 +19,9 @@
 #ifndef DEBUG_SMC_COMP_VR
 #define DEBUG_SMC_COMP_VR 0
 #endif
+#ifndef DEBUG_SMC_COMP_GP
+#define DEBUG_SMC_COMP_GP 0
+#endif
 
 struct san_measure {
 	int first; /* bits of 1 in the first set (the real values) */
@@ -185,6 +188,29 @@ static void test_san_grid_votes(struct san_measure_comp* self,
 #endif
 }
 
+static void test_san_grid_p(struct san_measure_comp* self,
+			const struct sensor_network *sn, const void *arg)
+{
+	const struct low_res_grid_cell *g = arg;
+	(void)sn;
+#if DEBUG_SMC_COMP_GP
+	printf(" g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %5.2lf\n",
+			g->xmin, g->ymin, g->xmax, g->ymax, self->t);
+	printf("args: %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
+			g->g_above, g->g_p_star, g->g_p_bar,
+			self->t, self->t);
+	printf("Before: ");
+	self->print(self);
+#endif
+	generic_update(self, 1,
+			g->g_above, g->g_p_star, g->g_p_bar,
+			self->t, self->t);
+#if DEBUG_SMC_COMP_GP
+	printf("After : ");
+	self->print(self);
+#endif
+}
+
 static void test_san_tree(const struct sensor_network *sn, const struct grid *g,
 		int full_tree, int smc_cnt,
 		struct san_measure_comp *smc)
@@ -297,4 +323,10 @@ void test_san_rel_votes(const struct sensor_network *sn,
 		struct low_res_grid_cell **grid, int xcnt, int ycnt, double t)
 {
 	test_san_lrg(sn, grid, xcnt, ycnt, t, test_san_grid_votes);
+}
+
+void test_san_p(const struct sensor_network *sn,
+		struct low_res_grid_cell **grid, int xcnt, int ycnt)
+{
+	test_san_lrg(sn, grid, xcnt, ycnt, 1, test_san_grid_p);
 }
