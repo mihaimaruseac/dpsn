@@ -123,8 +123,9 @@ int main(int argc, char **argv)
 {
 	struct low_res_grid_cell **grid;
 	struct sensor_network sn;
-	int xcnt, ycnt, i, h;
+	int xcnt, ycnt, i, j, h;
 	struct grid g;
+	double r;
 
 #if DEBUG_GRID_TREE || DEBUG_FINE_GRID
 	FILE *f = NULL;
@@ -175,20 +176,12 @@ int main(int argc, char **argv)
 	printf("Testing on relative positive votes 0.75\n");
 	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.75);
 
-	for (i = 1; i <= h / 2 + 1; i++) {
-		printf("Testing on probabilistic weights, %d\n", i);
-		test_san_p(&sn, grid, xcnt, ycnt, i);
-	}
-	printf("Testing on extreme probabilistic weights 0.5\n");
-	test_san_p_global(&sn, grid, xcnt, ycnt, 0.5);
-	printf("Testing on extreme probabilistic weights 0.75\n");
-	test_san_p_global(&sn, grid, xcnt, ycnt, 0.75);
-	printf("Testing on extreme probabilistic weights 1\n");
-	test_san_p_global(&sn, grid, xcnt, ycnt, 1);
-	printf("Testing on extreme probabilistic weights 1.25\n");
-	test_san_p_global(&sn, grid, xcnt, ycnt, 1.25);
-	printf("Testing on extreme probabilistic weights 1.5\n");
-	test_san_p_global(&sn, grid, xcnt, ycnt, 1.5);
+	for (i = 0; i <= h; i++)
+		for (j = 0; j < 4; j++) {
+			r = i + j / 4.0;
+			printf("Testing on probabilistic weights, %5.2lf\n", r);
+			test_san_p(&sn, grid, xcnt, ycnt, r);
+		}
 
 	free(args.dataset);
 	sn_cleanup(&sn);
