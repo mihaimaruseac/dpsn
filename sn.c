@@ -10,7 +10,7 @@
 #define DEBUG_NOISE 0
 #endif
 #ifndef DEBUG_GRD2LRG
-#define DEBUG_GRD2LRG 1
+#define DEBUG_GRD2LRG 0
 #endif
 
 static void grd_init(struct grid *g,
@@ -681,6 +681,20 @@ static inline double lrg_get_bar_vote(struct low_res_grid_cell **grid,
 	return 0;
 }
 
+static inline double lrg_get_p_bar(struct low_res_grid_cell **grid,
+		int x, int y, const struct lrg_get_args *a)
+{
+	(void) a;
+	return grid[x][y].g_p_bar;
+}
+
+static inline double lrg_get_p_star(struct low_res_grid_cell **grid,
+		int x, int y, const struct lrg_get_args *a)
+{
+	(void) a;
+	return grid[x][y].g_p_star;
+}
+
 static void lrg_print_val(struct low_res_grid_cell **grid, int xcnt, int ycnt,
 		const struct lrg_get_args *a,
 		FILE *f, const char *section_label,
@@ -731,6 +745,8 @@ void lrg_debug(struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "bar_real_vote", lrg_get_bar_real_vote);
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "star_vote", lrg_get_star_vote);
 	lrg_print_val(grid, xcnt, ycnt, &a, f, "bar_vote", lrg_get_bar_vote);
+	lrg_print_val(grid, xcnt, ycnt, &a, f, "p_star", lrg_get_p_star);
+	lrg_print_val(grid, xcnt, ycnt, &a, f, "p_bar", lrg_get_p_bar);
 }
 
 void grd_average2(struct grid *a, const struct grid *b)
