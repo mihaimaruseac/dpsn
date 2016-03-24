@@ -15,7 +15,7 @@
 #define DEBUG_GRID_TREE_TEXT 0
 #endif
 #ifndef DEBUG_FINE_GRID
-#define DEBUG_FINE_GRID 0
+#define DEBUG_FINE_GRID 1
 #endif
 
 /* Command line arguments */
@@ -174,6 +174,14 @@ int main(int argc, char **argv)
 	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.5);
 	printf("Testing on relative positive votes 0.75\n");
 	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.75);
+
+	printf("Testing on probabilistic weights\n");
+	/* TODO */
+	test_san_p(&sn, grid, xcnt, ycnt);
+	printf("Testing on extreme probabilistic weights 0.5\n");
+	/* TODO */
+	printf("Testing on extreme probabilistic weights 0.75\n");
+	/* TODO */
 
 	free(args.dataset);
 	sn_cleanup(&sn);
