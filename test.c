@@ -22,6 +22,9 @@
 #ifndef DEBUG_SMC_COMP_GP
 #define DEBUG_SMC_COMP_GP 0
 #endif
+#ifndef DEBUG_SMC_COMP_GG
+#define DEBUG_SMC_COMP_GG 0
+#endif
 
 struct san_measure {
 	int first; /* bits of 1 in the first set (the real values) */
@@ -198,14 +201,53 @@ static void test_san_grid_p(struct san_measure_comp* self,
 			g->xmin, g->ymin, g->xmax, g->ymax, self->t);
 	printf("args: %5.2lf %5.2lf %5.2lf %5.2lf %5.2lf\n",
 			g->g_above, g->g_p_star, g->g_p_bar,
-			self->t, self->t);
+			1.0, self->t);
 	printf("Before: ");
 	self->print(self);
 #endif
 	generic_update(self, 1,
 			g->g_above, g->g_p_star, g->g_p_bar,
-			self->t, self->t);
+			1.0, self->t);
 #if DEBUG_SMC_COMP_GP
+	printf("After : ");
+	self->print(self);
+#endif
+}
+
+struct global_view {
+	const struct low_res_grid_cell *g;
+	double g_p_star;
+	double g_p_bar;
+};
+
+static void test_san_grid_p_global_view(struct san_measure_comp* self,
+			const struct sensor_network *sn, const void *arg)
+{
+	const struct low_res_grid_cell *g;
+	const struct global_view *gw;
+	(void)sn;
+
+	gw = arg;
+	g = gw->g;
+
+#if DEBUG_SMC_COMP_GG
+	printf(" g: (%5.2lf, %5.2lf) -- (%5.2lf, %5.2lf) %5.2lf :%5.2lf\n",
+			g->xmin, g->ymin, g->xmax, g->ymax,
+			gw->g_p_star, gw->g_p_bar);
+	printf("args: %5.2lf %5d %5d %5d %5d\n",
+			g->g_above,
+			g->g_p_star >= gw->g_p_star,
+			g->g_p_bar >= gw->g_p_bar,
+			1, 1);
+	printf("Before: ");
+	self->print(self);
+#endif
+	generic_update(self, 1,
+			g->g_above,
+			g->g_p_star >= gw->g_p_star,
+			g->g_p_bar >= gw->g_p_bar,
+			1, 1);
+#if DEBUG_SMC_COMP_GG
 	printf("After : ");
 	self->print(self);
 #endif
@@ -237,6 +279,26 @@ static void test_san_low_res(const struct sensor_network *sn,
 		for (j = 0; j < ycnt; j++)
 			for (k = 0; k < smc_cnt; k++)
 				smc[k].update(&smc[k], sn, &grid[i][j]);
+}
+
+static void test_san_low_res_global_view(const struct sensor_network *sn,
+		struct low_res_grid_cell **grid,
+		int xcnt, int ycnt, int smc_cnt,
+		struct san_measure_comp *smc,
+		double g_p_star, double g_p_bar)
+{
+	struct global_view gw;
+	int i, j, k;
+
+	gw.g_p_star = g_p_star;
+	gw.g_p_bar = g_p_bar;
+
+	for (i = 0; i < xcnt; i++)
+		for (j = 0; j < ycnt; j++)
+			for (k = 0; k < smc_cnt; k++) {
+				gw.g = &grid[i][j];
+				smc[k].update(&smc[k], sn, &gw);
+			}
 }
 
 static struct san_measure_comp *setup_smcs(const struct sensor_network *sn,
@@ -297,6 +359,42 @@ static void test_san_lrg(const struct sensor_network *sn,
 	test_result_cleanup(smcs, smc_cnt);
 }
 
+static void test_san_lrg_global_view(const struct sensor_network *sn,
+		struct low_res_grid_cell **grid, int xcnt, int ycnt, double t,
+		void (*update)(struct san_measure_comp*,
+			const struct sensor_network *,
+			const void *))
+{
+	int i, j, k_star, k_bar, smc_cnt;
+	struct san_measure_comp *smcs;
+	double g_p_star, g_p_bar;
+
+	smcs = setup_smcs(sn, t, &smc_cnt);
+	for (i = 0; i < smc_cnt; i++)
+		smcs[i].update = update;
+
+	g_p_star = 0;
+	g_p_bar = 0;
+	k_star = 0;
+	k_bar = 0;
+	for (i = 0; i < xcnt; i++)
+		for (j = 0; j < ycnt; j++) {
+			if (grid[i][j].g_p_star >= 0.5) {
+				g_p_star += grid[i][j].g_p_star;
+				k_star++;
+			}
+			if (grid[i][j].g_p_bar >= 0.5) {
+				g_p_bar += grid[i][j].g_p_bar;
+				k_bar++;
+			}
+		}
+	g_p_star *= k_star ? t / k_star : 0;
+	g_p_bar *= k_bar ? t / k_bar : 0;
+
+	test_san_low_res_global_view(sn, grid, xcnt, ycnt, ratios_cnt, smcs, g_p_star, g_p_bar);
+	test_result_cleanup(smcs, smc_cnt);
+}
+
 void test_san_leaf_only(const struct sensor_network *sn, const struct grid *g, double t)
 {
 	test_san_grid(sn, g, 0, t);
@@ -326,7 +424,13 @@ void test_san_rel_votes(const struct sensor_network *sn,
 }
 
 void test_san_p(const struct sensor_network *sn,
-		struct low_res_grid_cell **grid, int xcnt, int ycnt)
+		struct low_res_grid_cell **grid, int xcnt, int ycnt, double t)
 {
-	test_san_lrg(sn, grid, xcnt, ycnt, 1, test_san_grid_p);
+	test_san_lrg(sn, grid, xcnt, ycnt, t, test_san_grid_p);
+}
+
+void test_san_p_global(const struct sensor_network *sn,
+		struct low_res_grid_cell **grid, int xcnt, int ycnt, double t)
+{
+	test_san_lrg_global_view(sn, grid, xcnt, ycnt, t, test_san_grid_p_global_view);
 }

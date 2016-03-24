@@ -19,6 +19,8 @@ void test_san_rel_votes(const struct sensor_network *sn,
 
 /** Tests with probability weighting */
 void test_san_p(const struct sensor_network *sn,
-		struct low_res_grid_cell **grid, int xcnt, int ycnt);
+		struct low_res_grid_cell **grid, int xcnt, int ycnt, double t);
+void test_san_p_global(const struct sensor_network *sn,
+		struct low_res_grid_cell **grid, int xcnt, int ycnt, double t);
 
 #endif

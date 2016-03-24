@@ -175,12 +175,20 @@ int main(int argc, char **argv)
 	printf("Testing on relative positive votes 0.75\n");
 	test_san_rel_votes(&sn, grid, xcnt, ycnt, 0.75);
 
-	printf("Testing on probabilistic weights\n");
-	test_san_p(&sn, grid, xcnt, ycnt);
+	for (i = 1; i <= h / 2 + 1; i++) {
+		printf("Testing on probabilistic weights, %d\n", i);
+		test_san_p(&sn, grid, xcnt, ycnt, i);
+	}
 	printf("Testing on extreme probabilistic weights 0.5\n");
-	/* TODO */
+	test_san_p_global(&sn, grid, xcnt, ycnt, 0.5);
 	printf("Testing on extreme probabilistic weights 0.75\n");
-	/* TODO */
+	test_san_p_global(&sn, grid, xcnt, ycnt, 0.75);
+	printf("Testing on extreme probabilistic weights 1\n");
+	test_san_p_global(&sn, grid, xcnt, ycnt, 1);
+	printf("Testing on extreme probabilistic weights 1.25\n");
+	test_san_p_global(&sn, grid, xcnt, ycnt, 1.25);
+	printf("Testing on extreme probabilistic weights 1.5\n");
+	test_san_p_global(&sn, grid, xcnt, ycnt, 1.5);
 
 	free(args.dataset);
 	sn_cleanup(&sn);
