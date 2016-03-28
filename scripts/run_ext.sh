@@ -29,6 +29,6 @@ run () {
     done
 }
 
-for i in ${datasetdir}/new_N20000_theta80.dat; do
+for i in ${datasetdir}/*_N20000_theta80.dat; do
     run $i
 done
