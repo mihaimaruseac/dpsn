@@ -11,14 +11,14 @@ resolution=1
 seeds="112288 148445 779888 288613 942277 57111 99852 19158 45622 31234"
 
 datasetdir="datasets"
-outputdir="output/ext/"
+outputdir="output/ext"
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
 run () {
     datafile=$1
     outbase=${outputdir}/${datafile##*/}
     outbase=${outbase%.*}
-    outfile=${outfile}.out
+    outfile=${outbase}.out
 
     > ${outfile}
     for epsilon in ${epsilons}; do

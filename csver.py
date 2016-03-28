@@ -39,6 +39,7 @@ class Experiment:
         self.unif_data = {}
         self.absolute_votes = {}
         self.relative_votes = {}
+        self.prob_votes = {}
 
     def start_absolute(self, c):
         k = int(c)
@@ -49,6 +50,11 @@ class Experiment:
         k = float(c)
         self.relative_votes[k] = {}
         self._d = self.relative_votes[k]
+
+    def start_probabilistic(self, c):
+        k = float(c)
+        self.prob_votes[k] = {}
+        self._d = self.prob_votes[k]
 
     def record_height(self, h):
         self.height = int(h)
@@ -75,9 +81,10 @@ class Experiment:
 
     def print_exp(self):
         l = []
-        for d in [self.tree_data_leaf, self.tree_data_all, self.unif_data,
-                self.relative_votes[0.5]] + [self.absolute_votes[k] for k in
-                        sorted(self.absolute_votes.keys())]:
+        for d in [self.tree_data_leaf, self.tree_data_all, self.unif_data] +\
+            [self.absolute_votes[k] for k in sorted(self.absolute_votes.keys())] +\
+            [self.relative_votes[k] for k in sorted(self.relative_votes.keys())] +\
+            [self.prob_votes[k] for k in sorted(self.prob_votes.keys())]:
             for k in sorted(d.keys()):
                 l += d[k]['sv']
                 l += d[k]['bv']
@@ -85,7 +92,6 @@ class Experiment:
                 self.METHODARG, self.TESTTHRESH, self.RESOLUTION,
                 self.SENSORS]
         l2 = [self.height, self.resolution]
-        #print ','.join(map(str, l1 + [self.SEED] + l2 + l))
 
         key = tuple(l1)
         o = all_exps.get(key, Exp())
@@ -115,6 +121,9 @@ for fname in sys.argv[1:]:
                         continue
                     if line.startswith("Testing on relative"):                # Testing on relative positive votes 0.5
                         exp.start_relative(line.split()[-1])
+                        continue
+                    if line.startswith("Testing on probabilistic"):           # Testing on probabilistic weigths, 0.5
+                        exp.start_probabilistic(line.split()[-1])
                         continue
                     break
                 line = line.split()
