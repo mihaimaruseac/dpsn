@@ -11,7 +11,7 @@ resolution=1
 seeds="112288 148445 779888 288613 942277 57111 99852 19158 45622 31234"
 
 datasetdir="datasets"
-outputdir="output/ext2"
+outputdir="output/ext3"
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
 run () {

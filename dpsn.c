@@ -179,6 +179,7 @@ int main(int argc, char **argv)
 	for (i = 0; i <= h; i++)
 		for (j = 0; j < 4; j++) {
 			r = i + j / 4.0;
+			r = 0.1 + r/2.5;
 			printf("Testing on probabilistic weights, %5.2lf\n", r);
 			test_san_p(&sn, grid, xcnt, ycnt, r);
 		}
