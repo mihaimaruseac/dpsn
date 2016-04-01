@@ -1,5 +1,43 @@
 #!/bin/bash
 
+# plot_p ${datafile} ${outbase}
+# plot J vs. P value
+plot_p () {
+    datafile=$1
+    outbase=$2
+
+    output=${outbase}_J_vs_p.eps
+    alpha=0.4
+    beta=0.5
+    N=20000
+
+    column=7
+
+    eps1=0.2
+    eps2=0.5
+
+    cat << END | gnuplot
+g(x) = (x < 10) ? 0.1 : (x == 10) ? 0.05 : (x < 16) ? 0 : (x == 16) ? -0.05 : (x < 22) ? -0.1 : (x == 22) ? -0.15 : -0.2
+f(x) = (x - 8) * 0.1 + g(x)
+set xrange [0:1.6]
+set xlabel "P threshold"
+set yrange [-0.1:1.1]
+set ylabel "J"
+set key bottom left
+set terminal post eps enhanced font "Helvetica,28"
+set output "${output}"
+plot \
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps1} && \$4 == $N){for (i=8; i<=NF;i++) print i,\$i}}' ${datafile}"\
+        u (f(\$1)):2 w lp ps 2 lt 1 pt 4 title "P, {/Symbol e} ${eps1}",\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps1} && \$4 == $N){print 0,\$${column}; print 2,\$${column}}}' ${datafile}"\
+        w l lt 2 title "V, {/Symbol e} ${eps1}",\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps2} && \$4 == $N){for (i=8; i<=NF;i++) print i,\$i}}' ${datafile}"\
+        u (f(\$1)):2 w lp ps 2 lt 1 pt 6 title "P, {/Symbol e} ${eps2}",\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps2} && \$4 == $N){print 0,\$${column}; print 2,\$${column}}}' ${datafile}"\
+        w l lt 3 title "V, {/Symbol e} ${eps2}"
+END
+}
+
 # plot_eps ${datafile} ${outbase}
 # plot J vs. epsilon
 plot_eps () {
@@ -7,8 +45,9 @@ plot_eps () {
     outbase=$2
 
     output=${outbase}_J_vs_e.eps
-    alpha=0.5
+    alpha=0.3
     beta=0.5
+    N=20000
 
     cat << END | gnuplot
 set xtics (0.2, 0.4, 0.6, 0.8, 1)
@@ -20,17 +59,17 @@ set key bottom right
 set terminal post eps enhanced font "Helvetica,28"
 set output "${output}"
 plot \
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == 20000){print \$3,\$5}}' ${datafile}"\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == $N){print \$3,\$5}}' ${datafile}"\
         w lp ps 2 lt 1 pt 4 title "Av1",\
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == 20000){print \$3,\$6}}' ${datafile}"\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == $N){print \$3,\$6}}' ${datafile}"\
         w lp ps 2 lt 1 pt 6 title "Av2",\
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == 20000){print \$3,\$7}}' ${datafile}"\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == $N){print \$3,\$7}}' ${datafile}"\
         w lp ps 2 lt 1 pt 8 title "Rv50",\
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == 20000){print \$3,\$8}}' ${datafile}"\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == $N){print \$3,\$10}}' ${datafile}"\
         w lp ps 2 lt 1 pt 5 title "P 0.25",\
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == 20000){print \$3,\$9}}' ${datafile}"\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == $N){print \$3,\$13}}' ${datafile}"\
         w lp ps 2 lt 1 pt 7 title "P 0.5",\
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == 20000){print \$3,\$10}}' ${datafile}"\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$4 == $N){print \$3,\$16}}' ${datafile}"\
         w lp ps 2 lt 1 pt 9 title "P 0.75",
 END
 }
@@ -103,14 +142,15 @@ plot_N () {
 
 # plot ${datafile} ${outbase} - plot all plots
 plot () {
-    declare -a terms=(_ _ _ _ _ Av1 Av2 Rv50 P025 P050 P075 P100 P125 P150)
-    for i in `seq 5 13`; do
+    declare -a terms=(_ _ _ _ _ Av1 Av2 Rv50 P010 P020 P025 P030 P040 P050 P060 P070 P075 P080 P090 P100 P110 P120 P125 P130 P140 P150)
+    for i in `seq 5 25`; do
         plot_alpha $@ $i ${terms[i]}
         plot_beta $@ $i ${terms[i]}
         plot_N $@ $i ${terms[i]}
     done
 
     plot_eps $@
+    plot_p $@
 }
 
 datafile=$1
