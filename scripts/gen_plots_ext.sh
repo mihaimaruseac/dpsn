@@ -13,13 +13,15 @@ plot_p () {
 
     column=7
 
-    eps1=0.2
+    eps1=0.3
     eps2=0.5
+
+    end=18 # NF for full graph
 
     cat << END | gnuplot
 g(x) = (x < 10) ? 0.1 : (x == 10) ? 0.05 : (x < 16) ? 0 : (x == 16) ? -0.05 : (x < 22) ? -0.1 : (x == 22) ? -0.15 : -0.2
 f(x) = (x - 8) * 0.1 + g(x)
-set xrange [0:1.6]
+set xrange [0:1.0]
 set xlabel "P threshold"
 set yrange [-0.1:1.1]
 set ylabel "J"
@@ -27,14 +29,14 @@ set key bottom left
 set terminal post eps enhanced font "Helvetica,28"
 set output "${output}"
 plot \
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps1} && \$4 == $N){for (i=8; i<=NF;i++) print i,\$i}}' ${datafile}"\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps1} && \$4 == $N){for (i=8; i<=${end};i++) print i,\$i}}' ${datafile}"\
         u (f(\$1)):2 w lp ps 2 lt 1 pt 4 title "P, {/Symbol e} ${eps1}",\
     "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps1} && \$4 == $N){print 0,\$${column}; print 2,\$${column}}}' ${datafile}"\
-        w l lt 2 title "V, {/Symbol e} ${eps1}",\
-    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps2} && \$4 == $N){for (i=8; i<=NF;i++) print i,\$i}}' ${datafile}"\
+        w l lt 6 title "V, {/Symbol e} ${eps1}",\
+    "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps2} && \$4 == $N){for (i=8; i<=${end};i++) print i,\$i}}' ${datafile}"\
         u (f(\$1)):2 w lp ps 2 lt 1 pt 6 title "P, {/Symbol e} ${eps2}",\
     "<awk -F, '{if(\$1 == ${alpha} && \$2 == ${beta} && \$3 == ${eps2} && \$4 == $N){print 0,\$${column}; print 2,\$${column}}}' ${datafile}"\
-        w l lt 3 title "V, {/Symbol e} ${eps2}"
+        w l lt 6 dt 4 title "V, {/Symbol e} ${eps2}"
 END
 }
 
@@ -119,6 +121,68 @@ plot \
 END
 }
 
+# plot_ab_N ${datafile} ${outbase} 0.${eps} ${name} ${xcolumn} ${xrange} ${xlabel} ${test1col} ${test1val} ${test2col} ${test2val} ${xticks}
+# plot J vs. alpha/beta/N with fixed other values for Rv50, P030, P050
+plot_ab_N () {
+    datafile=$1
+    outbase=$2
+    eps=$3
+    name=$4
+
+    xcolumn=$5
+    xrange=$6
+    xlabel=$7
+
+    test1col=${8}
+    test1val=${9}
+    test2col=${10}
+    test2val=${11}
+
+    xticks=${12}
+
+    output=${outbase}_J_vs_${name}_${eps}.eps
+    eps=0.${eps}
+
+    cat << END | gnuplot
+${xticks}
+set xrange ${xrange}
+set xlabel "${xlabel}"
+set yrange [0.6:1.1]
+set ylabel "J"
+set key bottom left
+set terminal post eps enhanced font "Helvetica,28"
+set output "${output}"
+plot \
+    "<awk -F, '{if(\$3 == ${eps} && \$${test1col} == ${test1val} && \$${test2col} == ${test2val}){print \$${xcolumn},\$7}}' ${datafile}"\
+        w lp ps 2 lt 1 pt 4 title "Rv50",\
+    "<awk -F, '{if(\$3 == ${eps} && \$${test1col} == ${test1val} && \$${test2col} == ${test2val}){print \$${xcolumn},\$11}}' ${datafile}"\
+        w lp ps 2 lt 1 pt 5 title "P 0.3",\
+    "<awk -F, '{if(\$3 == ${eps} && \$${test1col} == ${test1val} && \$${test2col} == ${test2val}){print \$${xcolumn},\$13}}' ${datafile}"\
+        w lp ps 2 lt 1 pt 7 title "P 0.5"
+END
+}
+
+# plot_a ${datafile} ${outbase} 0.${eps}
+# plot J vs. alpha with fixed beta and eps value for Rv50, P030, P050
+plot_a () {
+    plot_ab_N $@ a 1 "[0.1:0.6]" "{/Symbol a}" 2 0.5 4 20000\
+        " "
+}
+
+# plot_b ${datafile} ${outbase} 0.${eps}
+# plot J vs. beta with fixed alpha and eps value for Rv51, P030, P050
+plot_b () {
+    plot_ab_N $@ b 2 "[0:1]" "{/Symbol b}" 1 0.3 4 20000\
+        " "
+}
+
+# plot__N ${datafile} ${outbase} 0.${eps}
+# plot J vs. N with fixed alpha, beta and eps value for Rv50, P030, P050
+plot__N () {
+    plot_ab_N $@ _N 4 "[0:60000]" "N" 1 0.3 2 0.5\
+        "set xtics (\"10K\" 10000, \"20K\" 20000, \"30K\" 30000, \"40K\" 40000, \"50K\" 50000)"
+}
+
 # plot_alpha ${datafile} ${outbase} ${column} ${descr} - plot J vs. alpha
 plot_alpha () {
     plot_alpha_beta_N $@ a 1 "[0.1:0.6]" "{/Symbol a}" left\
@@ -151,6 +215,12 @@ plot () {
 
     plot_eps $@
     plot_p $@
+
+    for i in 4 6; do
+        plot_a $@ $i
+        plot_b $@ $i
+        plot__N $@ $i
+    done
 }
 
 datafile=$1
