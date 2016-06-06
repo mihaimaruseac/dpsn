@@ -4,3 +4,15 @@ debug_uniform_grid*
 output/
 t.png
 u.png
+debug
+debug1
+debug_10by10
+draft/
+original
+out_01_1/
+out_01_10/
+out_05_1/
+out_05_10/
+out_1_1/
+out_1_10/
+test/
