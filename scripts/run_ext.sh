@@ -11,7 +11,7 @@ resolution=1
 seeds="112288 148445 779888 288613 942277 57111 99852 19158 45622 31234"
 
 datasetdir="datasets"
-outputdir="output/ext3"
+outputdir="output/ext4"
 test -d ${outputdir} || mkdir -p ${outputdir} || exit
 
 run () {
@@ -32,6 +32,6 @@ run () {
     done
 }
 
-for i in ${datasetdir}/new_N*0000_theta80.dat; do
+for i in ${datasetdir}/crowd_temperature.dat; do
     run $i
 done
