@@ -3,14 +3,14 @@ import random
 
 # arguments
 xmin = 0
-xmax = 100
-ymin = 0
-ymax = 100
+xmax = 1000
+ymin = xmin
+ymax = xmax
 M = 100
 m = 20
 theta = 80
 N = 20000
-filename = 'new_N{}_theta{}.dat'.format(N, theta)
+filename = 'sz_N{}_theta{}_sz{}.dat'.format(N, theta, xmax)
 random.seed(42)
 
 # model of real world
