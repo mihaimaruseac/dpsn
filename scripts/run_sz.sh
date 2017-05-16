@@ -1,10 +1,10 @@
 #!/bin/bash
 
-alphas="0.2 0.5"
+alphas="0.4"
 betas="0.5"
 K=10
 Nt=3
-epsilons="0.4 0.8"
+epsilons="0.3 0.5"
 depth=3
 ttresh=1
 resolution=1

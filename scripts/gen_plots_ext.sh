@@ -9,7 +9,7 @@ plot_p () {
     output=${outbase}_J_vs_p.eps
     alpha=0.4
     beta=0.5
-    N=20000
+    N=5030
 
     column=7
 
@@ -49,7 +49,7 @@ plot_eps () {
     output=${outbase}_J_vs_e.eps
     alpha=0.3
     beta=0.5
-    N=20000
+    N=5030
 
     cat << END | gnuplot
 set xtics (0.2, 0.4, 0.6, 0.8, 1)
@@ -165,14 +165,14 @@ END
 # plot_a ${datafile} ${outbase} 0.${eps}
 # plot J vs. alpha with fixed beta and eps value for Rv50, P030, P050
 plot_a () {
-    plot_ab_N $@ a 1 "[0.1:0.6]" "{/Symbol a}" 2 0.5 4 20000\
+    plot_ab_N $@ a 1 "[0.1:0.6]" "{/Symbol a}" 2 0.5 4 5030\
         " "
 }
 
 # plot_b ${datafile} ${outbase} 0.${eps}
 # plot J vs. beta with fixed alpha and eps value for Rv51, P030, P050
 plot_b () {
-    plot_ab_N $@ b 2 "[0:1]" "{/Symbol b}" 1 0.3 4 20000\
+    plot_ab_N $@ b 2 "[0:1]" "{/Symbol b}" 1 0.3 4 5030\
         " "
 }
 
@@ -186,14 +186,14 @@ plot__N () {
 # plot_alpha ${datafile} ${outbase} ${column} ${descr} - plot J vs. alpha
 plot_alpha () {
     plot_alpha_beta_N $@ a 1 "[0.1:0.6]" "{/Symbol a}" left\
-        "{/Symbol b}" 2 0.4 0.6 4 20000\
+        "{/Symbol b}" 2 0.4 0.6 4 5030\
         " "
 }
 
 # plot_beta ${datafile} ${outbase} ${column} ${descr} - plot J vs. beta
 plot_beta () {
     plot_alpha_beta_N $@ b 2 "[0:1]" "{/Symbol b}" right\
-        "{/Symbol a}" 1 0.2 0.5 4 20000\
+        "{/Symbol a}" 1 0.2 0.5 4 5030\
         " "
 }
 
@@ -210,7 +210,7 @@ plot () {
     for i in `seq 5 25`; do
         plot_alpha $@ $i ${terms[i]}
         plot_beta $@ $i ${terms[i]}
-        plot_N $@ $i ${terms[i]}
+        #plot_N $@ $i ${terms[i]}
     done
 
     plot_eps $@
@@ -219,7 +219,7 @@ plot () {
     for i in 4 6; do
         plot_a $@ $i
         plot_b $@ $i
-        plot__N $@ $i
+        #plot__N $@ $i
     done
 }
 
